@@ -1,0 +1,27 @@
+# Example benchmark configuration.
+#
+# Run with:  kbench run --config bench.toml
+# List available engines / queries / datasets:  kbench list-engines | list-queries
+#
+# Start small (native engines, a small dataset) and opt into the big files explicitly.
+
+run_name = "default"
+repetitions = 10   # measured runs per (engine, dataset, query)
+warmup = 2         # discarded runs before each measured batch (avoids cold cache)
+timeout_s = 300    # per-query timeout
+output_dir = "runs"
+
+# Memory budget per engine (one engine runs at a time, so each may claim it all).
+# Default: 75% of system RAM. Override explicitly with memory_gb.
+mem_fraction = 0.75
+# memory_gb = 32
+
+# Native, self-hostable engines (build first / cheapest to run).
+# Docker engines available too: "virtuoso", "graphdb", "rdfox", "stardog"
+engines = ["oxigraph", "fuseki", "qendpoint", "qlever"]
+
+# Datasets to load (see `kbench list-datasets`). Large files are opt-in.
+datasets = ["torre_modena_ttl", "ytu3d_nt"]
+
+# Query names, or the literal "all".
+queries = "all"

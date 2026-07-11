@@ -1,0 +1,30 @@
+@prefix base: <http://3DOntCore#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- class hierarchy under Macro_Entity ---
+base:Macro_Entity a rdfs:Class .
+base:Building rdfs:subClassOf base:Macro_Entity .
+base:Wall rdfs:subClassOf base:Building .
+
+# --- two objects ---
+base:obj1 a base:Wall ;
+    base:Has_Z_Lenght "3.0"^^xsd:double ;
+    base:Permeability_to_Water "0.4"^^xsd:double .
+base:obj2 a base:Building ;
+    base:Has_Z_Lenght "5.0"^^xsd:double ;
+    base:Permeability_to_Water "0.1"^^xsd:double .
+
+# --- points ---
+base:p1 a base:Point ;
+    base:X "0.0"^^xsd:double ; base:Y "0.0"^^xsd:double ; base:Z "0.0"^^xsd:double ;
+    base:R "255"^^xsd:integer ; base:G "0"^^xsd:integer ; base:B "0"^^xsd:integer ;
+    base:Constitutes base:obj1 .
+base:p2 a base:Point ;
+    base:X "1.0"^^xsd:double ; base:Y "1.0"^^xsd:double ; base:Z "1.0"^^xsd:double ;
+    base:Constitutes base:obj1 .
+base:p3 a base:Point ;
+    base:X "2.0"^^xsd:double ; base:Y "2.0"^^xsd:double ; base:Z "2.0"^^xsd:double ;
+    base:R "0"^^xsd:integer ; base:G "0"^^xsd:integer ; base:B "255"^^xsd:integer ;
+    base:Constitutes base:obj2 .

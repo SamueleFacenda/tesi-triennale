@@ -1,0 +1,42 @@
+"""Resource tuning shared by all engines.
+
+Big datasets need the engines configured for memory instead of running on defaults.
+This computes a single memory *budget* (a fraction of system RAM, or an explicit
+override) and derives the per-engine knobs from it. One engine runs at a time, so each
+may claim the whole budget.
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+import psutil
+
+
+@dataclass(frozen=True)
+class Tuning:
+    total_ram_gb: float
+    cores: int
+    budget_gb: int  # memory one engine may use
+
+    @classmethod
+    def detect(cls, mem_fraction: float = 0.75, memory_gb: float | None = None) -> "Tuning":
+        total = psutil.virtual_memory().total / 1e9
+        cores = os.cpu_count() or 4
+        budget = int(memory_gb) if memory_gb else max(1, int(total * mem_fraction))
+        return cls(total_ram_gb=round(total, 1), cores=cores, budget_gb=max(1, budget))
+
+    # -- JVM engines (fuseki, qendpoint, graphdb, stardog) --
+    @property
+    def xmx(self) -> str:
+        return f"-Xmx{self.budget_gb}g"
+
+    # -- Virtuoso: buffers are ~8 KiB each; ~85000 buffers per GB is OpenLink's rule. --
+    @property
+    def virtuoso_buffers(self) -> int:
+        return int(self.budget_gb * 85000)
+
+    @property
+    def virtuoso_dirty_buffers(self) -> int:
+        return int(self.virtuoso_buffers * 0.75)

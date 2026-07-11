@@ -1,0 +1,8 @@
+run_name = "smoke"
+repetitions = 3
+warmup = 1
+timeout_s = 60
+output_dir = "runs"
+engines = ["oxigraph"]
+datasets = ["tiny"]
+queries = "all"

@@ -1,0 +1,11 @@
+# benchmark output (databases, sqlite state, logs, exports)
+/runs/
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+# nix / direnv
+result
+result-*
+.direnv/
