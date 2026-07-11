@@ -57,10 +57,11 @@ class Dataset:
         return bool(self.available_formats())
 
     def resolve(self, accepted: list[str]) -> ResolvedInput | None:
-        """Pick a serialization this engine accepts, by preference. None if incompatible."""
+        """Pick a serialization this engine accepts. ``accepted`` is in the engine's own
+        preference order (e.g. owlready2 prefers RDF/XML); None if incompatible."""
         have = self.available_formats()
-        for fmt in FORMAT_PREFERENCE:
-            if fmt in accepted and fmt in have:
+        for fmt in accepted:
+            if fmt in have:
                 return ResolvedInput(fmt, have[fmt], RDF_FORMATS[fmt][0], self.namespace)
         return None
 

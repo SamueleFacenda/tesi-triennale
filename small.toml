@@ -18,7 +18,7 @@ mem_fraction = 0.75
 
 # Native, self-hostable engines (build first / cheapest to run).
 # Docker engines available too: "virtuoso", "graphdb", "rdfox", "stardog"
-engines = ["oxigraph", "fuseki", "qendpoint", "qlever", "virtuoso", "graphdb", "rdfox"]
+engines = ["oxigraph", "fuseki", "qendpoint", "qlever", "virtuoso", "graphdb", "rdfox", "rdflib", "owlready2"]
 
 # Datasets to load — one logical graph each; every engine auto-picks a serialization it
 # supports (see `kbench list-datasets`). Big files are opt-in; the mini_* samples give a

@@ -18,14 +18,18 @@
           inherit requests-sse;
         };
         qendpoint = pkgs.callPackage ./nix/qendpoint.nix { };
+        owlready2 = pkgs.python3.pkgs.callPackage ./nix/py/owlready2.nix { };
 
-        # Interpreter used to run the harness itself.
+        # Interpreter used to run the harness itself (also hosts the rdflib/owlready2
+        # embedded engines, wrapped in a tiny HTTP SPARQL server).
         pythonEnv = pkgs.python3.withPackages (ps: with ps; [
           rich
           psutil
           requests
           rdflib
           sparqlwrapper
+          owlready2
+          berkeleydb   # rdflib persistent store backend
         ]);
 
         # Native SPARQL engines available as nix packages.

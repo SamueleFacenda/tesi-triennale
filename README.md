@@ -109,6 +109,8 @@ already-completed measurements and already-loaded datasets are skipped. `--fresh
 | graphdb   | docker (Free)        | no license needed |
 | rdfox     | docker + license     | set `$RDFOX_LICENSE` |
 | stardog   | docker + license     | set `$STARDOG_LICENSE` |
+| rdflib    | native (embedded)    | in-process lib wrapped in a tiny HTTP server; parsed graph persisted as N-Triples |
+| owlready2 | native (embedded)    | in-process lib wrapped in HTTP; SQLite "world" persistence; reads RDF/XML & N-Triples (not Turtle); needs real OWL data — its SPARQL is a subset and errors on some queries |
 
 Docker engines are launched through the system `docker`/`podman`; they report themselves
 unavailable (and are skipped cleanly) when the daemon or a required license is missing.
