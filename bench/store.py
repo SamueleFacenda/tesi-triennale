@@ -25,6 +25,7 @@ _SCHEMA = """
 CREATE TABLE IF NOT EXISTS load_result (
     engine        TEXT NOT NULL,
     dataset       TEXT NOT NULL,
+    format        TEXT,
     load_time_s   REAL,
     disk_bytes    INTEGER,
     peak_rss_bytes INTEGER,
@@ -60,6 +61,10 @@ class BenchStore:
         self.db = sqlite3.connect(self.run_dir / "bench.db")
         self.db.row_factory = sqlite3.Row
         self.db.executescript(_SCHEMA)
+        # migrate older DBs that predate the format column
+        cols = {r[1] for r in self.db.execute("PRAGMA table_info(load_result)")}
+        if "format" not in cols:
+            self.db.execute("ALTER TABLE load_result ADD COLUMN format TEXT")
         self.db.commit()
 
     # ------------------------------------------------------------------ storage dirs
@@ -69,14 +74,14 @@ class BenchStore:
         return p
 
     # ------------------------------------------------------------------ loading
-    def save_load(self, engine: str, dataset: str, *, load_time_s: float | None,
-                  disk_bytes: int | None, peak_rss_bytes: int | None,
-                  status: str, error: str | None = None) -> None:
+    def save_load(self, engine: str, dataset: str, *, fmt: str | None = None,
+                  load_time_s: float | None, disk_bytes: int | None,
+                  peak_rss_bytes: int | None, status: str, error: str | None = None) -> None:
         self.db.execute(
             "INSERT OR REPLACE INTO load_result "
-            "(engine, dataset, load_time_s, disk_bytes, peak_rss_bytes, status, error, ts) "
-            "VALUES (?,?,?,?,?,?,?,?)",
-            (engine, dataset, load_time_s, disk_bytes, peak_rss_bytes, status, error, time.time()),
+            "(engine, dataset, format, load_time_s, disk_bytes, peak_rss_bytes, status, error, ts) "
+            "VALUES (?,?,?,?,?,?,?,?,?)",
+            (engine, dataset, fmt, load_time_s, disk_bytes, peak_rss_bytes, status, error, time.time()),
         )
         self.db.commit()
 

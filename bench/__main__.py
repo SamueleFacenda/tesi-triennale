@@ -111,10 +111,12 @@ def cmd_list_queries(args: argparse.Namespace) -> int:
 
 def cmd_list_datasets(args: argparse.Namespace) -> int:
     for ds in datasets_mod.all_datasets():
-        mark = "✓" if ds.available() else "✗"
+        avail = ds.available_formats()
+        mark = "✓" if avail else "✗"
         size = ds.size_bytes()
         human = f"{size / 1e9:.2f} GB" if size else "missing"
-        print(f"  {mark} {ds.name:20} {ds.fmt:6} {human:>10}  {ds.namespace}")
+        fmts = ",".join(avail) if avail else ",".join(ds.formats) + " (absent)"
+        print(f"  {mark} {ds.name:16} [{fmts:14}] {human:>10}  {ds.namespace}")
     return 0
 
 

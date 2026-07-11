@@ -1,5 +1,7 @@
 # benchmark output (databases, sqlite state, logs, exports)
 /runs/
+# locally-generated sample datasets (head of the big files); not committed
+/testdata/
 # python
 __pycache__/
 *.py[cod]

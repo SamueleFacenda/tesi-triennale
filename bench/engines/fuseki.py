@@ -21,6 +21,7 @@ class FusekiEngine(AbstractEngine):
         return self.storage_dir / "tdb2"
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         if self._tdb.exists():
             shutil.rmtree(self._tdb)
         self._tdb.mkdir(parents=True)
@@ -28,10 +29,11 @@ class FusekiEngine(AbstractEngine):
             "tdb2.tdbloader",
             "--loc", str(self._tdb),
             "--loader", "parallel",
-            dataset.path,
-        ], env={"JVM_ARGS": self.tuning.xmx})
-        if res.returncode != 0:
-            raise EngineError(f"tdb2.tdbloader failed:\n{res.stderr[-2000:]}")
+            inp.path,
+        ], env={"JVM_ARGS": self.tuning.xmx}, log_path=self.log_path)
+        if not res.ok:
+            raise EngineError(f"tdb2.tdbloader failed ({res.describe_failure()}); "
+                              f"see {self.log_path}\n{res.output[-1500:]}")
         self._mark_loaded(dataset)
         return LoadResult(res.elapsed_s, res.peak_rss_bytes)
 

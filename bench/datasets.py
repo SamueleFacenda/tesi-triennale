@@ -1,12 +1,13 @@
 """Dataset descriptors.
 
-A dataset is an RDF file on disk plus the metadata the queries need: the base
-ontology namespace (used for the ``base:`` prefix in every query template) and the
-serialization format.
+A dataset is one **logical RDF graph**, identified by its base ontology namespace, that
+may be available in several serializations (N-Triples, Turtle, RDF/XML). The different
+files hold the *same* content — they are not separate datasets. Each engine picks a
+serialization it can ingest (e.g. QLever/RDFox take only Turtle/N-Triples), preferring
+the smallest/fastest available one.
 
-Files are referenced by absolute path and are **never** copied into the repo (they are
-large and copyright-encumbered). Registered datasets are only *usable* when their file
-exists locally; :func:`available` reflects that.
+Files are referenced by absolute path and, for the big sources, never copied into the
+repo. A registered dataset is *usable* only when at least one of its format files exists.
 """
 
 from __future__ import annotations
@@ -15,41 +16,60 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-# RDF syntaxes we support, mapped to the rdflib/HTTP content type used when loading.
+# RDF syntaxes we support, mapped to their MIME type and canonical file extension.
 RDF_FORMATS = {
-    "nt": "application/n-triples",
-    "ttl": "text/turtle",
-    "rdfxml": "application/rdf+xml",
+    "nt": ("application/n-triples", "nt"),
+    "ttl": ("text/turtle", "ttl"),
+    "rdfxml": ("application/rdf+xml", "rdf"),
 }
+
+# Order in which engines pick a format when several are available and accepted.
+# Turtle first (smallest), then N-Triples (simplest to parse), then RDF/XML.
+FORMAT_PREFERENCE = ("ttl", "nt", "rdfxml")
+
+
+@dataclass(frozen=True)
+class ResolvedInput:
+    """A concrete file chosen for one engine."""
+    fmt: str
+    path: str
+    content_type: str
+    namespace: str
 
 
 @dataclass(frozen=True)
 class Dataset:
-    """A single benchmark dataset."""
-
     name: str
-    path: str          # absolute path to the RDF file
-    fmt: str           # one of RDF_FORMATS
-    namespace: str     # base ontology IRI, must end with '#' or '/'
+    namespace: str            # base ontology IRI, ends with '#' or '/'
+    formats: dict[str, str]   # fmt -> path (same content, different serialization)
 
     def __post_init__(self) -> None:
-        if self.fmt not in RDF_FORMATS:
-            raise ValueError(f"{self.name}: unknown format {self.fmt!r}")
+        for fmt in self.formats:
+            if fmt not in RDF_FORMATS:
+                raise ValueError(f"{self.name}: unknown format {fmt!r}")
         if not self.namespace.endswith(("#", "/")):
             object.__setattr__(self, "namespace", self.namespace + "#")
 
-    @property
-    def content_type(self) -> str:
-        return RDF_FORMATS[self.fmt]
+    def available_formats(self) -> dict[str, str]:
+        return {f: p for f, p in self.formats.items() if Path(p).is_file()}
 
     def available(self) -> bool:
-        return Path(self.path).is_file()
+        return bool(self.available_formats())
+
+    def resolve(self, accepted: list[str]) -> ResolvedInput | None:
+        """Pick a serialization this engine accepts, by preference. None if incompatible."""
+        have = self.available_formats()
+        for fmt in FORMAT_PREFERENCE:
+            if fmt in accepted and fmt in have:
+                return ResolvedInput(fmt, have[fmt], RDF_FORMATS[fmt][0], self.namespace)
+        return None
 
     def size_bytes(self) -> int:
-        try:
-            return os.path.getsize(self.path)
-        except OSError:
+        have = self.available_formats()
+        if not have:
             return 0
+        # report the smallest available file (what an all-format engine would load)
+        return min(os.path.getsize(p) for p in have.values())
 
 
 # Base ontology namespaces (confirmed by inspecting the files and the 3dont projects).
@@ -58,10 +78,9 @@ _URBAN = "http://www.semanticweb.org/mcodi/ontologies/2024/3/Urban_Ontology#"
 _CORE = "http://3DOntCore#"
 
 _ONTOS = os.path.expanduser("~/downloads/ontos")
+_FIXTURES = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
+_TESTDATA = Path(__file__).resolve().parent.parent / "testdata"
 
-# Registry of known datasets. Add a new one by appending a Dataset here (or register
-# extra paths at runtime via `register`). Multiple serializations of the same source
-# are separate datasets so the loader path per format can be benchmarked too.
 _REGISTRY: dict[str, Dataset] = {}
 
 
@@ -70,25 +89,29 @@ def register(ds: Dataset) -> Dataset:
     return ds
 
 
-def _builtin() -> None:
-    entries = [
-        # name, filename, format, namespace
-        ("nettuno_nt", "nettuno.nt", "nt", _HERITAGE),
-        ("nettuno_rdf", "nettuno.rdf", "rdfxml", _HERITAGE),
-        ("torre_modena_nt", "torre_modena.nt", "nt", _HERITAGE),
-        ("torre_modena_ttl", "torre_modena.ttl", "ttl", _HERITAGE),
-        ("torre_modena_rdf", "torre_modena.rdf", "rdfxml", _HERITAGE),
-        ("ytu3d_nt", "ytu3d.nt", "nt", _URBAN),
-        ("ytu3d_rdf", "ytu3d.rdf", "rdfxml", _URBAN),
-        ("santa_chiara_ttl", "santa_chiara.ttl", "ttl", _CORE),
-        ("colosseo_ttl", "colosseo_3DGraph.ttl", "ttl", _CORE),
-    ]
-    for name, fname, fmt, ns in entries:
-        register(Dataset(name=name, path=os.path.join(_ONTOS, fname), fmt=fmt, namespace=ns))
+def _paths(base_dir, stem: str, fmts: dict[str, str]) -> dict[str, str]:
+    return {fmt: str(Path(base_dir) / f"{stem}.{ext}") for fmt, ext in fmts.items()}
 
-    # Tiny in-repo fixture for smoke tests (a handful of triples, 3DOntCore namespace).
-    fixture = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "tiny.ttl"
-    register(Dataset(name="tiny", path=str(fixture), fmt="ttl", namespace=_CORE))
+
+def _builtin() -> None:
+    # Big source graphs in ~/downloads/ontos (referenced by path, never copied).
+    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"})))
+    register(Dataset("torre_modena", _HERITAGE,
+                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"})))
+    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"})))
+    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"})))
+    register(Dataset("colosseo", _CORE, _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl"})))
+
+    # Small real-shaped samples (head of the big files), generated locally under testdata/.
+    # Fast complete test that still exercises per-engine format selection.
+    register(Dataset("mini_heritage", _HERITAGE,
+                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"})))
+    register(Dataset("mini_urban", _URBAN,
+                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"})))
+
+    # Tiny synthetic fixture (committed) in all three formats — smoke tests.
+    register(Dataset("tiny", _CORE,
+                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"})))
 
 
 _builtin()

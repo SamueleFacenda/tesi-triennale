@@ -47,10 +47,11 @@ class StardogEngine(DockerEngine):
         return self._docker("exec", self.container, "stardog-admin", *args, timeout=timeout)
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         self._wipe(self._home)
         self._home.mkdir(parents=True)
-        data_dir = os.path.dirname(dataset.path)
-        fname = os.path.basename(dataset.path)
+        data_dir = os.path.dirname(inp.path)
+        fname = os.path.basename(inp.path)
         start = time.perf_counter()
         self._run_container(self._base_env() + ["-v", f"{data_dir}:/data:ro"])
         sampler = RssSampler(self._sample_rss).start()
@@ -61,6 +62,7 @@ class StardogEngine(DockerEngine):
                 raise EngineError(f"stardog db create/load failed:\n{r.stdout[-2000:]}\n{r.stderr[-2000:]}")
         finally:
             peak = sampler.stop()
+            self._dump_container_log()
         # keep the container running for querying; do not remove here
         self._mark_loaded(dataset)
         return LoadResult(time.perf_counter() - start, peak)

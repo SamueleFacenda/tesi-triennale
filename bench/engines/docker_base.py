@@ -78,6 +78,16 @@ class DockerEngine(AbstractEngine):
     def provision(self) -> None:
         self._docker("pull", self.image, timeout=1800)
 
+    def _dump_container_log(self) -> None:
+        """Append the container's stdout/stderr to the engine log (before removal)."""
+        logs = self._docker("logs", self.container, check=False)
+        try:
+            with open(self.log_path, "ab") as f:
+                f.write(f"\n=== docker logs {self.container} ===\n".encode())
+                f.write((logs.stdout + logs.stderr).encode("utf-8", "replace"))
+        except OSError:
+            pass
+
     def _rm_container(self) -> None:
         self._docker("rm", "-f", self.container, check=False)
 

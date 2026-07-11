@@ -102,9 +102,25 @@ it in `bench/engines/__init__.py`. Querying is inherited.
 
 Queries are templates in `bench/queries/builtin.py`, parameterised by the dataset's base
 ontology namespace and read from the default graph (no `FROM`). Add one with
-`@register_query`. Datasets are described in `bench/datasets.py` (path, format,
-namespace); the large source files under `~/downloads/ontos` are referenced by path and
-never copied into the repo.
+`@register_query`.
+
+A **dataset is one logical graph** (`bench/datasets.py`) that may exist in several
+serializations — `nettuno.nt`, `nettuno.rdf` are the *same* graph, not two datasets. Each
+engine auto-picks a serialization it supports (Turtle preferred; QLever/RDFox can't read
+RDF/XML), and the chosen format is recorded per load. The big source files under
+`~/downloads/ontos` are referenced by path, never copied into the repo.
+
+**Fast complete test:** `mini_heritage` / `mini_urban` are small real-shaped samples
+(a `head` of the big `.nt` files, converted to all three formats) under a gitignored
+`testdata/`. Regenerate them with:
+
+```bash
+head -n 15000 ~/downloads/ontos/torre_modena.nt > testdata/mini_heritage.nt
+oxigraph convert -f testdata/mini_heritage.nt -t testdata/mini_heritage.ttl
+oxigraph convert -f testdata/mini_heritage.nt -t testdata/mini_heritage.rdf --to-format application/rdf+xml
+```
+
+The committed `tiny` fixture (synthetic, all three formats) is for smoke tests.
 
 ## Known limitations / notes
 
@@ -115,11 +131,17 @@ never copied into the repo.
   from a query's median for a pure-execution estimate.
 - **Result correctness across engines is not yet cross-checked.** The harness records the
   row count per engine; some engines legitimately differ on the same query (e.g. Virtuoso
-  returned fewer rows on the property-path queries, and qEndpoint/GraphDB/Virtuoso reject
-  the `ORDER BY … COUNT()` in `taxonomical_hierarchy`). These are recorded as errors /
-  differing counts, not hidden — a row-count/hash cross-check is a natural next step.
+  returned fewer rows on the property-path queries). Differences are recorded, not hidden
+  — a row-count/hash cross-check is a natural next step. (Queries are kept to portable
+  SPARQL 1.1: e.g. `taxonomical_hierarchy` projects its `COUNT` as `?depth` and orders by
+  the alias, since a bare aggregate in `ORDER BY` is rejected by qEndpoint/GraphDB/Virtuoso.)
 - **Docker engines write root-owned files**; `--fresh` and re-load remove them via a
   throwaway `busybox` container. Docker RSS is read from `docker stats`.
+- **Loader output is logged** to `runs/<run>/storage/<engine>/<engine>.log` (native
+  loaders stream there; container logs are appended before teardown), so a failed or
+  OOM-killed load leaves a diagnosable trace. Signal deaths (e.g. SIGKILL from the OOM
+  killer) are reported explicitly. If a big load is killed, lower `mem_fraction` /
+  `memory_gb` — the budget already reserves ~25% of RAM for native/off-heap use.
 - qLever in docker mode: RSS sampling reflects the `docker run` client, not the container
   (accurate only with native qLever binaries).
 

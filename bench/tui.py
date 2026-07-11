@@ -63,9 +63,9 @@ class RichReporter(Reporter):
     def engine_skip(self, engine: str, reason: str) -> None:
         self.console.log(f"[yellow]skip engine[/] {engine}: {reason}")
 
-    def load_start(self, engine: str, dataset: str) -> None:
+    def load_start(self, engine: str, dataset: str, fmt: str | None = None) -> None:
         self.progress.update(self._reps, description=f"{engine}/{dataset} loading", visible=False)
-        self.console.log(f"  {engine}/{dataset}: loading…")
+        self.console.log(f"  {engine}/{dataset}: loading{f' ({fmt})' if fmt else ''}…")
 
     def load_done(self, engine: str, dataset: str, load_time_s: float, disk_bytes: int) -> None:
         self.console.log(
@@ -113,8 +113,8 @@ class PlainReporter(Reporter):
     def engine_skip(self, engine: str, reason: str) -> None:
         print(f"skip engine {engine}: {reason}", flush=True)
 
-    def load_start(self, engine: str, dataset: str) -> None:
-        print(f"  {engine}/{dataset}: loading", flush=True)
+    def load_start(self, engine: str, dataset: str, fmt: str | None = None) -> None:
+        print(f"  {engine}/{dataset}: loading{f' ({fmt})' if fmt else ''}", flush=True)
 
     def load_done(self, engine: str, dataset: str, load_time_s: float, disk_bytes: int) -> None:
         print(f"  {engine}/{dataset}: loaded in {load_time_s:.1f}s, disk {_fmt_bytes(disk_bytes)}", flush=True)

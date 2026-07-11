@@ -9,12 +9,10 @@ from __future__ import annotations
 
 import shutil
 
-from ..datasets import Dataset
+from ..datasets import Dataset, ResolvedInput
 from ..metrics import run_sampled
 from .base import AbstractEngine, EngineError, LoadResult, which
 from .registry import register_engine
-
-_FORMAT = {"ttl": "ttl", "nt": "nt"}  # rdfxml unsupported by QLever
 
 
 def _qlever_system() -> str | None:
@@ -28,6 +26,7 @@ def _qlever_system() -> str | None:
 @register_engine("qlever")
 class QleverEngine(AbstractEngine):
     required_binaries = ["qlever"]
+    input_formats = ["ttl", "nt"]  # QLever does not read RDF/XML
     _NAME = "bench"
 
     @classmethod
@@ -39,10 +38,8 @@ class QleverEngine(AbstractEngine):
             return False, "needs native ServerMain/IndexBuilderMain or docker"
         return True, "ok"
 
-    def _write_qleverfile(self, dataset: Dataset) -> str:
-        fmt = _FORMAT.get(dataset.fmt)
-        if fmt is None:
-            raise EngineError(f"qlever cannot load {dataset.fmt!r} (Turtle/N-Triples only)")
+    def _write_qleverfile(self, dataset: Dataset, inp: ResolvedInput) -> str:
+        fmt = inp.fmt  # resolver guarantees ttl or nt
         system = _qlever_system()
         # qlever-control requires a *relative* INPUT_FILES glob (it rejects absolute
         # patterns), and in docker mode the file must live inside the mounted working dir
@@ -54,9 +51,9 @@ class QleverEngine(AbstractEngine):
             link.unlink()
         try:
             import os
-            os.link(dataset.path, link)          # hardlink, no copy
+            os.link(inp.path, link)              # hardlink, no copy
         except OSError:
-            link.symlink_to(dataset.path)        # cross-device: fall back (native only)
+            link.symlink_to(inp.path)            # cross-device: fall back (native only)
         budget = self.tuning.budget_gb
         content = f"""[data]
 NAME = {self._NAME}
@@ -83,16 +80,18 @@ IMAGE = docker.io/adfreiburg/qlever:latest
         return content
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         # wipe any previous index files (NAME.*) in the storage dir
         for p in self.storage_dir.glob(f"{self._NAME}.*"):
             p.unlink()
-        self._write_qleverfile(dataset)
+        self._write_qleverfile(dataset, inp)
         res = run_sampled(
             ["qlever", "index", "--overwrite-existing"],
-            cwd=self.storage_dir,
+            cwd=self.storage_dir, log_path=self.log_path,
         )
-        if res.returncode != 0:
-            raise EngineError(f"qlever index failed:\n{res.stdout[-2000:]}\n{res.stderr[-2000:]}")
+        if not res.ok:
+            raise EngineError(f"qlever index failed ({res.describe_failure()}); "
+                              f"see {self.log_path}\n{res.output[-1500:]}")
         self._mark_loaded(dataset)
         return LoadResult(res.elapsed_s, res.peak_rss_bytes)
 
@@ -101,10 +100,11 @@ IMAGE = docker.io/adfreiburg/qlever:latest
         # port may be stale on resume) and kill any leftover server on that port.
         res = run_sampled(
             ["qlever", "start", "--port", str(self.port), "--kill-existing-with-same-port"],
-            cwd=self.storage_dir,
+            cwd=self.storage_dir, log_path=self.log_path,
         )
-        if res.returncode != 0:
-            raise EngineError(f"qlever start failed:\n{res.stdout[-2000:]}\n{res.stderr[-2000:]}")
+        if not res.ok:
+            raise EngineError(f"qlever start failed ({res.describe_failure()}); "
+                              f"see {self.log_path}\n{res.output[-1500:]}")
         self._attach_server_procs()
 
     def _attach_server_procs(self) -> None:

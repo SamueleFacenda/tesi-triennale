@@ -19,18 +19,20 @@ class OxigraphEngine(AbstractEngine):
         return self.storage_dir / "data"
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         if self._db.exists():
             shutil.rmtree(self._db)
         self._db.mkdir(parents=True)
         res = run_sampled([
             "oxigraph", "load",
             "--location", str(self._db),
-            "--file", dataset.path,
-            "--format", dataset.content_type,
-            "--base", dataset.namespace,
-        ])
-        if res.returncode != 0:
-            raise EngineError(f"oxigraph load failed:\n{res.stderr[-2000:]}")
+            "--file", inp.path,
+            "--format", inp.content_type,
+            "--base", inp.namespace,
+        ], log_path=self.log_path)
+        if not res.ok:
+            raise EngineError(f"oxigraph load failed ({res.describe_failure()}); "
+                              f"see {self.log_path}\n{res.output[-1500:]}")
         self._mark_loaded(dataset)
         return LoadResult(res.elapsed_s, res.peak_rss_bytes)
 

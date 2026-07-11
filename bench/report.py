@@ -79,6 +79,7 @@ def load_rows(store: BenchStore) -> list[dict]:
     return [{
         "engine": r["engine"],
         "dataset": r["dataset"],
+        "format": r["format"],
         "status": r["status"],
         "load_time_s": r["load_time_s"],
         "disk_bytes": r["disk_bytes"],

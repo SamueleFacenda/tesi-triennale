@@ -135,7 +135,7 @@ register(Query(
     kind="select",
     description="For each instantiated leaf class, its ancestor classes up to Macro_Entity.",
     template=_q("""
-SELECT ?sup ?c
+SELECT ?c ?sup (COUNT(DISTINCT ?sup2) AS ?depth)
 WHERE {{
   {{
     SELECT DISTINCT ?c
@@ -154,7 +154,7 @@ WHERE {{
   }}
 }}
 GROUP BY ?c ?sup
-ORDER BY ?c COUNT(DISTINCT ?sup2) ?sup
+ORDER BY ?c ?depth ?sup
 """),
 ))
 

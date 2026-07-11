@@ -19,7 +19,8 @@ class BenchConfig:
     timeout_s: float = 300.0
     output_dir: str = "runs"
     # memory budget per engine: a fraction of system RAM, or an explicit override in GB
-    mem_fraction: float = 0.75
+    # (the runner still reserves ~25% headroom for native/off-heap allocations)
+    mem_fraction: float = 0.5
     memory_gb: float | None = None
     engines: list[str] = field(default_factory=list)
     datasets: list[str] = field(default_factory=list)

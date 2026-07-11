@@ -44,10 +44,11 @@ class VirtuosoEngine(DockerEngine):
 
     def load(self, dataset: Dataset) -> LoadResult:
         import time
+        inp = self.resolve_input(dataset)
         self._wipe(self._db_dir)
         self._db_dir.mkdir(parents=True)
-        data_dir = os.path.dirname(dataset.path)
-        fname = os.path.basename(dataset.path)
+        data_dir = os.path.dirname(inp.path)
+        fname = os.path.basename(inp.path)
 
         start = time.perf_counter()
         # Start a loader container with the dataset dir mounted read-only.
@@ -65,6 +66,7 @@ class VirtuosoEngine(DockerEngine):
                 raise EngineError(f"virtuoso load failed:\n{proc.stdout[-2000:]}\n{proc.stderr[-2000:]}")
         finally:
             peak = sampler.stop()
+            self._dump_container_log()
             self._rm_container()
         self._mark_loaded(dataset)
         return LoadResult(time.perf_counter() - start, peak)

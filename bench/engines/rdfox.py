@@ -26,6 +26,7 @@ class RDFoxEngine(DockerEngine):
     image = "oxfordsemantic/rdfox:latest"
     container_port = 12110
     license_env = "RDFOX_LICENSE"
+    input_formats = ["ttl", "nt"]  # RDFox reads Turtle/N-Triples/TriG, not RDF/XML
 
     @property
     def _home(self) -> Path:
@@ -41,10 +42,11 @@ class RDFoxEngine(DockerEngine):
         ]
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         self._wipe(self._home)
         self._home.mkdir(parents=True)
-        data_dir = os.path.dirname(dataset.path)
-        fname = os.path.basename(dataset.path)
+        data_dir = os.path.dirname(inp.path)
+        fname = os.path.basename(inp.path)
         start = time.perf_counter()
         # One-shot container: create a persistent datastore, import the file, save, exit.
         cmd = [
@@ -64,6 +66,7 @@ class RDFoxEngine(DockerEngine):
                 self.image, *cmd, timeout=None,
             )
         finally:
+            self._dump_container_log()
             self._rm_container()
         self._mark_loaded(dataset)
         return LoadResult(time.perf_counter() - start, peak)

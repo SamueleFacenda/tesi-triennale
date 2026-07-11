@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:base="http://3DOntCore#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	<rdfs:Class rdf:about="http://3DOntCore#Macro_Entity">
+	</rdfs:Class>
+	<rdf:Description rdf:about="http://3DOntCore#Building">
+		<rdfs:subClassOf rdf:resource="http://3DOntCore#Macro_Entity"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://3DOntCore#Wall">
+		<rdfs:subClassOf rdf:resource="http://3DOntCore#Building"/>
+	</rdf:Description>
+	<base:Wall rdf:about="http://3DOntCore#obj1">
+		<base:Has_Z_Lenght rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3.0</base:Has_Z_Lenght>
+		<base:Permeability_to_Water rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.4</base:Permeability_to_Water>
+	</base:Wall>
+	<base:Building rdf:about="http://3DOntCore#obj2">
+		<base:Has_Z_Lenght rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5.0</base:Has_Z_Lenght>
+		<base:Permeability_to_Water rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.1</base:Permeability_to_Water>
+	</base:Building>
+	<base:Point rdf:about="http://3DOntCore#p1">
+		<base:X rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.0</base:X>
+		<base:Y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.0</base:Y>
+		<base:Z rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.0</base:Z>
+		<base:R rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">255</base:R>
+		<base:G rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</base:G>
+		<base:B rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</base:B>
+		<base:Constitutes rdf:resource="http://3DOntCore#obj1"/>
+	</base:Point>
+	<base:Point rdf:about="http://3DOntCore#p2">
+		<base:X rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</base:X>
+		<base:Y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</base:Y>
+		<base:Z rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</base:Z>
+		<base:Constitutes rdf:resource="http://3DOntCore#obj1"/>
+	</base:Point>
+	<base:Point rdf:about="http://3DOntCore#p3">
+		<base:X rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.0</base:X>
+		<base:Y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.0</base:Y>
+		<base:Z rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.0</base:Z>
+		<base:R rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</base:R>
+		<base:G rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</base:G>
+		<base:B rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">255</base:B>
+		<base:Constitutes rdf:resource="http://3DOntCore#obj2"/>
+	</base:Point>
+</rdf:RDF>

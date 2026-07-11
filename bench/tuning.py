@@ -21,11 +21,21 @@ class Tuning:
     budget_gb: int  # memory one engine may use
 
     @classmethod
-    def detect(cls, mem_fraction: float = 0.75, memory_gb: float | None = None) -> "Tuning":
+    def detect(cls, mem_fraction: float = 0.5, memory_gb: float | None = None) -> "Tuning":
         total = psutil.virtual_memory().total / 1e9
         cores = os.cpu_count() or 4
-        budget = int(memory_gb) if memory_gb else max(1, int(total * mem_fraction))
+        want = float(memory_gb) if memory_gb else total * mem_fraction
+        # Always leave headroom for off-heap / native allocations (HDT build, mmap, OS
+        # cache) so a big load isn't OOM-killed. A JVM -Xmx is only a ceiling, but native
+        # memory on top of it is real.
+        reserve = max(4.0, total * 0.25)
+        budget = int(min(want, total - reserve))
         return cls(total_ram_gb=round(total, 1), cores=cores, budget_gb=max(1, budget))
+
+    @property
+    def load_workers(self) -> int:
+        """Parallel loader workers — capped so many workers don't blow up memory."""
+        return max(1, min(self.cores, 8))
 
     # -- JVM engines (fuseki, qendpoint, graphdb, stardog) --
     @property

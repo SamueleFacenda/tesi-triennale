@@ -24,7 +24,7 @@ from typing import ClassVar
 import psutil
 import requests
 
-from ..datasets import Dataset
+from ..datasets import Dataset, ResolvedInput
 from ..metrics import RssSampler, rss_of_tree
 from ..tuning import Tuning
 from .http_client import QueryResult, SparqlHttpClient
@@ -66,6 +66,9 @@ class AbstractEngine(ABC):
     # engines that can only bind a fixed port (e.g. qEndpoint hardcodes 1234). Safe
     # because runs are sequential — only one server is ever up at a time.
     fixed_port: ClassVar[int | None] = None
+    # RDF serializations this engine can bulk-load (most take all; QLever/RDFox don't
+    # read RDF/XML). Preference among the accepted+available formats is dataset-side.
+    input_formats: ClassVar[list[str]] = ["ttl", "nt", "rdfxml"]
 
     def __init__(self, storage_dir: str | Path, timeout_s: float = 300.0,
                  port: int | None = None, tuning: Tuning | None = None):
@@ -97,6 +100,17 @@ class AbstractEngine(ABC):
     @abstractmethod
     def load(self, dataset: Dataset) -> LoadResult:
         """Bulk-load ``dataset`` into ``storage_dir``. Timed + RSS-sampled internally."""
+
+    def resolve_input(self, dataset: Dataset) -> ResolvedInput:
+        """Pick a serialization this engine can ingest, or fail with a clear message."""
+        inp = dataset.resolve(self.input_formats)
+        if inp is None:
+            have = ", ".join(dataset.available_formats()) or "none present"
+            raise EngineError(
+                f"{self.name}: no compatible format for {dataset.name} "
+                f"(accepts {', '.join(self.input_formats)}; available: {have})"
+            )
+        return inp
 
     def is_loaded(self, dataset: Dataset) -> bool:
         marker = self.storage_dir / _MARKER

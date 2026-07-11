@@ -33,7 +33,7 @@ class Reporter:
     def run_start(self, cfg: BenchConfig, plan: "Plan") -> None: ...
     def engine_start(self, engine: str, n_datasets: int) -> None: ...
     def engine_skip(self, engine: str, reason: str) -> None: ...
-    def load_start(self, engine: str, dataset: str) -> None: ...
+    def load_start(self, engine: str, dataset: str, fmt: str | None = None) -> None: ...
     def load_done(self, engine: str, dataset: str, load_time_s: float, disk_bytes: int) -> None: ...
     def load_skip(self, engine: str, dataset: str) -> None: ...
     def query_start(self, engine: str, dataset: str, query: str, reps: int) -> None: ...
@@ -116,23 +116,25 @@ class BenchRunner:
         applicable = queries_mod.applicable(
             [queries_mod.get(q) for q in plan.queries], ds
         )
+        resolved = ds.resolve(engine.input_formats)
+        fmt = resolved.fmt if resolved else None
 
         # ---- load (skip if already loaded and intact) ----
         if self.store.load_ok(engine_name, dataset_name) and engine.is_loaded(ds):
             self.reporter.load_skip(engine_name, dataset_name)
         else:
-            self.reporter.load_start(engine_name, dataset_name)
+            self.reporter.load_start(engine_name, dataset_name, fmt)
             try:
                 lr = engine.load(ds)
                 disk = dir_size(storage)
                 self.store.save_load(
-                    engine_name, dataset_name, load_time_s=lr.load_time_s,
+                    engine_name, dataset_name, fmt=fmt, load_time_s=lr.load_time_s,
                     disk_bytes=disk, peak_rss_bytes=lr.peak_rss_bytes, status="ok",
                 )
                 self.reporter.load_done(engine_name, dataset_name, lr.load_time_s, disk)
             except Exception as e:  # noqa: BLE001
                 self.store.save_load(
-                    engine_name, dataset_name, load_time_s=None, disk_bytes=None,
+                    engine_name, dataset_name, fmt=fmt, load_time_s=None, disk_bytes=None,
                     peak_rss_bytes=None, status="error", error=str(e),
                 )
                 self.reporter.error(f"{engine_name}/{dataset_name}: load failed: {e}")

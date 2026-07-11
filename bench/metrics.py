@@ -101,8 +101,34 @@ class SubprocResult:
     returncode: int
     elapsed_s: float
     peak_rss_bytes: int
-    stdout: str
-    stderr: str
+    output: str            # tail of the combined stdout+stderr
+
+    @property
+    def ok(self) -> bool:
+        return self.returncode == 0
+
+    @property
+    def killed_by_signal(self) -> int | None:
+        # Popen reports a signal death as a negative return code.
+        return -self.returncode if self.returncode is not None and self.returncode < 0 else None
+
+    def describe_failure(self) -> str:
+        sig = self.killed_by_signal
+        if sig is not None:
+            hint = " (SIGKILL — likely out of memory)" if sig == 9 else ""
+            return f"process killed by signal {sig}{hint}"
+        return f"exit code {self.returncode}"
+
+
+def _tail(path: Path, n_bytes: int = 4000) -> str:
+    try:
+        size = path.stat().st_size
+        with open(path, "rb") as f:
+            if size > n_bytes:
+                f.seek(size - n_bytes)
+            return f.read().decode("utf-8", "replace")
+    except OSError:
+        return ""
 
 
 def run_sampled(
@@ -112,16 +138,31 @@ def run_sampled(
     env: dict | None = None,
     timeout: float | None = None,
     interval: float = 0.05,
+    log_path: str | Path | None = None,
 ) -> SubprocResult:
     """Run ``cmd`` to completion, timing it and tracking its peak RSS tree.
 
-    Used for the loading steps (each engine's bulk loader runs as a subprocess).
+    Used for the loading steps. When ``log_path`` is given the child's combined
+    stdout+stderr is streamed to that file (so the engine's own loader log survives even
+    if the child is OOM-killed); otherwise it is captured in a pipe.
     """
     full_env = {**os.environ, **(env or {})}
+    log_file = None
+    if log_path is not None:
+        log_path = Path(log_path)
+        log_file = open(log_path, "ab", buffering=0)
+        log_file.write(f"\n$ {' '.join(cmd)}\n".encode())
+        stdout_target: object = log_file
+        stderr_target: object = subprocess.STDOUT
+    else:
+        stdout_target = subprocess.PIPE
+        stderr_target = subprocess.STDOUT
+
     start = time.perf_counter()
     proc = subprocess.Popen(
         cmd, cwd=str(cwd) if cwd else None, env=full_env,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        stdout=stdout_target, stderr=stderr_target,
+        text=(log_file is None),
     )
     try:
         ps = psutil.Process(proc.pid)
@@ -130,18 +171,31 @@ def run_sampled(
 
     sampler = RssSampler(lambda: rss_of_tree([ps]) if ps else 0, interval)
     sampler.start()
+    piped = ""
     try:
-        out, err = proc.communicate(timeout=timeout)
+        if log_file is None:
+            piped, _ = proc.communicate(timeout=timeout)
+        else:
+            proc.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
         proc.kill()
-        out, err = proc.communicate()
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            pass
         sampler.stop()
+        if log_file is not None:
+            log_file.close()
         raise
     peak = sampler.stop()
+    if log_file is not None:
+        log_file.close()
+        output = _tail(log_path)
+    else:
+        output = piped or ""
     return SubprocResult(
         returncode=proc.returncode,
         elapsed_s=time.perf_counter() - start,
         peak_rss_bytes=peak,
-        stdout=out or "",
-        stderr=err or "",
+        output=output,
     )

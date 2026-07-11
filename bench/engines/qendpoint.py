@@ -24,14 +24,14 @@ class QendpointEngine(AbstractEngine):
     def _hdt_options(self) -> str:
         # HDT build tuning (from 3dont): all six permutations for fast queries, on-disk
         # cat-tree loader for datasets larger than RAM, parallel compression.
-        cores = self.tuning.cores
+        workers = self.tuning.load_workers
         return ";".join([
             "loader.type=disk",
-            f"loader.disk.compressWorker={cores}",
+            f"loader.disk.compressWorker={workers}",
             "bitmaptriples.index.others=spo,ops,pos,osp,sop,pso",
             "dictionary.type=dictionaryMultiObj",
             "tempDictionary.impl=hashPsfc",
-            f"loader.cattree.kcat={cores}",
+            f"loader.cattree.kcat={workers}",
             "profiler=false",
         ])
 
@@ -45,6 +45,7 @@ class QendpointEngine(AbstractEngine):
         return self._location / "hdt-store" / "index_dev.hdt"
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         if self._location.exists():
             shutil.rmtree(self._location)
         self._hdt.parent.mkdir(parents=True)
@@ -52,13 +53,14 @@ class QendpointEngine(AbstractEngine):
         res = run_sampled([
             "qendpoint-rdf2hdt.sh",
             "-index",
-            "-base", dataset.namespace,
+            "-base", inp.namespace,
             "-options", self._hdt_options(),
-            dataset.path,
+            inp.path,
             str(self._hdt),
-        ], env={"JAVA_OPTIONS": f"{self.tuning.xmx} {_SPRING}"})
-        if res.returncode != 0:
-            raise EngineError(f"qendpoint-rdf2hdt failed:\n{res.stderr[-2000:]}")
+        ], env={"JAVA_OPTIONS": f"{self.tuning.xmx} {_SPRING}"}, log_path=self.log_path)
+        if not res.ok:
+            raise EngineError(f"qendpoint-rdf2hdt failed ({res.describe_failure()}); "
+                              f"see {self.log_path}\n{res.output[-1500:]}")
         self._mark_loaded(dataset)
         return LoadResult(res.elapsed_s, res.peak_rss_bytes)
 

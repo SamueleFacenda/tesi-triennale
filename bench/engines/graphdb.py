@@ -66,17 +66,18 @@ class GraphDBEngine(DockerEngine):
         if r.status_code not in (200, 201):
             raise EngineError(f"graphdb repo create failed: HTTP {r.status_code}: {r.text[:500]}")
 
-    def _import(self, dataset: Dataset) -> None:
+    def _import(self, inp) -> None:
         import requests
-        with open(dataset.path, "rb") as f:
+        with open(inp.path, "rb") as f:
             r = requests.post(
                 f"{self._base_url()}/repositories/{_REPO}/statements",
-                data=f, headers={"Content-Type": dataset.content_type}, timeout=None,
+                data=f, headers={"Content-Type": inp.content_type}, timeout=None,
             )
         if r.status_code not in (200, 204):
             raise EngineError(f"graphdb import failed: HTTP {r.status_code}: {r.text[:500]}")
 
     def load(self, dataset: Dataset) -> LoadResult:
+        inp = self.resolve_input(dataset)
         self._wipe(self._data_dir)
         self._data_dir.mkdir(parents=True)
         start = time.perf_counter()
@@ -85,9 +86,10 @@ class GraphDBEngine(DockerEngine):
         try:
             self._wait_http_ready()
             self._create_repo()
-            self._import(dataset)
+            self._import(inp)
         finally:
             peak = sampler.stop()
+            self._dump_container_log()
             self._rm_container()
         self._mark_loaded(dataset)
         return LoadResult(time.perf_counter() - start, peak)
