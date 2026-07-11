@@ -56,6 +56,7 @@ class RssSampler:
         self._sample = sample_fn
         self._interval = interval
         self._peak = 0
+        self._last = 0  # most recent background sample
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
@@ -67,6 +68,7 @@ class RssSampler:
             except Exception:
                 v = 0
             with self._lock:
+                self._last = v
                 if v > self._peak:
                     self._peak = v
             self._stop.wait(self._interval)
@@ -77,12 +79,11 @@ class RssSampler:
         return self
 
     def reset(self) -> None:
-        try:
-            v = self._sample()
-        except Exception:
-            v = 0
+        # rebase to the latest background sample instead of sampling synchronously — a
+        # fresh sample can be very slow (docker stats ~2s) and would inflate per-query
+        # wall time even though it sits outside the measured region.
         with self._lock:
-            self._peak = v
+            self._peak = self._last
 
     @property
     def peak(self) -> int:

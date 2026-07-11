@@ -40,6 +40,7 @@ def _bytes_from_stats(mem: str) -> int:
 class DockerEngine(AbstractEngine):
     image: ClassVar[str] = ""
     container_port: ClassVar[int] = 0
+    rss_sample_interval: ClassVar[float] = 2.0  # docker stats is slow; sample sparingly
     # env var naming a license file that must exist for this engine to run (or None)
     license_env: ClassVar[str | None] = None
 

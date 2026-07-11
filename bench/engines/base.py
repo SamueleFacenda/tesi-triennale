@@ -69,6 +69,9 @@ class AbstractEngine(ABC):
     # RDF serializations this engine can bulk-load (most take all; QLever/RDFox don't
     # read RDF/XML). Preference among the accepted+available formats is dataset-side.
     input_formats: ClassVar[list[str]] = ["ttl", "nt", "rdfxml"]
+    # RSS sampling cadence (s). Docker engines read `docker stats` (~1-2s/call), so they
+    # sample far less often than native (psutil, ~instant).
+    rss_sample_interval: ClassVar[float] = 0.05
     # SPARQL result serialization this engine emits fastest (key into FORMATS).
     # Measured on a 15k-row result: TSV/CSV beat JSON everywhere by 2-6x (e.g. fuseki
     # json 255ms vs tsv 43ms), and TSV parses reliably (line count, no embedded newlines).
@@ -144,7 +147,7 @@ class AbstractEngine(ABC):
             url, self.timeout_s, default_graph=self.default_graph,
             result_format=self.effective_result_format,
         )
-        self._sampler = RssSampler(self._sample_rss).start()
+        self._sampler = RssSampler(self._sample_rss, self.rss_sample_interval).start()
         return url
 
     def stop(self) -> None:
