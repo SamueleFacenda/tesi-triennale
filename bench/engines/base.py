@@ -69,14 +69,22 @@ class AbstractEngine(ABC):
     # RDF serializations this engine can bulk-load (most take all; QLever/RDFox don't
     # read RDF/XML). Preference among the accepted+available formats is dataset-side.
     input_formats: ClassVar[list[str]] = ["ttl", "nt", "rdfxml"]
+    # SPARQL result serialization this engine emits fastest (key into FORMATS).
+    # Measured on a 15k-row result: TSV/CSV beat JSON everywhere by 2-6x (e.g. fuseki
+    # json 255ms vs tsv 43ms), and TSV parses reliably (line count, no embedded newlines).
+    # So TSV is the default; only GraphDB overrides (its CSV is ~1.8x faster than its TSV).
+    result_format: ClassVar[str] = "tsv"
 
     def __init__(self, storage_dir: str | Path, timeout_s: float = 300.0,
-                 port: int | None = None, tuning: Tuning | None = None):
+                 port: int | None = None, tuning: Tuning | None = None,
+                 result_format: str | None = None):
         # absolute: docker -v mounts and qEndpoint's CWD-relative config both need it
         self.storage_dir = Path(storage_dir).resolve()
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.timeout_s = timeout_s
         self.tuning = tuning or Tuning.detect()
+        # config override wins over the engine's class default
+        self.effective_result_format = result_format or self.result_format
         self.port = port or self.fixed_port or free_port()
         self.log_path = self.storage_dir.parent / f"{self.name}.log"
         self._procs: list[subprocess.Popen] = []
@@ -132,7 +140,10 @@ class AbstractEngine(ABC):
         self._start()
         url = self.endpoint_url()
         self._wait_healthy(url)
-        self._client = SparqlHttpClient(url, self.timeout_s, default_graph=self.default_graph)
+        self._client = SparqlHttpClient(
+            url, self.timeout_s, default_graph=self.default_graph,
+            result_format=self.effective_result_format,
+        )
         self._sampler = RssSampler(self._sample_rss).start()
         return url
 

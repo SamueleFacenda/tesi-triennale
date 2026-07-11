@@ -38,6 +38,9 @@ _REPO_CONFIG = """
 class GraphDBEngine(DockerEngine):
     image = "ontotext/graphdb:10.7.0"
     container_port = 7200
+    # measured (15k-row result): csv 46ms vs tsv 84ms vs json 171ms — GraphDB's TSV
+    # serializer is ~1.8x slower than CSV, so override the tsv default to csv here.
+    result_format = "csv"
 
     @property
     def _data_dir(self) -> Path:

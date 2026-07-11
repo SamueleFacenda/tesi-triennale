@@ -24,6 +24,8 @@ class VirtuosoEngine(DockerEngine):
     image = "openlink/virtuoso-opensource-7:latest"
     container_port = 8890
     default_graph = BENCH_GRAPH
+    # inherits the tsv default: measured (15k-row result) json 203ms vs tsv/csv ~74ms,
+    # so JSON is ~2.7x slower here — exactly what to avoid.
 
     @property
     def _db_dir(self) -> Path:

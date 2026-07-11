@@ -22,6 +22,9 @@ class BenchConfig:
     # (the runner still reserves ~25% headroom for native/off-heap allocations)
     mem_fraction: float = 0.5
     memory_gb: float | None = None
+    # force one SPARQL result format for every engine (json/xml/csv/tsv); None = each
+    # engine's own fastest default. Useful for a uniform-format control run.
+    result_format: str | None = None
     engines: list[str] = field(default_factory=list)
     datasets: list[str] = field(default_factory=list)
     # list of query names, or the literal "all"
@@ -57,6 +60,10 @@ class BenchConfig:
             raise ValueError("config: 'repetitions' must be >= 1")
         if self.warmup < 0:
             raise ValueError("config: 'warmup' must be >= 0")
+        if self.result_format is not None:
+            from .engines.http_client import FORMATS
+            if self.result_format not in FORMATS:
+                raise ValueError(f"config: 'result_format' must be one of {', '.join(FORMATS)}")
 
     @classmethod
     def from_dict(cls, raw: dict) -> "BenchConfig":
@@ -80,6 +87,7 @@ class BenchConfig:
             "output_dir": self.output_dir,
             "mem_fraction": self.mem_fraction,
             "memory_gb": self.memory_gb,
+            "result_format": self.result_format,
             "engines": self.engines,
             "datasets": self.datasets,
             "queries": self.queries,

@@ -50,13 +50,34 @@ def _execute(cfg: BenchConfig, run_dir: Path, no_tui: bool) -> None:
     print(f"\nrun dir: {run_dir}")
 
 
+def _force_rmtree(path: Path) -> None:
+    """Remove a run dir, even when docker engines wrote files as root."""
+    try:
+        shutil.rmtree(path)
+        return
+    except PermissionError:
+        pass
+    import subprocess
+    rt = shutil.which("docker") or shutil.which("podman")
+    if rt is None:
+        raise
+    abs_path = path.resolve()
+    subprocess.run(
+        [rt, "run", "--rm", "-v", f"{abs_path.parent}:/w", "busybox",
+         "rm", "-rf", f"/w/{abs_path.name}"],
+        capture_output=True, timeout=120,
+    )
+    if path.exists():
+        shutil.rmtree(path)  # surface any residual error
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = BenchConfig.load(args.config)
     if args.run_name:
         cfg.run_name = args.run_name
     run_dir = _run_dir(cfg)
     if args.fresh and run_dir.exists():
-        shutil.rmtree(run_dir)
+        _force_rmtree(run_dir)
     _execute(cfg, run_dir, args.no_tui)
     return 0
 

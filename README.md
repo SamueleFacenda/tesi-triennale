@@ -68,6 +68,27 @@ derived per engine — one engine runs at a time, so each may use it all:
 | stardog   | heap + `MaxDirectMemorySize` split evenly |
 | oxigraph  | none — RocksDB self-manages its cache |
 
+## Result format
+
+The SPARQL **result serialization** strongly affects latency, so each engine is queried
+in the format it emits fastest (measured on a 15 000-row result; medians):
+
+| Engine | json | tsv | csv | used |
+|---|--:|--:|--:|---|
+| oxigraph | 107 | 48 | 48 | **tsv** |
+| fuseki | 255 | **43** | 45 | **tsv** |
+| qendpoint | 125 | 89 | 86 | **tsv** |
+| qlever | 150 | 46 | 44 | **tsv** |
+| virtuoso | 203 | 74 | 74 | **tsv** |
+| graphdb | 171 | 84 | **46** | **csv** |
+
+JSON is the slowest everywhere (2–6×); TSV is the default (fast, and its line-count parse
+can't be fooled by embedded newlines); GraphDB overrides to CSV (its TSV is ~1.8× slower).
+The client reads the whole body (transfer is timed) and counts rows with an O(n) method
+that costs the same for every engine, so differences reflect the engine's serialization —
+row counts are identical across formats (verified). Set `result_format = "json"` (or any
+of `json/xml/csv/tsv`) in `bench.toml` to force one format for a uniform control run.
+
 ## Resumability
 
 Each run lives in `runs/<run_name>/`: a `config.json` snapshot, a `bench.db` SQLite

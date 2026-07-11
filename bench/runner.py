@@ -39,6 +39,7 @@ class Reporter:
     def query_start(self, engine: str, dataset: str, query: str, reps: int) -> None: ...
     def measurement(self, engine: str, dataset: str, query: str, rep: int, res: QueryResult) -> None: ...
     def query_done(self, engine: str, dataset: str, query: str) -> None: ...
+    def unit_done(self, n: int = 1) -> None: ...  # advance the overall progress bar
     def error(self, msg: str) -> None: ...
     def log(self, msg: str) -> None: ...
     def run_done(self) -> None: ...
@@ -51,6 +52,7 @@ class Plan:
     queries: list[str]
     repetitions: int
     warmup: int
+    total_units: int  # engines x applicable queries (drives the overall progress bar)
 
 
 class BenchRunner:
@@ -61,13 +63,25 @@ class BenchRunner:
         self.tuning = Tuning.detect(mem_fraction=cfg.mem_fraction, memory_gb=cfg.memory_gb)
 
     def plan(self) -> Plan:
+        units = len(self.cfg.engines) * sum(
+            len(self._applicable_for(d)) for d in self.cfg.datasets
+        )
         return Plan(
             engines=self.cfg.engines,
             datasets=self.cfg.datasets,
             queries=self.cfg.resolved_queries(),
             repetitions=self.cfg.repetitions,
             warmup=self.cfg.warmup,
+            total_units=units,
         )
+
+    def _applicable_for(self, dataset_name: str) -> list:
+        """Queries that apply to a dataset (deterministic — no engine/file dependency)."""
+        q_objs = [queries_mod.get(q) for q in self.cfg.resolved_queries()]
+        return queries_mod.applicable(q_objs, datasets_mod.get(dataset_name))
+
+    def _engine_units(self) -> int:
+        return sum(len(self._applicable_for(d)) for d in self.cfg.datasets)
 
     def run(self) -> None:
         plan = self.plan()
@@ -86,18 +100,23 @@ class BenchRunner:
             cls = engines_mod.get(engine_name)
         except KeyError as e:
             self.reporter.engine_skip(engine_name, str(e))
+            self.reporter.unit_done(self._engine_units())
             return
         ok, reason = cls.available()
         if not ok:
             self.reporter.engine_skip(engine_name, reason)
+            self.reporter.unit_done(self._engine_units())
             return
 
+        fmt = self.cfg.result_format or cls.result_format
         self.reporter.engine_start(engine_name, len(plan.datasets))
+        self.reporter.log(f"  {engine_name}: result format {fmt}")
         try:
             # a throwaway instance is fine for provisioning (pull image, etc.)
             cls(self.store.storage_dir(engine_name, "_provision"), tuning=self.tuning).provision()
         except Exception as e:  # noqa: BLE001
             self.reporter.engine_skip(engine_name, f"provision failed: {e}")
+            self.reporter.unit_done(self._engine_units())
             return
 
         for dataset_name in plan.datasets:
@@ -107,15 +126,16 @@ class BenchRunner:
     def _run_dataset(self, cls: type[AbstractEngine], engine_name: str,
                      dataset_name: str, plan: Plan) -> None:
         ds = datasets_mod.get(dataset_name)
+        applicable = self._applicable_for(dataset_name)
         if not ds.available():
-            self.reporter.error(f"{engine_name}/{dataset_name}: file missing ({ds.path}); skipped")
+            paths = ", ".join(ds.formats.values())
+            self.reporter.error(f"{engine_name}/{dataset_name}: file missing ({paths}); skipped")
+            self.reporter.unit_done(len(applicable))
             return
 
         storage = self.store.storage_dir(engine_name, dataset_name)
-        engine = cls(storage, timeout_s=self.cfg.timeout_s, tuning=self.tuning)
-        applicable = queries_mod.applicable(
-            [queries_mod.get(q) for q in plan.queries], ds
-        )
+        engine = cls(storage, timeout_s=self.cfg.timeout_s, tuning=self.tuning,
+                     result_format=self.cfg.result_format)
         resolved = ds.resolve(engine.input_formats)
         fmt = resolved.fmt if resolved else None
 
@@ -138,6 +158,7 @@ class BenchRunner:
                     peak_rss_bytes=None, status="error", error=str(e),
                 )
                 self.reporter.error(f"{engine_name}/{dataset_name}: load failed: {e}")
+                self.reporter.unit_done(len(applicable))
                 return
 
         # ---- resume shortcut: everything already measured? ----
@@ -147,6 +168,7 @@ class BenchRunner:
         ]
         if not pending:
             self.reporter.log(f"{engine_name}/{dataset_name}: all queries complete, skipping")
+            self.reporter.unit_done(len(applicable))
             return
 
         # ---- serve + query ----
@@ -155,6 +177,7 @@ class BenchRunner:
         except EngineError as e:
             self.reporter.error(f"{engine_name}/{dataset_name}: start failed: {e}")
             engine.stop()
+            self.reporter.unit_done(len(applicable))
             return
 
         try:
@@ -194,6 +217,7 @@ class BenchRunner:
                 continue
             self._measure_once(engine, engine_name, dataset_name, query.name, sparql, rep)
         self.reporter.query_done(engine_name, dataset_name, query.name)
+        self.reporter.unit_done()
 
     def _measure_once(self, engine: AbstractEngine, engine_name: str, dataset_name: str,
                       query_name: str, sparql: str, rep: int) -> None:

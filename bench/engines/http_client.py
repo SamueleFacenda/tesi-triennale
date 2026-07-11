@@ -1,8 +1,11 @@
 """Unified SPARQL-over-HTTP client.
 
-Every engine is queried the same way — a SPARQL protocol request over HTTP with a JSON
-result format — so the client-side connection + parse cost is identical and comparable
-across engines. This is what lets us reason about serialization overhead.
+Every engine is queried over the SPARQL HTTP protocol; the *result serialization* is
+per-engine (the format an engine emits fastest — see ``AbstractEngine.result_format``),
+because that choice materially changes latency (JSON is slow on some engines). The client
+always reads the whole body (so transfer is timed) and counts rows with an O(n),
+format-appropriate method that costs the same for every engine, so measured differences
+reflect the engine's serialization rather than our parser.
 """
 
 from __future__ import annotations
@@ -12,7 +15,13 @@ from dataclasses import dataclass
 
 import requests
 
-_JSON = "application/sparql-results+json"
+# result format key -> (Accept mime, parser kind)
+FORMATS = {
+    "json": ("application/sparql-results+json", "json"),
+    "xml": ("application/sparql-results+xml", "xml"),
+    "csv": ("text/csv", "csv"),
+    "tsv": ("text/tab-separated-values", "tsv"),
+}
 
 
 class QueryError(Exception):
@@ -22,7 +31,7 @@ class QueryError(Exception):
 @dataclass
 class QueryResult:
     wall_s: float           # full client round-trip: send + execute + receive + parse
-    rows: int               # number of result rows (bindings), or 1 for ASK
+    rows: int               # number of result rows
     bytes: int              # size of the response body
     server_s: float | None  # server-reported execution time, when available
 
@@ -48,18 +57,30 @@ def _parse_server_time(payload: dict) -> float | None:
     return None
 
 
+def _count_lines_minus_header(body: bytes) -> int:
+    """Data-row count for CSV/TSV: non-empty lines minus the mandatory header row."""
+    if not body:
+        return 0
+    lines = body.count(b"\n")
+    if not body.endswith(b"\n"):
+        lines += 1  # last line has no trailing newline
+    return max(0, lines - 1)
+
+
 class SparqlHttpClient:
-    def __init__(self, endpoint: str, timeout: float = 300.0, default_graph: str | None = None):
+    def __init__(self, endpoint: str, timeout: float = 300.0,
+                 default_graph: str | None = None, result_format: str = "tsv"):
         self.endpoint = endpoint
         self.timeout = timeout
         # Sent as the SPARQL-protocol default-graph-uri param (used by Virtuoso, which
         # has no implicit default-graph union). None for stores that query the real
         # default graph directly.
         self.default_graph = default_graph
+        self.accept, self.kind = FORMATS[result_format]
         self._session = requests.Session()
 
     def query(self, sparql: str) -> QueryResult:
-        headers = {"Accept": _JSON, "Content-Type": "application/sparql-query"}
+        headers = {"Accept": self.accept, "Content-Type": "application/sparql-query"}
         params = {"default-graph-uri": self.default_graph} if self.default_graph else None
         start = time.perf_counter()
         try:
@@ -75,18 +96,21 @@ class SparqlHttpClient:
             raise QueryError(f"HTTP {resp.status_code}: {snippet}")
 
         body = resp.content
-        # Parse just enough to count rows and read the server time.
-        rows, server_s = self._count(resp, body)
+        rows, server_s = self._count(body)
         wall = time.perf_counter() - start
         return QueryResult(wall_s=wall, rows=rows, bytes=len(body), server_s=server_s)
 
-    @staticmethod
-    def _count(resp: requests.Response, body: bytes) -> tuple[int, float | None]:
+    def _count(self, body: bytes) -> tuple[int, float | None]:
+        if self.kind in ("csv", "tsv"):
+            return _count_lines_minus_header(body), None
+        if self.kind == "xml":
+            return body.count(b"<result>") + body.count(b"<result "), None
+        # json
+        import json
         try:
-            payload = resp.json()
+            payload = json.loads(body)
         except ValueError:
-            # Not JSON (some engines fall back to XML/CSV); count lines conservatively.
-            return max(0, body.count(b"\n") - 1), None
+            return _count_lines_minus_header(body), None
         if "boolean" in payload:  # ASK
             return 1, _parse_server_time(payload)
         bindings = payload.get("results", {}).get("bindings", [])

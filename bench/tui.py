@@ -47,9 +47,8 @@ class RichReporter(Reporter):
         self._cur_walls: list[float] = []
 
     def run_start(self, cfg: BenchConfig, plan: Plan) -> None:
-        total = len(plan.engines) * len(plan.datasets) * (len(plan.queries) + 1)  # +baseline
         self.progress.start()
-        self._overall = self.progress.add_task("overall", total=total)
+        self._overall = self.progress.add_task("overall", total=max(1, plan.total_units))
         self._reps = self.progress.add_task("idle", total=1, visible=False)
         self.console.log(
             f"run [bold]{cfg.run_name}[/]: {len(plan.engines)} engines x "
@@ -85,11 +84,14 @@ class RichReporter(Reporter):
         self.progress.advance(self._reps)
 
     def query_done(self, engine: str, dataset: str, query: str) -> None:
-        self.progress.advance(self._overall)
         self.progress.update(self._reps, visible=False)
         if self._cur_walls:
             med = statistics.median(self._cur_walls)
             self.console.log(f"    {query}: median {med * 1000:.1f} ms")
+
+    def unit_done(self, n: int = 1) -> None:
+        if self._overall is not None:
+            self.progress.advance(self._overall, n)
 
     def error(self, msg: str) -> None:
         self.console.log(f"[red]error[/] {msg}")
