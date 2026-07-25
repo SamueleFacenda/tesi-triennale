@@ -1,20 +1,108 @@
 \chapter{Benchmark}
 \label{cha:benchmark}
 
+Come precedemente accennato, per poter concretamente valutare la possibilità di usare RDF come formato di supporto per
+l'immagazzinazione e l'interrogazione di big data è necessario fare una valutazione dello stato delle prestazione delle
+attuali soluzioni software. In questo capitolo verranno esposti i dati utilizzati nella valutazione, le interrogazioni (query)
+che verranno eseguite sui dati e i software presi in considerazione.
+\par
+Le seguenti metrice sono state prese in considerazione:
+\begin{itemize} TODO grassetto
+\item Tempo di caricamento: tempo impiegato per caricare un dataset la prima volta.
+\item Spazio utilizzato: spazio utilizzato dal motore per persistere il grafo su disco.
+\item Tempo di esecuzione query: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
+viene inviata alla fine della ricezione del risultato.
+\item Memoria utilizzata: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi del motore a intervalli
+regolari (ogni 0.05 secondi).
+\end{itemize}
+
 % TODO: introduzione al benchmark.
 
 \section{Dati e query}
 \label{sec:data_query}
+
+Sono stati scelti quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, e con risuluzioni diverse,
+mentre le query sono otto (TODO), tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3Dont, ponendo particolare
+attenzione all'avere rappresentate diverse dimensioni di risultato e all'essere omogenee tra le diverse ontologie.
+
+\subsection{Dati}
+
+A causa della proprietà dei dati di non tutti i dataset è permesso rivelare dettagli, laddove possibile viene presentata una
+breve descrizione e un'immagine rappresentativa, per tutti è presentato il numero preciso di punti e triple presenti.
+Questi due valori da soli sarebbero rappresentativi del dataset, in quanto le query non vanno ad analizzare dettagli ulteriori
+né particolari costruzioni, a parte dove indicato.
+
+\subsubsection{Piccolo}
+
+Questa nuvola rappresenta una porzione del dataset ytu3d (TODO cite), un'acquisizione 
+dell'ambiente urbano del campus adfojshsofhsohfodsfhsd
+
+Numero di punti: 1_065_725
+Numero di triple: 11_725_772
+
+TODO image
+\subsubsection{Medio}
+
+torre modena
+
+Numero di punti: 3_715_673
+Numero di triple: 38_886_807
+
+TODO image chiedere matteo
+\subsubsection{Medio 2}
+
+tempio di nettuno
+
+Numero di punti: 2_785_178
+Numero di triple: 47_239_850
+
+TODO image
+\subsubsection{Grande}
+
+Numero di punti: 9_813_921
+Numero di triple: 156_937_172
+
+\subsection{Query}
+
+\subsubsection{Seleziona tutto}
+
+\subsubsection{Scalare}
+
+\subsubsection{Punti nell'oggetto}
+
+\subsubsection{Segmentazione delle istanze}
+
+\subsubsection{Segmentazione tassonomica}
+
+\subsubsection{LOD massimo}
+
+\subsubsection{Gerarchia tassonomica}
+
+\subsubsection{Altezza media degli oggetti}
+
+
 
 % TODO: dati e dimensione dei risultati.
 
 \section{Ambiente}
 \label{sec:environment}
 
+\subsection{Hardware}
+
+\subsection{Condizioni software}
+
+Un problema che si ha analizzando le prestazioni 
+
+ripetizioni, hot start, http layer e segmentazione
+
 % TODO: ambiente di esecuzione.
 
 \section{Motori}
 \label{sec:engines}
+
+Viene riportata una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
+che ha portato alla scelta del motore ed eventuali note che risultino interessanti al fine del benchmark.
+
 
 % TODO: motori analizzati.
 
@@ -32,5 +120,7 @@
 
 \section{Analisi dei risultati}
 \label{sec:results_analysis}
+
+
 
 % TODO: analisi dei risultati.

@@ -56,9 +56,10 @@
   % Gruppo: successione dei capitoli senza interruzione di pagina.
   % Nota DISI: il numero massimo di facciate (indice + sommario + capitoli) e' 30.
   \begingroup
-  % Nessuna interruzione di pagina tra capitoli
-  \renewcommand{\cleardoublepage}{}
-  \renewcommand{\clearpage}{}
+  % Nessuna interruzione di pagina tra capitoli. Si usa \par (non vuoto) per uscire
+  % dal modo orizzontale: titlesec recente rifiuta \chapter in horizontal mode.
+  \renewcommand{\cleardoublepage}{\par}
+  \renewcommand{\clearpage}{\par}
   % Formato del titolo del capitolo: "X  Titolo" invece di "Capitolo X / Titolo"
   \titleformat{\chapter} {\normalfont\Huge\bfseries}{\thechapter}{1em}{}
   \titlespacing*{\chapter}{0pt}{0.59in}{0.02in}
