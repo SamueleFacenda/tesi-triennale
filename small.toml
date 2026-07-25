@@ -8,7 +8,7 @@
 run_name = "small"
 repetitions = 10   # measured runs per (engine, dataset, query)
 warmup = 2         # discarded runs before each measured batch (avoids cold cache)
-timeout_s = 300    # per-query timeout
+timeout_s = 600    # per-query timeout
 output_dir = "runs"
 
 # Memory budget per engine (one engine runs at a time, so each may claim it all).
