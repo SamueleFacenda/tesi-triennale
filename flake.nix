@@ -20,6 +20,24 @@
         qendpoint = pkgs.callPackage ./nix/qendpoint.nix { };
         owlready2 = pkgs.python3.pkgs.callPackage ./nix/py/owlready2.nix { };
 
+        # Curated-minimal TeX Live env shared by the thesis package and the dev shell.
+        tex = pkgs.texlive.combine {
+          inherit (pkgs.texlive)
+            scheme-small              # base: latex, babel, geometry, graphics, hyperref, tools, l3, xcolor
+            latexmk                   # build driver
+            carlisle                  # plain.sty (\usepackage{plain})
+            pdfx xmpincl colorprofiles # PDF/A-1b + sRGB ICC profile
+            titlesec setspace wrapfig stackengine listofitems
+            xurl enumitem lipsum
+            babel-italian;
+        };
+
+        # The thesis PDF, built reproducibly with latexmk.
+        thesis = pkgs.callPackage ./nix/thesis.nix { inherit tex; };
+
+        # cspell + Italian dictionary (nixpkgs cspell bundles en/latex but not it-it).
+        cspell-it = pkgs.callPackage ./nix/cspell-it.nix { };
+
         # Interpreter used to run the harness itself (also hosts the rdflib/owlready2
         # embedded engines, wrapped in a tiny HTTP SPARQL server).
         pythonEnv = pkgs.python3.withPackages (ps: with ps; [
@@ -44,12 +62,14 @@
         ];
       in
       {
-        packages = { inherit qendpoint qlever-control requests-sse; };
+        packages = { inherit qendpoint qlever-control requests-sse thesis; };
 
         devShells.default = pkgs.mkShell {
           packages = [ pythonEnv ] ++ nativeEngines ++ [
             pkgs.docker-client   # talk to a system / rootless docker daemon
             pkgs.curl
+            tex                  # latexmk + curated TeX Live for the thesis
+            cspell-it            # spellcheck + Italian dict (replaces the template's npm cspell)
           ];
 
           # qEndpoint (Spring Boot) tuning, mirrors 3dont's dev shell.
@@ -57,7 +77,7 @@
 
           shellHook = ''
             export BENCH_DEV=1
-            echo "bench dev shell: python + oxigraph/jena/fuseki/qendpoint/qlever + docker-client"
+            echo "bench dev shell: python + oxigraph/jena/fuseki/qendpoint/qlever + docker-client + latexmk/cspell"
           '';
         };
       });

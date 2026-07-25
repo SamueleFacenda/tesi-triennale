@@ -1,0 +1,20 @@
+# latexmk build dir (when run with -outdir=build, as the Nix package does)
+build/
+
+# LaTeX intermediates (when latexmk is run directly in this folder)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.xmpi
+*.pdf
+
+# keep source images/PDFs under version control
+!images/**/*.pdf

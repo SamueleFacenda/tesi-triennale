@@ -1,0 +1,133 @@
+\chapter{Introduzione}
+\label{cha:introduction}
+
+\par
+RDF (Resource Description Framework) è la specifica definita da W3C per la rappresentazione di ontologie e grafi di conoscenze
+nell'ambito del web semantico. È una specifica essenziale con il potenziale per essere estesa,
+come ad esempio succede con OWL (Web Ontology Language), una sua potente estensione utilizzata per definire
+ontologie complete. Di base è stata creata per la condivisione di risorse web, ognuna identificata da un IRI univoco
+teoricamente accessibile in rete, ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
+software per l'interrogazione e la manipolazione di grafi RDF. Nella pratica, molti DBMS sono stati integrati o creati con
+il supporto per interrogazioni SPARQL (SPARQL Protocol and RDF Query Language), il protocollo e linguaggio standardizzato
+sempre da W3C per interrogare basi di conoscenza nel web semantico.
+\par
+Anche se il semantic web non ha raggiunto l'adozione e l'impatto sperato al momento della creazione di questi standard,
+rimane comunque alla base di uno dei più vasti e avanzati sistemi per la manipolazione di basi di conoscenza. Inoltre,
+grazie alla sua estensibilità by-design esso permette facilmente di valicare i domini della rete per essere utilizzato
+in ambienti fondamentalmente diversi rispetto all'originale idea del semantic web.
+Tramite la creazione di ontologie specifiche per dei dati domini è possibile rappresentare qualsiasi tipo di dato
+tramite modelli RDF, mantenendo la stessa espressività del dato originale e quindi la completezza.
+I vantaggi con questo approccio sono molteplici, in primis si andrebbe a creare una rappresentazione estensibile per il
+dominio preso in analisi, permettendo a chiunque abbia accesso all'ontologia di espandere le possibilità di rappresentazione
+del modello senza compromettere l'interoperabilità con altri sistemi non aggiornati. Questo non è invece possibile quasi mai
+con le rappresentazioni native solitamente utilizzate per i loro domini, focalizzate più sulle prestazioni che sull'estensibilità
+(si veda il capitolo relativo a 3Dont).
+Inoltre, con questo approccio, si può andare a sfruttare la potenza dei sistemi di ragionamento sui modelli utilizzati,
+andando a definire regole per espandere la conoscenza nelle nostre rappresentazioni e potenzialmente anche ottenere un guadagno
+dal punto di vista della memoria di massa utilizzata, se il motore che stiamo andando ad utilizzare supporta il ragionamento ``virtuale''
+a tempo di interrogazione (come nel caso di graphdb o owlready2, analizzati nel capitolo~\ref{cha:benchmark}).
+\par
+In questa tesi si andrà quindi ad analizzare la fattibilità tecnica di questo approccio, con una particolare focalizzazione sull'ambito
+dei big data, dati che se rappresentati come grafi di conoscenza superano le decine di milioni di nodi.
+Queste grandi quantità di dati pongono appunto un problema all'ecosistema utilizzato. Se il problema della rappresentazione è per
+così dire ``risolto'' dalla grande espressività ed estensibilità by-design di RDF, quello delle prestazioni è di altra natura.
+Se vogliamo utilizzare RDF come modello di salvataggio per big data in modo generico dobbiamo fare i conti con dei pattern di accesso
+fondamentalmente diversi da quelli tipici del semantic web. Si andrà spesso ad analizzare l'interezza del modello oppure
+delle sottoporzioni per andare a condurre delle analisi su questi dati, o produrre delle rappresentazioni in formati alternativi
+(grafici, ad esempio) per cui è necessario accedere in lettura a grandi porzioni di dati. Stiamo quindi parlando di query di tipo OLAP
+contro il tipico carico di lavoro OLTP del semantic web: la sua natura predispone la ricerca per singole risorse ed elementi collegati,
+facilmente ottimizzabile con l'utilizzo di indici a vario livello. La maggior parte dei DBMS con supporto per SPARQL non sono quindi
+ottimizzati per query che contengono scansioni su grandi porzioni del modello quando sull'accesso casuale e sul collegamento dei nodi.
+Questa è appunto la sfida più grande all'utilizzo diffuso dell'approccio proposto, e in questa tesi si andranno quindi soprattutto
+ad analizzare le prestazioni di un certo numero di motori di query SPARQL nell'esecuzione di carichi di lavoro specifici,
+con lo scopo di valutarne la predisposizione all'utilizzo con big data di dominio diverso dal web semantico.
+Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3Dont, approfondito nel capitolo dedicato,
+all'interno di vari motori la cui prerogativa principale è che siano eseguibili localmente. Questo è importante soprattutto per
+poter confrontare le prestazioni dei vari motori nello stesso ambiente ma anche perché se si volessero poi utilizzare come base
+per l'accesso ai modelli RDF è importante che possano essere integrati all'interno degli applicativi che li utilizzerebbero.
+
+\section{Lavori correlati}
+\label{sec:prior_works}
+
+
+
+% TODO: breve dissertazione sugli altri tipi di grafi.
+
+\section{3Dont}
+\label{sec:3dont}
+
+\subsection{Ambito}
+
+La nuvola di punti è un formato molto diffuso per la rappresentazione di dati tridimensionali geospaziali. Questo formato viene usato
+da ambiti che vanno dall'urbanistica ai beni culturali e alle scienze forestali. La maggior parte dei processi di scansione e 
+acquisizione di ambienti tridimensionali produce come primo risultato una nuvola di punti, su cui possono essere poi eseguiti un
+vasto numero di processi, dalla segmentazione istanze all'analisi numerica delle sue caratteristiche. Una singola nuvola di punti
+può rappresentare un piccolo oggetto come un'intera città, e a variare della risoluzione e della dimensione può arrivare ad avere
+centinaia di milioni di punti. 
+\par Esistono diversi formati per la condivisione di nuvole di punti, come PCD (Point Cloud Data), LAS (LASer) e LAZ (LASzip),
+che in pratica permettono di definire una serie di campi presenti per ogni punto e la lista di punti della nuvola. Questi formati
+sono più o meno complessi, LAS ad esempio permette solo 11 formati di nuvole di punti diverse (come con o senza tempo GPS, colore, etc.)
+anche se grazie a questa caratteristica LASzip permettere di comprimere file LAS senza perdita di dettaglio in modo molto efficace.
+
+\subsection{Il framework 3DONT}
+
+3Dont è un framework basato su RDF che permette di modellare nuvole di punti attraverso un'ontologia definita ma estensibile.
+In fase di creazione del grafo classifica i punti e gli oggetti della nuvola in base all'ambito scelto (urbano o beni culturali)
+secondo una struttura gerarchica, per poi eseguire una fase di ragionamento che materializza delle informazioni aggiuntive come la
+correlazione spaziale, classificazione tassonomica, proprietà dei materiali e così via.
+\par Il modello così creato è pronto per essere visualizzato ed esplorato, anche attraverso delle interrogazioni in linguaggio naturale,
+che grazie a un LLM e un'analisi dell'ontologia vengono tradotte in linguaggio SPARQL ed eseguite. Questo permette anche a individui
+senza una formazione specifica su nuvole di punti, ontologie o informatica (come ad esempio un pianificatore urbanistico) 
+di interagire con i dati e supportare il proprio lavoro in autonomia.
+
+\subsection{Vantaggi}
+
+Come spiegato nell'introduzione, uno dei vantaggi principali di RDF rispetto ai corrispondenti formati nativi è l'estensibilità.
+3Dont specifica un'ontologia base con un vasto numero di elementi già definiti per i vari ambiti a cui si rivolge (classificazione
+delle superfici erbose e della massa verde, componenti architettonici, arredo urbano etc.) ma non mira ad essere completa, un utente
+potrebbe senza sforzo aggiungere nuove classi, ad esempio nuovi materiali con nuove caratteristiche, senza compromettere l'integrazione
+con la strumentazione esistente.
+\par Un secondo vantaggio lo troviamo nell'espressività che di base il framework riesce a dare. Se partiamo da formati come LAS che
+permettono di avere solo un numero limitato di caratteristiche per ogni punto, con 3Dont il potenziale è infinito; non dobbiamo
+preoccuparci di problemi come l'assegnazione di più etichette di classificazione a un singolo punto ma invece possiamo integrare i
+dati con informazioni aggiuntive come le relazioni tra i punti, tra macro entità (insiemi di punti), o informazioni spaziotemporali.
+\par Nessuna di queste ultime caratteristiche è supportata nei formati di nuvole di punti classiche e l'utilizzo di un solo formato
+di supporto per questa vasta gamma di informazioni è senza dubbio un ulteriore vantaggio del framework.
+\par Ma uno dei punti di forza maggiore di 3Dont è la possibilità di interrogare i dati con un linguaggio potente come SPARQL,
+in questo modo possiamo accedere in modo casuale alle nuvole di punti, esprimere potenti filtri e condurre analisi numeriche
+senza bisogno di iterare sull'interezza dei punti.
+
+\subsection{Visualizzatore}
+
+Il framework mette disposizione, oltre allo strumento di creazione dei grafi popolati dai punti, un visualizzatore per questi grafi.
+Caricando l'ontologia popolata in uno dei vari formati disponibili per rdf (turtle, n-triples, rdf-xml etc.) permette di creare
+un progetto persistente con un'interfaccia diretta alla nuvola di punti, che può essere esplorata astraendo sopra alle nozioni di
+grafo e SPARQL, interagendo con i punti usando mouse a tastiera e interrogazioni in linguaggio naturale. 
+\par Il visualizzatore permette di visualizzare fondamentalmente quattro categorie diverse di risultati:
+\begin{itemize}
+\item Query di selezione: vengono evidenziati i punti ritornati dalla query, come ad esempio quelli appartenenti a un dato
+oggetto oppure tutti i punti di un certo materiale.
+\item Query scalari: i punti vengono colorati secondo una scala colorata lineare in base a un valore che viene ritornato dalla
+query, come ad esempio la temperatura in una data acquisizione oppure una certa caratteristica del materiale dei punti.
+\item Query di classificazione: tutti i punti appartenenti a un certo oggetto vengono colorati allo stesso modo, in modo univoco.
+Si può così visualizzare la nuvola completamente segmentata, semanticamente o per istanza, a qualunque punto desiderato della scala
+tassonomico o mereologica: un singolo punto può essere contemporaneamente parte di un capitello, della colonna a cui appartiene il capitello,
+della facciata a cui appartiene la colonna e l'edificio a cui appartiene la facciata; è disponibile quindi una segmentazione per
+diversi livelli di dettaglio.
+\item Query tabellari: il risultato non è visualizzato graficamente attraverso la nuvola di punti ma in una tabella a lato, è il caso
+delle query che ritornano singoli valori numerici o comunque valori che non sono collegati a singoli punti della nuvola.
+\end{itemize}
+
+\subsection{Implementazione}
+
+La sfida principale nell'implementazione di 3Dont è sicuramente il raggiungimento di prestazioni compatibili con l'interattività
+di un'interfaccia grafica e di un applicativo destinato a un'utenza inesperta. 
+Nuvole di punti di medie dimensione (meno di 5 milioni di punti) possono richiedere per la query iniziale, che domanda coordinate e 
+colori di ogni punto, diversi minuti di esecuzione, ma si può scendere a meno di una decina di secondi con qualche accorgimento.
+\par Il principale fattore determinante (oltre ovviamente all'hardware utilizzato, che però ovviamente non dipende dall'implementazione
+del framework) è il motore di query utilizzato e la sua configurazione. Nello specifico viene impegato QLever (TODO link) con vocabolario
+compresso su disco e i prefissi dell'ontologia codificati. Viene quindi usata la versione integrata di QLever, disponibile come libreria
+c++, che permette di ridurre al minimo l'utilizzo di risorse dato dall'IPC (Inter Process Communication) e dalla deserializzazione
+dei risultati, che invece sarebbe necessaria usando SPARQL tramite l'interfaccia HTTP.
+
+TODO FOTO

@@ -1,0 +1,31 @@
+{
+  "version": "0.2",
+  "language": "it,en",
+  "useGitignore": true,
+  "import": [
+    "@cspell/dict-en_us/cspell-ext.json",
+    "@cspell/dict-it-it/cspell-ext.json",
+    "@cspell/dict-latex/cspell-ext.json",
+    "@cspell/dict-markdown/cspell-ext.json",
+    "@cspell/dict-npm/cspell-ext.json"
+  ],
+  "ignorePaths": ["**/build/", "**/node_modules/", "**/package-lock.json"],
+  "words": [
+    "agentica",
+    "booktitle",
+    "DISI",
+    "Dont",
+    "graphdb",
+    "howpublished",
+    "latexmk",
+    "nonstopmode",
+    "OLAP",
+    "OLTP",
+    "outdir",
+    "owlready",
+    "postbuild",
+    "primis",
+    "sottoporzioni",
+    "SPARQL"
+  ]
+}

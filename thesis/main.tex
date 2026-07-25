@@ -1,0 +1,90 @@
+\documentclass[a4paper, 11pt, titlepage, twoside, openany]{book}
+\usepackage{plain}
+\usepackage{setspace}
+% Layout
+\usepackage[
+  paperheight=29.7cm,
+  paperwidth=21cm,
+  outer=1.5cm,
+  inner=2.5cm,
+  top=2cm,
+  bottom=2cm
+]{geometry}
+% Chapter
+\usepackage{titlesec}
+\singlespacing
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+% Letter
+\usepackage[utf8]{inputenc}
+% Language
+\usepackage[italian]{babel}
+% PDF/A
+\usepackage[a-1b]{pdfx}
+% Image
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{stackengine}
+\usepackage{etoolbox}
+\BeforeBeginEnvironment{wrapfigure}{\setlength{\intextsep}{0pt}}
+% Hyperlink
+\usepackage{xurl}
+\usepackage[pdfa]{hyperref}
+\hypersetup{breaklinks=true}
+% List
+\usepackage{enumitem}
+
+% Document
+\begin{document}
+  % Copertina (nessuna numerazione)
+  \pagenumbering{gobble}
+  \input{etc/cover}
+  \clearpage
+
+  % Ringraziamenti (opzionale, escluso dal conteggio delle facciate)
+  \input{etc/acknowledgements}
+  \clearpage
+  \pagestyle{plain}
+
+  % Inizio numerazione pagine in numeri arabi
+  \mainmatter
+
+  % Indice
+  \tableofcontents
+  \clearpage
+
+  % Gruppo: successione dei capitoli senza interruzione di pagina.
+  % Nota DISI: il numero massimo di facciate (indice + sommario + capitoli) e' 30.
+  \begingroup
+  % Nessuna interruzione di pagina tra capitoli
+  \renewcommand{\cleardoublepage}{}
+  \renewcommand{\clearpage}{}
+  % Formato del titolo del capitolo: "X  Titolo" invece di "Capitolo X / Titolo"
+  \titleformat{\chapter} {\normalfont\Huge\bfseries}{\thechapter}{1em}{}
+  \titlespacing*{\chapter}{0pt}{0.59in}{0.02in}
+  \titlespacing*{\section}{0pt}{0.20in}{0.02in}
+  \titlespacing*{\subsection}{0pt}{0.10in}{0.02in}
+  \titlespacing*{\subsubsection}{0pt}{0.05in}{0.02in}
+
+  % Sommario
+  \input{etc/sommario.tex}
+
+  % Capitoli
+  \input{chapters/introduction.tex}
+  \input{chapters/benchmark.tex}
+
+  % Conclusioni
+  \input{etc/conclusions.tex}
+
+  \endgroup
+
+  % Bibliografia (ordinamento alfabetico per autore)
+  \addcontentsline{toc}{chapter}{Bibliografia}
+  \bibliographystyle{plain}
+  \bibliography{bibliography.bib}
+
+  % Allegati (opzionale)
+  \titleformat{\chapter} {\normalfont\Huge\bfseries}{Allegato \thechapter}{1em}{}
+  \appendix
+  \input{attachments/attachment.tex}
+\end{document}
