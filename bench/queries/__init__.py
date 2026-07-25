@@ -30,7 +30,7 @@ class Query:
     applies_to: Callable[[Dataset], bool] = field(default=lambda ds: True, compare=False)
 
     def render(self, ds: Dataset) -> str:
-        return self.template.format(namespace=ds.namespace).strip() + "\n"
+        return self.template.format(namespace=ds.namespace, **ds.query_params).strip() + "\n"
 
 
 _REGISTRY: dict[str, Query] = {}

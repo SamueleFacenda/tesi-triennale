@@ -13,7 +13,7 @@ repo. A registered dataset is *usable* only when at least one of its format file
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 # RDF syntaxes we support, mapped to their MIME type and canonical file extension.
@@ -42,6 +42,9 @@ class Dataset:
     name: str
     namespace: str            # base ontology IRI, ends with '#' or '/'
     formats: dict[str, str]   # fmt -> path (same content, different serialization)
+    # ontology-specific bits substituted into query templates (e.g. the coordinate-extent
+    # predicate: Heritage/Urban use Has_X_Max, 3DOntCore uses Max_X)
+    query_params: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         for fmt in self.formats:
@@ -94,25 +97,30 @@ def _paths(base_dir, stem: str, fmts: dict[str, str]) -> dict[str, str]:
     return {fmt: str(Path(base_dir) / f"{stem}.{ext}") for fmt, ext in fmts.items()}
 
 
+# coordinate-extent predicate per ontology (for the scalar_max_x query)
+_HXMAX = {"max_x": "Has_X_Max"}   # Heritage, Urban
+_MAXX = {"max_x": "Max_X"}        # 3DOntCore
+
+
 def _builtin() -> None:
     # Big source graphs in ~/downloads/ontos (referenced by path, never copied).
-    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"})))
+    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"}), _HXMAX))
     register(Dataset("torre_modena", _HERITAGE,
-                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"})))
-    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"})))
-    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"})))
-    register(Dataset("colosseo", _CORE, _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl"})))
+                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
+    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"}), _HXMAX))
+    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}), _MAXX))
+    register(Dataset("colosseo", _CORE, _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl"}), _MAXX))
 
     # Small real-shaped samples (head of the big files), generated locally under testdata/.
     # Fast complete test that still exercises per-engine format selection.
     register(Dataset("mini_heritage", _HERITAGE,
-                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"})))
+                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
     register(Dataset("mini_urban", _URBAN,
-                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"})))
+                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
 
     # Tiny synthetic fixture (committed) in all three formats — smoke tests.
     register(Dataset("tiny", _CORE,
-                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"})))
+                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"}), _MAXX))
 
 
 _builtin()

@@ -6,8 +6,9 @@ dataset's ontology namespace and reads from the default graph (no ``FROM``).
 
 Predicate names come from the 3D ontologies (Heritage / Urban / 3DOntCore):
 ``base:X/Y/Z`` + ``base:R/G/B`` on points, ``base:Constitutes`` (point -> object),
-``base:Point`` / ``base:Macro_Entity`` classes, ``base:Permeability_to_Water`` and
-``base:Has_Z_Lenght`` scalar properties.
+``base:Point`` / ``base:Macro_Entity`` classes, the object coordinate-extent predicate
+(``base:{max_x}`` — Has_X_Max on Heritage/Urban, Max_X on 3DOntCore) and
+``base:Has_Z_Lenght``.
 """
 
 from __future__ import annotations
@@ -48,31 +49,34 @@ WHERE {{
 """),
 ))
 
-# 2. scalar: select all permeability values.
+# 2. scalar: for each point, the X-extent (max X) of the object it constitutes.
+# The predicate differs per ontology ({max_x} = Has_X_Max for Heritage/Urban, Max_X for Core).
 register(Query(
-    name="scalar_permeability",
+    name="scalar_max_x",
     kind="scalar",
-    description="All subjects and their Permeability_to_Water scalar value.",
+    description="Per point, the max-X coordinate of the object it constitutes.",
     template=_q("""
-SELECT DISTINCT ?s ?x
+SELECT DISTINCT ?p ?x
 WHERE {{
-    ?s base:Permeability_to_Water ?x .
+    ?p base:Constitutes ?obj .
+    ?obj base:{max_x} ?x .
 }}
 """),
 ))
 
-# 3. select: all points that belong to a (segmented) object.
+# 3. select: all point ids belonging to one specific object (deterministically chosen,
+# so it differs per dataset without hand-configuring an object IRI).
 register(Query(
     name="select_points_in_object",
     kind="select",
-    description="All points constituting an object of a Macro_Entity subclass.",
+    description="All point ids constituting one specific object.",
     template=_q("""
-SELECT DISTINCT ?p ?obj
+SELECT ?p
 WHERE {{
-    ?p a base:Point ;
-       base:Constitutes ?obj .
-    ?obj a ?t .
-    ?t rdfs:subClassOf* base:Macro_Entity .
+    {{
+        SELECT ?obj WHERE {{ ?s base:Constitutes ?obj }} ORDER BY ?obj LIMIT 1
+    }}
+    ?p base:Constitutes ?obj .
 }}
 """),
 ))
