@@ -29,6 +29,7 @@
             pdfx xmpincl colorprofiles # PDF/A-1b + sRGB ICC profile
             titlesec setspace wrapfig stackengine listofitems
             xurl enumitem lipsum
+            listings
             babel-italian;
         };
 

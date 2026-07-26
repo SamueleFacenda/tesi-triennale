@@ -7,7 +7,8 @@ attuali soluzioni software. In questo capitolo verranno esposti i dati utilizzat
 che verranno eseguite sui dati e i software presi in considerazione.
 \par
 Le seguenti metrice sono state prese in considerazione:
-\begin{itemize} TODO grassetto
+
+\begin{itemize} % TODO grassetto
 \item Tempo di caricamento: tempo impiegato per caricare un dataset la prima volta.
 \item Spazio utilizzato: spazio utilizzato dal motore per persistere il grafo su disco.
 \item Tempo di esecuzione query: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
@@ -37,63 +38,255 @@ né particolari costruzioni, a parte dove indicato.
 Questa nuvola rappresenta una porzione del dataset ytu3d (TODO cite), un'acquisizione 
 dell'ambiente urbano del campus adfojshsofhsohfodsfhsd
 
-Numero di punti: 1_065_725
-Numero di triple: 11_725_772
+Numero di punti: $1.065.725$
+Numero di triple: $11.725.772$
 
 TODO image
 \subsubsection{Medio}
 
 torre modena
 
-Numero di punti: 3_715_673
-Numero di triple: 38_886_807
+Numero di punti: $3.715.673$
+Numero di triple: $38.886.807$
 
 TODO image chiedere matteo
 \subsubsection{Medio 2}
 
 tempio di nettuno
 
-Numero di punti: 2_785_178
-Numero di triple: 47_239_850
+Numero di punti: $2.785.178$
+Numero di triple: $47.239.850$
 
 TODO image
 \subsubsection{Grande}
 
-Numero di punti: 9_813_921
-Numero di triple: 156_937_172
+Numero di punti: $9.813.921$
+Numero di triple: $156.937.172$
 
 \subsection{Query}
 
+Al fine di valutare le prestazioni dei vari motori sono state individuate otto interrogazioni da eseguire su ognuno
+dei dataset. Segue una breve sezione con la query vera e proprio, parametrizzata con degli attributi specifici di ogni
+database (indicati con ), e una descrizione del suo utilizzo all'interno del framework 3Dont.
+I seguenti prefissi sono utilizzati in ogni query: 
+\begin{lstlisting}[language=SPARQL]
+PREFIX base:<{namespace}>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+\end{lstlisting}
+
 \subsubsection{Seleziona tutto}
+
+Questa query viene eseguita quado un nuovo progetto viene aperto, richiedendo per ogni punto le sue coordinate e il suo colore.
+Alcuni dataset possono essere creati soltanto da acquisizioni LiDAR, ne consegue che non è assicurato che tutti i punti
+abbiano un colore definito (viene applicato il colore bianco come valore di default).
+È la query con cui la maggior parte dei motori faticano di più, a causa soprattutto delle grandi dimensioni del suo risultato,
+avente una riga per ogni punto e ben sette colonne.
+
+\begin{lstlisting}[language=SPARQL]
+SELECT DISTINCT ?p ?x ?y ?z
+       (COALESCE(?_r, 0) AS ?r)
+       (COALESCE(?_g, 0) AS ?g)
+       (COALESCE(?_b, 0) AS ?b)
+WHERE {
+    ?p base:X ?x ;
+       base:Y ?y ;
+       base:Z ?z .
+    OPTIONAL {
+        ?p base:R ?_r .
+        ?p base:G ?_g .
+        ?p base:B ?_b .
+    }
+}
+\end{lstlisting}
+
 
 \subsubsection{Scalare}
 
+Una semplice query con risultato scalare, ad ogni punto viene associato un valore numerico dato dall'oggetto a cui appartiene.
+La maggior parte dei punti fa parte di uno o più oggetti ma è possibile che la dimensione del risultato sia minore del numero di
+punti della nuvola completa. Query di questo tipo possono essere eseguite manualmente dall'utente oppure in fase di esplorazione
+del grafo dall'interfaccia ad albero.
+
+\begin{lstlisting}[language=SPARQL]
+SELECT DISTINCT ?p ?x
+WHERE {
+    ?p base:Constitutes ?obj .
+    ?obj base:{max_x} ?x .
+}
+\end{lstlisting}
+
+
 \subsubsection{Punti nell'oggetto}
+
+Questa query di tipo selezione permette di evidenziare tutti i punti appartenenti a un certo oggetto.
+Per non fare assuzioni sul dataset viene preso in considerazione il primo oggetto in ordine di apparizione,
+che rimane costante tra diversi motori ma rende la query possibilmente sbilanciata tra i vari dataset.
+Query come questa possono essere eseguite dall'interfaccia di esplorazione del grafo ad albero
+
+\begin{lstlisting}[language=SPARQL]
+SELECT ?p
+WHERE {
+    {
+        SELECT ?obj WHERE { ?s base:Constitutes ?obj } ORDER BY ?obj LIMIT 1
+    }
+    ?p base:Constitutes ?obj .
+}
+\end{lstlisting}
 
 \subsubsection{Segmentazione delle istanze}
 
+Questa è la prima query di tipo segmentazione che viene eseguita e per ogni punto ritorna uno o più identificatori
+di oggetti a cui appartiene. È poi necessario applicare un algoritmo per scegliere quale identificatore usare
+in fase di visualizzazione, è il caso della scelta del valore di LOD. 
+Il numero di risulati può essere molto maggiore rispetto al numero di punti nel grafo, rendendo questa query molto importante
+ai fini della nostra valutazione.
+
+\begin{lstlisting}[language=SPARQL]
+SELECT DISTINCT ?s ?x
+WHERE {
+    ?s base:Constitutes ?x .
+}
+\end{lstlisting}
+
 \subsubsection{Segmentazione tassonomica}
+
+Questa query è una variazione di quella precedente e invece di selezionare l'IRI della singola istanza di oggetto a cui un punto
+appartiene va a selezionare l'IRI della classificazione tassonomica dell'oggetto. Qui invece andiamo direttamente a selezionare
+la classe tassonomica più specifica a cui appartiene il punto, con il filtro che rimuove tutti gli elementi che non sono foglie
+nell'albero tassonomico dell'ontologia.
+
+\begin{lstlisting}[language=SPARQL]
+SELECT DISTINCT ?s ?x
+WHERE {
+    ?s a base:Point .
+    ?s base:Constitutes ?obj .
+    ?obj a ?x .
+    ?x rdfs:subClassOf* base:Macro_Entity .
+    FILTER NOT EXISTS {
+        ?sub rdfs:subClassOf ?x .
+        ?point rdf:type ?sub .
+    }
+}
+\end{lstlisting}
 
 \subsubsection{LOD massimo}
 
+Questa query viene utilizzata per individuare la profondità massima nell'albero mereologico dell'ongologia, definendo come
+classe a maggiore dettaglio una classe con un numero minore di elementi. Siccome ogni punto appartiene sia all'oggetto più specifico
+che a tutti i suoi antenati nell'albero mereologico (come spiegato prima, un punto è sia parte ad esempio di una colonna 
+che dell'edificio di cui la colonna è parte) è sufficiente contare il numero di oggetti di cui un punto è parte per ottenere la
+profondità richiesta. 
+Il risultato sarà un singolo valore per qui con questa query andiamo sì ad operare una vasta operazione di scorrimento e raggruppamento
+sull'intera nuvola ma la complessità di serializzazione e trasmissione del risultato è molto ridotta.
+
+\begin{lstlisting}[language=SPARQL]
+SELECT (MAX(?cnt) AS ?maxCount)
+WHERE {
+  {
+    SELECT (COUNT(*) AS ?cnt)
+    WHERE {
+      ?s base:Constitutes ?o .
+    }
+    GROUP BY ?s
+  }
+}}
+\end{lstlisting}
+
 \subsubsection{Gerarchia tassonomica}
+
+Questa query, una delle più complesse utilizzate nel normale funzionamento del framework 3Dont, permette di ottenere
+l'intero albero tassonomico dell'ontologia popolata. Ritorna una tabella con in ogni riga una classe tassonomica,
+il suo genitore e la sua profondità nell'albero, di modo che un semplice algoritmo può ricostruire la struttura
+data la sua serializzazione in lista.
+Il numero di righe del risultato difficilmente supera il centinaio, rendendo la query piuttosto efficiente.
+
+%TODO nb
+\par Non in tutti i dataset è disponibile questa categorizzazione interna, laddove la query non producesse nessun
+risultato è stato evidenziata come `N/A` (Non Applicabile).
+
+\begin{lstlisting}[language=SPARQL]
+SELECT ?c ?sup (COUNT(DISTINCT ?sup2) AS ?depth)
+WHERE {
+  {
+    SELECT DISTINCT ?c
+    WHERE {
+      ?point a base:Point .
+      ?point base:Constitutes ?obj .
+      ?obj a ?c .
+      ?c rdfs:subClassOf* base:Macro_Entity .
+    }
+  }
+  ?c rdfs:subClassOf* ?sup .
+  ?sup rdfs:subClassOf+ base:Macro_Entity .
+  OPTIONAL {
+    ?sup rdfs:subClassOf* ?sup2 .
+    ?sup2 rdfs:subClassOf* base:Macro_Entity .
+  }
+}
+GROUP BY ?c ?sup
+ORDER BY ?c ?depth ?sup
+\end{lstlisting}
+
 
 \subsubsection{Altezza media degli oggetti}
 
+L'ultima query analizzata è simile alla precedente query scalare ma ritorna un solo valore aggregato.
+Essendo poi una media si va a valutare la capacità dei motori di parallelizzazione e aggregazione di risultati
+intermedi, poiché è possibile dividere il carico in sotto compiti e poi integrare i loro risultati in uno unico.
 
+\begin{lstlisting}[language=SPARQL]
+SELECT (AVG(?h) AS ?avgHeight)
+WHERE {
+    ?o base:Has_Z_Lenght ?h .
+}
+\end{lstlisting}
 
-% TODO: dati e dimensione dei risultati.
 
 \section{Ambiente}
 \label{sec:environment}
 
+L'ambiente di esecuzione è stato mantenuto il più possibile uguale durante le varie fasi di esecuzione del benchmark.
+È stato scelto una workstation con un'installazione linux senza particolari capacità di calcolo: lo scopo del test
+è valutare la predisposizione dei vari motori ad essere una base per un utilizzo più vasto di RDF e una prerogativa
+è che ciò sia possibile per un'utenza comune, senza accesso ad attrezzatura professionale o in ogni caso fuori dal comune.
+
 \subsection{Hardware}
+
+Il calcolatore utilizzato disponeva di un processore intel di 13° generazione con 14 cores totali, 20 threads virtuali. Di questi
+6 cores sono capaci di raggiungere una frequenza di 5.4 GHz e 8 una frequenza di 4.1 GHz. È da notare come questa sia la frequenza
+di picco del turbo, per cui viene raramente mantenuta per più di qualche secondo durante l'esecuzione delle query (che invece
+possono durare diversi minuti).
+\par Sulla macchina è inoltre disponibile un totale di 46.68 GiB (48 GB) di memoria RAM DDR5 operante a una frequenza di 
+4800 MHz. È inoltre disponibile un totale di 56.00 GiB di memoria swap, quasi mai utilizzato se non per qualche processo di sistema.
+Va menzionato che la macchina dispone anche di un GPU NVIDIA GeForce RTX 4060 Max-Q che però non viene utilizzata da nessuno dei
+motori presi in considerazione qui.
+% TODO codeblock
+\par Attraverso l'interfaccia ACPI messa a disposizione dal kernel linux è stato configurato un profilo piattaforma `performance` e
+il governatore `performance` per la CPU usando il driver `intel pstate`.
 
 \subsection{Condizioni software}
 
-Un problema che si ha analizzando le prestazioni 
-
-ripetizioni, hot start, http layer e segmentazione
+Un problema che si ha analizzando le prestazioni di motori con architetture così diverse è la disomogeneità delle loro interfacce.
+Alcuni di questi vanno utilizzati come librerie (soprattutto per il linguaggio Python) mentre altri sono disponibili per essere
+eseguiti dentro dei container OCI e accessibili tramite l'interfaccia http di SPARQL, oppure attraverso degli strumenti
+appositi via linea di comando. Questo genera non poche differenze nel tempo di esecuzione tra i motori che ritornano un risultato
+serializzato e via HTTP e quelli che lo rendono disponibile nel loro formato nativo (strutture dati) direttamente nella memoria
+del processo. Per ovviare a questa distinzione è stato aggiunta un'interfaccia intermedia per l'accesso ai motori che non operano
+attraverso HTTP che introduce una serializzazione e comunicazione con un server HTTP locale avviato apposta, oltre alla misurazione
+della latenza base di ogni motore tramite una semplice query vuota, che viene poi integrata nel risultato finale.
+\par Ad ogni modo è difficile poter avere risultati affidabili e riproducibili soltanto con queste accortezze, i motori sono scatole
+chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione anche durante le nostre richieste. Per ridurre
+al minimo la varianza vengono quindi eseguite più volte le stesse query e viene poi scelto il tempo mediano come rappresentativo.
+Inoltre, per evitare la latenza data dalla lettura su disco iniziale del dataset, prima delle query che vengono effettivamente
+misurate ne vengono eseguite altre per caricare i file nella RAM cache diminuendo la casualità data dagli algoritmi di paginazione
+e swapping.
+\par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione 7.1.4 basato sulla
+build di NixOS unstable al commit e2587caef70cea85dd97d7daab492899902dbf5d (il sistema è stato compilato senza ottimizzazioni
+per il processore specifico ma con una configurazione generica per linux x86-64). Il software eseguito invece è ottenibile in
+modo completamente riproducibile attraverso il gestore di pacchetti nix dalla repository (TODO link), di seguito verranno riportate
+le versioni dei singoli motori utilizzate~\ref{sec:engines}
+% TODO cite https://nixos.org/research/
 
 % TODO: ambiente di esecuzione.
 
@@ -102,7 +295,7 @@ ripetizioni, hot start, http layer e segmentazione
 
 Viene riportata una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
 che ha portato alla scelta del motore ed eventuali note che risultino interessanti al fine del benchmark.
-
+L'ordine di presentazione è alfabetico.
 
 % TODO: motori analizzati.
 
