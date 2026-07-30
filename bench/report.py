@@ -56,7 +56,9 @@ def summarize(store: BenchStore) -> list[dict]:
             "dataset": dataset,
             "query": query,
             "runs_ok": len(oks),
-            "runs_err": len(ms) - len(oks),
+            "runs_err": sum(1 for m in ms if m["status"] == "error"),
+            # >0 means the query exceeded timeout_s here; latencies below are then null
+            "runs_timeout": sum(1 for m in ms if m["status"] == "timeout"),
             "result_rows": result_rows,
             "wall_min_s": wall.get("min"),
             "wall_median_s": wall.get("median"),
@@ -143,10 +145,12 @@ def status_counts(store: BenchStore) -> dict:
     ms = store.measurements(measured_only=True)
     ok = sum(1 for m in ms if m["status"] == "ok" and m["query"] != BASELINE)
     err = sum(1 for m in ms if m["status"] == "error" and m["query"] != BASELINE)
+    timeout = sum(1 for m in ms if m["status"] == "timeout" and m["query"] != BASELINE)
     loads = store.loads()
     return {
         "measurements_ok": ok,
         "measurements_err": err,
+        "measurements_timeout": timeout,
         "loads_ok": sum(1 for r in loads if r["status"] == "ok"),
         "loads_err": sum(1 for r in loads if r["status"] == "error"),
     }

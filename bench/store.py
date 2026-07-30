@@ -9,7 +9,9 @@ Layout of a run directory (``<output_dir>/<run_name>/``)::
 
 Every write commits immediately, so the process is safe to Ctrl-C and resume: the runner
 skips any (engine, dataset, query, rep) that already has a successful measured row, and
-skips loading when a successful ``load_result`` row exists and the store is intact.
+skips loading when a successful ``load_result`` row exists and the store is intact. A
+``status='timeout'`` row is terminal — that query is not retried on resume (see
+:meth:`BenchStore.query_complete`); plain errors are cheap and still retried.
 """
 
 from __future__ import annotations
@@ -46,7 +48,7 @@ CREATE TABLE IF NOT EXISTS measurement (
     rows          INTEGER,
     bytes         INTEGER,
     peak_rss_bytes INTEGER,
-    status        TEXT NOT NULL,      -- 'ok' | 'error'
+    status        TEXT NOT NULL,      -- 'ok' | 'error' | 'timeout'
     error         TEXT,
     ts            REAL NOT NULL,
     PRIMARY KEY (engine, dataset, query, rep, warmup)
@@ -65,6 +67,13 @@ class BenchStore:
         cols = {r[1] for r in self.db.execute("PRAGMA table_info(load_result)")}
         if "format" not in cols:
             self.db.execute("ALTER TABLE load_result ADD COLUMN format TEXT")
+        # migrate DBs written before timeouts had their own status. Match 'Read timed out'
+        # specifically: a *connect* timeout means the server never came up, which is a
+        # retryable startup problem and must not become terminal.
+        self.db.execute(
+            "UPDATE measurement SET status='timeout' "
+            "WHERE status='error' AND error LIKE '%Read timed out%'"
+        )
         self.db.commit()
 
     # ------------------------------------------------------------------ storage dirs
@@ -121,6 +130,20 @@ class BenchStore:
             (engine, dataset, query),
         ).fetchone()
         return row["n"]
+
+    def timed_out(self, engine: str, dataset: str, query: str) -> bool:
+        """The query already blew the per-query budget here; running it again would too."""
+        row = self.db.execute(
+            "SELECT 1 FROM measurement WHERE engine=? AND dataset=? AND query=? "
+            "AND status='timeout' LIMIT 1",
+            (engine, dataset, query),
+        ).fetchone()
+        return row is not None
+
+    def query_complete(self, engine: str, dataset: str, query: str, reps: int) -> bool:
+        """Nothing left to run for this query: fully measured, or a recorded timeout."""
+        return self.timed_out(engine, dataset, query) or \
+            self.measured_count(engine, dataset, query) >= reps
 
     # ------------------------------------------------------------------ reporting
     def loads(self) -> list[sqlite3.Row]:

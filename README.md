@@ -97,6 +97,11 @@ persisted store, loaded once), and per-engine logs. Every measurement is committ
 immediately, so the run is safe to stop with Ctrl-C and continue with `kbench resume` —
 already-completed measurements and already-loaded datasets are skipped. `--fresh` wipes.
 
+A query that exceeds `timeout_s` is recorded with `status = "timeout"` (reported as
+`runs_timeout` in `summary.csv`) and is not attempted again: neither its warmups nor its
+remaining repetitions run, on this run or on any resume. Plain errors are still retried,
+since they are cheap and often transient.
+
 ## Engines
 
 | Engine    | Packaging            | Notes |

@@ -28,6 +28,10 @@ class QueryError(Exception):
     pass
 
 
+class QueryTimeout(QueryError):
+    """The query exceeded the per-query budget. Terminal: never retried on resume."""
+
+
 @dataclass
 class QueryResult:
     wall_s: float           # full client round-trip: send + execute + receive + parse
@@ -88,6 +92,8 @@ class SparqlHttpClient:
                 self.endpoint, data=sparql.encode("utf-8"), params=params,
                 headers=headers, timeout=self.timeout,
             )
+        except requests.Timeout as e:  # subclass of RequestException — must come first
+            raise QueryTimeout(f"timed out after {self.timeout:g}s") from e
         except requests.RequestException as e:
             raise QueryError(f"request failed: {e}") from e
 

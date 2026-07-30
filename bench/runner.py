@@ -6,7 +6,9 @@ precede each measured batch to avoid cold-cache bias. A serialization/connection
 baseline (a trivial 1-row query) is measured per engine+dataset.
 
 Everything is checkpointed through :class:`BenchStore`, so a run is resumable: already
-completed measurements and already loaded datasets are skipped.
+completed measurements and already loaded datasets are skipped. A query that exceeds
+``timeout_s`` is recorded as a timeout and never attempted again — otherwise every resume
+would re-pay the full timeout for both the warmups and every repetition.
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ from . import queries as queries_mod
 from . import engines as engines_mod
 from .config import BenchConfig
 from .engines.base import AbstractEngine, EngineError
-from .engines.http_client import QueryError, QueryResult
+from .engines.http_client import QueryError, QueryResult, QueryTimeout
 from .metrics import dir_size
 from .store import BASELINE, BenchStore
 from .tuning import Tuning
@@ -164,7 +166,7 @@ class BenchRunner:
         # ---- resume shortcut: everything already measured? ----
         pending = [
             q for q in applicable
-            if self.store.measured_count(engine_name, dataset_name, q.name) < plan.repetitions
+            if not self.store.query_complete(engine_name, dataset_name, q.name, plan.repetitions)
         ]
         if not pending:
             self.reporter.log(f"{engine_name}/{dataset_name}: all queries complete, skipping")
@@ -201,6 +203,14 @@ class BenchRunner:
 
     def _run_query(self, engine: AbstractEngine, engine_name: str, dataset_name: str,
                    query: queries_mod.Query, plan: Plan) -> None:
+        # a recorded timeout is terminal: re-running it would only burn the budget again
+        if self.store.timed_out(engine_name, dataset_name, query.name):
+            self.reporter.log(
+                f"    {query.name}: skipped (timed out previously, >{engine.timeout_s:g}s)"
+            )
+            self.reporter.unit_done()
+            return
+
         ds = datasets_mod.get(dataset_name)
         sparql = query.render(ds)
         self.reporter.query_start(engine_name, dataset_name, query.name, plan.repetitions)
@@ -209,21 +219,52 @@ class BenchRunner:
         for _ in range(plan.warmup):
             try:
                 engine.query(sparql)
+            except QueryTimeout as e:
+                # no point measuring what already blew the budget once
+                self._save_timeout(engine, engine_name, dataset_name, query.name,
+                                   f"{e} (during warmup)")
+                self.reporter.query_done(engine_name, dataset_name, query.name)
+                self.reporter.unit_done()
+                return
             except QueryError:
                 break
 
         for rep in range(plan.repetitions):
             if self.store.measured_ok(engine_name, dataset_name, query.name, rep):
                 continue
-            self._measure_once(engine, engine_name, dataset_name, query.name, sparql, rep)
+            if self._measure_once(engine, engine_name, dataset_name, query.name, sparql, rep) \
+                    == "timeout":
+                break  # remaining reps would time out too
         self.reporter.query_done(engine_name, dataset_name, query.name)
         self.reporter.unit_done()
 
+    def _save_timeout(self, engine: AbstractEngine, engine_name: str, dataset_name: str,
+                      query_name: str, message: str, rep: int | None = None) -> None:
+        """Record a timeout as the query's (terminal) result, without clobbering a good rep."""
+        if rep is None:
+            rep = next(
+                (r for r in range(self.cfg.repetitions)
+                 if not self.store.measured_ok(engine_name, dataset_name, query_name, r)),
+                None,
+            )
+            if rep is None:  # already fully measured — nothing to record
+                return
+        self.store.save_measurement(
+            engine_name, dataset_name, query_name, rep, warmup=False,
+            wall_s=None, server_s=None, rows=None, bytes_=None,
+            peak_rss_bytes=engine.rss_peak(), status="timeout", error=message,
+        )
+        self.reporter.error(f"{engine_name}/{dataset_name}/{query_name}: {message}")
+
     def _measure_once(self, engine: AbstractEngine, engine_name: str, dataset_name: str,
-                      query_name: str, sparql: str, rep: int) -> None:
+                      query_name: str, sparql: str, rep: int) -> str:
+        """Run one measured repetition; returns its status ('ok' | 'error' | 'timeout')."""
         engine.reset_rss_peak()
         try:
             res = engine.query(sparql)
+        except QueryTimeout as e:
+            self._save_timeout(engine, engine_name, dataset_name, query_name, str(e), rep=rep)
+            return "timeout"
         except QueryError as e:
             self.store.save_measurement(
                 engine_name, dataset_name, query_name, rep, warmup=False,
@@ -231,10 +272,11 @@ class BenchRunner:
                 peak_rss_bytes=engine.rss_peak(), status="error", error=str(e),
             )
             self.reporter.error(f"{engine_name}/{dataset_name}/{query_name} rep{rep}: {e}")
-            return
+            return "error"
         self.store.save_measurement(
             engine_name, dataset_name, query_name, rep, warmup=False,
             wall_s=res.wall_s, server_s=res.server_s, rows=res.rows, bytes_=res.bytes,
             peak_rss_bytes=engine.rss_peak(), status="ok",
         )
         self.reporter.measurement(engine_name, dataset_name, query_name, rep, res)
+        return "ok"
