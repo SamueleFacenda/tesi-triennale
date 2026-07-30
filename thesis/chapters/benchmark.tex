@@ -288,33 +288,88 @@ modo completamente riproducibile attraverso il gestore di pacchetti nix dalla re
 le versioni dei singoli motori utilizzate~\ref{sec:engines}
 % TODO cite https://nixos.org/research/
 
+%TODO timeout 10 minuti
+
 % TODO: ambiente di esecuzione.
 
 \section{Motori}
 \label{sec:engines}
 
-Viene riportata una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
+Viene riportata, in ordine alfabetico una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
 che ha portato alla scelta del motore ed eventuali note che risultino interessanti al fine del benchmark.
-L'ordine di presentazione è alfabetico.
+Per i vari motori è stata inoltre condotta una breve analisi delle prestazioni di serializzazione nei vari formati 
+supportati, come JSON e CSV, di modo da ridurre il tempo impiegato in questa fase. Si anticipa che il formato
+prediletto è stato TSV (Tab Separated Values), simile a CSV ma che per i tipi di dati trattati non richiede mai
+l'escape di nessun carattere (il carattere tab non è mai presente nei datasets).
 
 \subsection{Fuseki}
 
 Fuseki è un server SPARQL basato su Apache Jena, una delle soluzioni più popolari. È scritto in Java
 e supporta il ragionamento OWL usando Pellet. È stato scelto per la sua popolarità ed è stata usata 
-la versione `5.1.0`.
+la versione `5.1.0` e il formato dei risultati utilizzato è TSV.
 
 \subsection{Graphdb}
 
-
-GraphDB is one of the most used triple stores in the enterprise world, 
+GraphDB è uno dei triple store più utilizzati in ambito aziendale, rinomato per le sue elevate prestazioni
+e per la quantità di features disponibili, come l'integrazione con un vasto numero di piattaforme usate
+nello sviluppo di applicazioni basate sui dati (ad esempio Apache Kafka o ElasticSearch).
+La versione utilizzata è la `10.7.0` mentre il formato dei risultati è CSV.
 
 \subsection{Owlready2}
+
+Owlready2 è una libreria Python per la programmazione di ontologie che integra un layer di persistenza basato 
+su SQLite con supporto per query SPARQL. È un motore essenzialmente differente rispetto a quelli fino ad adesso
+citati, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comprarabili a
+prodotti molto più avanzati, soprattutto se usato come interfaccia diretta, visto che si va a ridurre la latenza
+data dal protocollo SPARQL su HTTP.
+La versione utilizzata è la '0.47', con risultati in formato TSV.
+
 \subsection{Oxigraph}
+
+Come l'appena citato Owlready2, Oxigraph a sua volta è una libreria integrabile direttamente dentro altri software.
+Scritta in Rust, è integrabile anche con Python e RDFLib, una delle librerie più usate nel settore. Si basa su RocksDB
+come backend di persistenza e volendo può essere usata come server SPARQL HTTP direttamente.
+La versione utilizzata è la `0.5.0` e il formato dei risultati è TSV.
+
 \subsection{Qendpoint}
-\subsection{Qlever}
-\subsection{Rdflib}
-\subsection{Rdfox}
+
+Qendpoint è un triple store con supporto GeoSPARQL (come GraphDB d'altronde) basato sul formato file HDT (Header, Dictionary, Triples). 
+Questo si pone come alternativa efficiente ai più comuni RDF-XML e Turtle, integrando un indice direttamente al suo interno e rendendone
+l'accesso molto veloce. Qendpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
+di un nuovo indice da capo), attraverso un buffer di modifica che viene integrato periodicamente nel file sottostante.
+Questo permetterebbe di accedere molto velocemente a larghe porzioni del datasets, fattore per noi essenziale, grazie alla compressione
+data dall'indicizzazione e alla struttura interna di HDT. 
+La versione utilizzata è la `2.5.2`, con risultati in formato TSV.
+
+\subsection{QLever}
+
+QLever è un motore open-source molto recente che mira a supportare l'esecuzioni di query SPARQL su datasets di grandi dimensioni
+utilizzando hardware non professionale e con un consumo di risurse ridotto. Il codice, scritto in C++, contiene un vasto numero
+di ottimizzazioni avanzata a diversi livelli e supporta anch'esso l'integrazione come libreria.
+La versione utilizzata è la `0.5.42` mentre il formato dei risultati è TSV.
+
+\subsection{RDFLib}
+
+RDFLib è una popolare libreria Python per la creazione di applicazioni per il semantic web. Permette di usare Berkeley DB per
+la persistenza di un grafo in memoria, oltre che un vasto numero di altri motori, e supporta query le SPARQL in modo nativo.
+Considerata un punto di riferimento per lo standard RDF è stata scelta per la sua popolarità e per poter comparare le prestazioni
+di un software open-source integrabile da chiunque con motori proprietari e concessi su licenza (come GraphDB e RDFox)
+É stata utilizzata la versione `7.1.4` con risultati in formato CSV.
+
+\subsection{RDFox}
+
+RDFox è un motore per grafi semantici che opera interamente all'interno della memoria RAM. È quindi molto interessante
+da comparare e potenzialmente permette di ridurre la latenza di risposta alle query a costo di un maggiore consumo di memoria.
+Sviluppato dall'Università di Oxford è disponibile solamente su licenza, la versione utilizzata è la `7.6` con risultati
+in formato CSV.
+
 \subsection{Virtuoso}
+
+Virtuoso è l'ultimo engine preso in considerazione in questo benchmark, nella sua versione open-source. Virtuoso è un motore
+ibrido con supporto per un vasto numero di tipi di database, dai classici database relazionali SQL a formati non strutturati
+come RDF. Riesce inoltre a garantire delle prestazioni molto elevate, oltre a una versione disponibile su licenza con supporto
+e funzionalità aggiuntive.
+La versione utilizzata è la `7.2` con risultati in formato TSV.
 
 \section{Confronto con i tipi nativi}
 \label{sec:native_type_comparison}
