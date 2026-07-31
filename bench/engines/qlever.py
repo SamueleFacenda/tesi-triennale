@@ -8,11 +8,27 @@ reads only Turtle / N-Triples / N-Quads, so RDF/XML datasets are rejected.
 from __future__ import annotations
 
 import shutil
+import subprocess
 
 from ..datasets import Dataset, ResolvedInput
 from ..metrics import run_sampled
 from .base import AbstractEngine, EngineError, LoadResult, which
 from .registry import register_engine
+
+
+def _longest_line_bytes(path) -> int:
+    """Length of the longest line, in bytes. Drives PARSER_BUFFER_SIZE (see below)."""
+    longest = since_newline = 0
+    with open(path, "rb") as fh:
+        while chunk := fh.read(1 << 24):
+            parts = chunk.split(b"\n")
+            if len(parts) == 1:
+                since_newline += len(chunk)
+                continue
+            longest = max(longest, since_newline + len(parts[0]),
+                          max(map(len, parts[1:-1]), default=0))
+            since_newline = len(parts[-1])
+    return max(longest, since_newline)
 
 
 def _qlever_system() -> str | None:
@@ -28,6 +44,22 @@ class QleverEngine(AbstractEngine):
     required_binaries = ["qlever"]
     input_formats = ["ttl", "nt"]  # QLever does not read RDF/XML
     _NAME = "bench"
+    # `qlever start` blocks until the server answers, with no timeout of its own: a
+    # server that crash-loops (docker --restart=unless-stopped) would hang forever.
+    _START_TIMEOUT_S = 300.0
+
+    def _index_complete(self) -> bool:
+        """Whether a full index is on disk.
+
+        Needed because qlever-control pipes IndexBuilderMain through ``tee``, so the
+        shell reports ``tee``'s exit status and `qlever index` returns 0 even when the
+        build aborted. The metadata alone is not enough — it appears partway through —
+        so require every permutation the server will open.
+        """
+        names = [f"{self._NAME}.index.{p}"
+                 for p in ("spo", "sop", "osp", "ops", "pso", "pos")]
+        names.append(f"{self._NAME}.meta-data.json")
+        return all((self.storage_dir / n).exists() for n in names)
 
     @classmethod
     def available(cls) -> tuple[bool, str]:
@@ -55,6 +87,16 @@ class QleverEngine(AbstractEngine):
         except OSError:
             link.symlink_to(inp.path)            # cross-device: fall back (native only)
         budget = self.tuning.budget_gb
+        # QLever's parser reads in fixed-size batches and every batch but the last must
+        # contain an end-of-statement, else the whole build aborts. Turtle written by
+        # ontology editors can put an enormous predicate-object list on one line
+        # (torre_modena.ttl has a single 288 MB line), so size the buffer to the input:
+        # serial parsing needs a newline in the batch, parallel needs a full statement,
+        # hence the extra headroom there. N-Triples is one statement per line, so it can
+        # always parse in parallel on the 10M default.
+        parallel = "true" if fmt == "nt" else "false"
+        longest_mb = _longest_line_bytes(inp.path) // (1 << 20) + 1
+        buffer_mb = max(10, longest_mb * (4 if parallel == "true" else 2))
         content = f"""[data]
 NAME = {self._NAME}
 DESCRIPTION = kbench {dataset.name}
@@ -64,7 +106,8 @@ INPUT_FILES = {link_name}
 CAT_INPUT_FILES = cat {link_name}
 FORMAT = {fmt}
 STXXL_MEMORY = {budget}G
-PARALLEL_PARSING = true
+PARALLEL_PARSING = {parallel}
+PARSER_BUFFER_SIZE = {buffer_mb}M
 
 [server]
 PORT = {self.port}
@@ -89,19 +132,30 @@ IMAGE = docker.io/adfreiburg/qlever:latest
             ["qlever", "index", "--overwrite-existing"],
             cwd=self.storage_dir, log_path=self.log_path,
         )
-        if not res.ok:
+        if not res.ok or not self._index_complete():
             raise EngineError(f"qlever index failed ({res.describe_failure()}); "
                               f"see {self.log_path}\n{res.output[-1500:]}")
         self._mark_loaded(dataset)
         return LoadResult(res.elapsed_s, res.peak_rss_bytes)
 
+    def is_loaded(self, dataset: Dataset) -> bool:
+        return super().is_loaded(dataset) and self._index_complete()
+
     def _start(self) -> None:
         # qlever-control detaches the server. Pass --port explicitly (the Qleverfile's
         # port may be stale on resume) and kill any leftover server on that port.
-        res = run_sampled(
-            ["qlever", "start", "--port", str(self.port), "--kill-existing-with-same-port"],
-            cwd=self.storage_dir, log_path=self.log_path,
-        )
+        try:
+            res = run_sampled(
+                ["qlever", "start", "--port", str(self.port),
+                 "--kill-existing-with-same-port"],
+                cwd=self.storage_dir, log_path=self.log_path,
+                timeout=self._START_TIMEOUT_S,
+            )
+        except subprocess.TimeoutExpired:
+            raise EngineError(
+                f"qlever start did not come up within {self._START_TIMEOUT_S:.0f}s "
+                f"(it waits for the server forever); see {self.log_path}"
+            ) from None
         if not res.ok:
             raise EngineError(f"qlever start failed ({res.describe_failure()}); "
                               f"see {self.log_path}\n{res.output[-1500:]}")
