@@ -65,9 +65,7 @@ class BenchRunner:
         self.tuning = Tuning.detect(mem_fraction=cfg.mem_fraction, memory_gb=cfg.memory_gb)
 
     def plan(self) -> Plan:
-        units = len(self.cfg.engines) * sum(
-            len(self._applicable_for(d)) for d in self.cfg.datasets
-        )
+        units = sum(self._engine_units(e) for e in self.cfg.engines)
         return Plan(
             engines=self.cfg.engines,
             datasets=self.cfg.datasets,
@@ -82,8 +80,12 @@ class BenchRunner:
         q_objs = [queries_mod.get(q) for q in self.cfg.resolved_queries()]
         return queries_mod.applicable(q_objs, datasets_mod.get(dataset_name))
 
-    def _engine_units(self) -> int:
-        return sum(len(self._applicable_for(d)) for d in self.cfg.datasets)
+    def _datasets_for(self, engine_name: str) -> list[str]:
+        skipped = set(self.cfg.exclude.get(engine_name, ()))
+        return [d for d in self.cfg.datasets if d not in skipped]
+
+    def _engine_units(self, engine_name: str) -> int:
+        return sum(len(self._applicable_for(d)) for d in self._datasets_for(engine_name))
 
     def run(self) -> None:
         plan = self.plan()
@@ -98,30 +100,33 @@ class BenchRunner:
 
     # ------------------------------------------------------------------ per engine
     def _run_engine(self, engine_name: str, plan: Plan) -> None:
+        datasets = self._datasets_for(engine_name)
         try:
             cls = engines_mod.get(engine_name)
         except KeyError as e:
             self.reporter.engine_skip(engine_name, str(e))
-            self.reporter.unit_done(self._engine_units())
+            self.reporter.unit_done(self._engine_units(engine_name))
             return
         ok, reason = cls.available()
         if not ok:
             self.reporter.engine_skip(engine_name, reason)
-            self.reporter.unit_done(self._engine_units())
+            self.reporter.unit_done(self._engine_units(engine_name))
             return
 
         fmt = self.cfg.result_format or cls.result_format
-        self.reporter.engine_start(engine_name, len(plan.datasets))
+        self.reporter.engine_start(engine_name, len(datasets))
         self.reporter.log(f"  {engine_name}: result format {fmt}")
+        for skipped in self.cfg.exclude.get(engine_name, ()):
+            self.reporter.log(f"  {engine_name}/{skipped}: excluded by config")
         try:
             # a throwaway instance is fine for provisioning (pull image, etc.)
             cls(self.store.storage_dir(engine_name, "_provision"), tuning=self.tuning).provision()
         except Exception as e:  # noqa: BLE001
             self.reporter.engine_skip(engine_name, f"provision failed: {e}")
-            self.reporter.unit_done(self._engine_units())
+            self.reporter.unit_done(self._engine_units(engine_name))
             return
 
-        for dataset_name in plan.datasets:
+        for dataset_name in datasets:
             self._run_dataset(cls, engine_name, dataset_name, plan)
 
     # ------------------------------------------------------------------ per dataset

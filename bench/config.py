@@ -27,6 +27,10 @@ class BenchConfig:
     result_format: str | None = None
     engines: list[str] = field(default_factory=list)
     datasets: list[str] = field(default_factory=list)
+    # engine -> datasets it must not be run on, for pairs that are known to be
+    # unaffordable rather than merely slow (e.g. rdflib-bdb on the 147M-triple colosseo:
+    # ~94 GB of store for queries that all time out). Everything else still runs.
+    exclude: dict[str, list[str]] = field(default_factory=dict)
     # list of query names, or the literal "all"
     queries: list[str] | str = "all"
 
@@ -54,6 +58,11 @@ class BenchConfig:
             raise ValueError("config: 'datasets' must list at least one dataset")
         for name in self.datasets:
             datasets_mod.get(name)  # raises on unknown
+        for engine, skipped in self.exclude.items():
+            if engine not in self.engines:
+                raise ValueError(f"config: 'exclude' names engine {engine!r}, not in 'engines'")
+            for name in skipped:
+                datasets_mod.get(name)  # raises on unknown
         for name in self.resolved_queries():
             queries_mod.get(name)   # raises on unknown
         if self.repetitions < 1:
@@ -91,4 +100,5 @@ class BenchConfig:
             "engines": self.engines,
             "datasets": self.datasets,
             "queries": self.queries,
+            "exclude": self.exclude,
         }

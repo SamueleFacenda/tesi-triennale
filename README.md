@@ -150,6 +150,17 @@ oxigraph convert -f testdata/mini_heritage.nt -t testdata/mini_heritage.rdf --to
 
 The committed `tiny` fixture (synthetic, all three formats) is for smoke tests.
 
+`colosseo` ships only as Turtle, which owlready2 cannot read (it has no Turtle parser —
+only N-Triples, RDF/XML and OWL/XML). Its `.nt` is converted once, alongside the source:
+
+```bash
+oxigraph convert -f ~/downloads/ontos/colosseo_3DGraph.ttl \
+                 -t ~/downloads/ontos/colosseo_3DGraph.nt   # 4.9 GB -> 19.4 GB, ~10 min
+```
+
+Only owlready2 picks it up; every other engine still loads the Turtle. `santa_chiara` is
+Turtle-only too and would need the same treatment before owlready2 can run it.
+
 ## Known limitations / notes
 
 - **Serialization overhead** is measured primarily via the per-engine `__baseline__`

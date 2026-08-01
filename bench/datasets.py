@@ -109,7 +109,9 @@ def _builtin() -> None:
                      _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
     register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"}), _HXMAX))
     register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}), _MAXX))
-    register(Dataset("colosseo", _CORE, _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl"}), _MAXX))
+    # the .nt is converted from the .ttl (see README): owlready2 has no Turtle parser
+    register(Dataset("colosseo", _CORE,
+                     _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl", "nt": "nt"}), _MAXX))
 
     # Small real-shaped samples (head of the big files), generated locally under testdata/.
     # Fast complete test that still exercises per-engine format selection.

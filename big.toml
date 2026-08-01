@@ -29,3 +29,10 @@ datasets = ["ytu3d", "torre_modena", "nettuno", "colosseo"]   # the big ones
 
 # Query names, or the literal "all".
 queries = "all"
+
+# Engine/dataset pairs to skip (must be last: everything below belongs to this table).
+# colosseo is 147M triples: rdflib-bdb would need ~94 GB of BerkeleyDB store — more disk
+# than is free — for queries that all time out anyway; it already times out on 2 of 8 at
+# ytu3d's 9.6M.
+[exclude]
+rdflib-bdb = ["colosseo"]
