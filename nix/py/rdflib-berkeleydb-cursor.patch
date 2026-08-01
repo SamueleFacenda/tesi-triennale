@@ -1,0 +1,57 @@
+rdflib's BerkeleyDB store is unusable as shipped: five cursor iterations assign the
+bound method `cursor.next` instead of calling it, so the next loop turn does
+`key, value = <built-in method>` and raises
+
+    TypeError: cannot unpack non-iterable builtin_function_or_method
+
+This breaks `triples()` for any pattern matching more than one triple, plus `__len__`,
+`namespaces()` and `contexts()` — i.e. the store cannot answer a real query. Verified
+still present in rdflib 7.1.4.
+
+--- a/rdflib/plugins/stores/berkeleydb.py
++++ b/rdflib/plugins/stores/berkeleydb.py
+@@ -428,7 +428,7 @@
+                 cursor = index.cursor(txn=txn)
+                 try:
+                     cursor.set_range(key)
+-                    current = cursor.next
++                    current = cursor.next()
+                 except db.DBNotFoundError:
+                     current = None
+                 cursor.close()
+@@ -505,7 +505,7 @@
+             cursor = index.cursor(txn=txn)
+             try:
+                 cursor.set_range(key)
+-                current = cursor.next
++                current = cursor.next()
+             except db.DBNotFoundError:
+                 current = None
+             cursor.close()
+@@ -537,7 +537,7 @@
+             key, value = current
+             if key.startswith(prefix):
+                 count += 1
+-                current = cursor.next
++                current = cursor.next()
+             else:
+                 break
+         cursor.close()
+@@ -590,7 +590,7 @@
+         while current:
+             prefix, namespace = current
+             results.append((prefix.decode("utf-8"), namespace.decode("utf-8")))
+-            current = cursor.next
++            current = cursor.next()
+         cursor.close()
+         for prefix, namespace in results:
+             yield prefix, URIRef(namespace)
+@@ -633,7 +633,7 @@
+                 cursor = index.cursor()
+                 try:
+                     cursor.set_range(key)
+-                    current = cursor.next
++                    current = cursor.next()
+                 except db.DBNotFoundError:
+                     current = None
+                 cursor.close()

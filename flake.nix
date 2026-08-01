@@ -10,6 +10,21 @@
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          overlays = [ rdflibBerkeleyDbFix ];
+        };
+
+        # rdflib ships its BerkeleyDB store with five `cursor.next` calls missing their
+        # parentheses, which makes the store raise TypeError on any query returning more
+        # than one row (see the patch header). Without this, `rdflib-bdb` cannot run —
+        # the in-memory `rdflib` engine is unaffected either way.
+        rdflibBerkeleyDbFix = final: prev: {
+          python3 = prev.python3.override {
+            packageOverrides = pyFinal: pyPrev: {
+              rdflib = pyPrev.rdflib.overrideAttrs (old: {
+                patches = (old.patches or [ ]) ++ [ ./nix/py/rdflib-berkeleydb-cursor.patch ];
+              });
+            };
+          };
         };
 
         # Custom derivations copied from the sibling 3dont project.

@@ -77,6 +77,11 @@ class AbstractEngine(ABC):
     # json 255ms vs tsv 43ms), and TSV parses reliably (line count, no embedded newlines).
     # So TSV is the default; only GraphDB overrides (its CSV is ~1.8x faster than its TSV).
     result_format: ClassVar[str] = "tsv"
+    # How long the endpoint may take to answer after _start(). Engines whose startup cost
+    # scales with the graph (rdflib re-parses its whole dump into memory) need far more
+    # than the default. Safe to raise: _wait_healthy aborts as soon as a spawned process
+    # dies, so an OOM kill still surfaces immediately instead of waiting this out.
+    health_deadline_s: ClassVar[float] = 120.0
 
     def __init__(self, storage_dir: str | Path, timeout_s: float = 300.0,
                  port: int | None = None, tuning: Tuning | None = None,
@@ -142,7 +147,7 @@ class AbstractEngine(ABC):
     def start(self) -> str:
         self._start()
         url = self.endpoint_url()
-        self._wait_healthy(url)
+        self._wait_healthy(url, self.health_deadline_s)
         self._client = SparqlHttpClient(
             url, self.timeout_s, default_graph=self.default_graph,
             result_format=self.effective_result_format,
