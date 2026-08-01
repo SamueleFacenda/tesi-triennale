@@ -1,14 +1,41 @@
 \chapter{Conclusioni}
 \label{cha:conclusions}
 
+I risultati delle esecuzioni mostrano risultati chiari e confortanti, motori come QLever, QEndpoint e Virtuoso riescono ad avere
+prestazioni elevate anche su questi carichi di lavoro, non è quindi preclusa la possibilità che Big Data di diverso tipo
+vengano rappresentati attraverso RDF e poi analizzati su calcolatori non professionali, che siano quindi alla portata di tutti.
+\par Va di certo fatto presente come questo non sia interalmente possibile né semplice al giorno d'oggi. La costruzione
+del visualizzatore per il framework 3Dont ha richiesto molta ricerca in ambito di triple store, parametri di configurazione
+e tecnologie di integrazione. Motori come QLever mettono a disposizione delle interfaccie native sotto forma di libreria,
+ma nonostante questo non hanno ancora raggiunto livelli di usabilità ottimali, basti pensare che ad esempio anche nella sua 
+forma integrata la libreria di QLever restituisce dalle query SPARQL soltanto dati serializzati, che vanno quindi deserializzati comunque. 
+L'interfaccia HTTP di SPARQL rimane quindi molto pratica per la prototipazione ma limitante per il raggiungimento di
+livelli di esperienza utente desiderabili, e richiede l'esecuzione del triple store in un processo dedicato. Processo che
+in molti casi, soprattutto con soluzioni commerciali, è disponibile solo attraverso un container OCI, un ulteriore strato
+di complessità e latenza che non rende di certo invitante l'integrazione.
+\par Fanno ben sperare però i progressi e l'indirizzazione dello sviluppo di molti motori degli ultimi anni. I progetti più recenti
+analizzati sono Oxigraph, QEndpoint e QLever, che insieme mostrano un interesse a raggiungere buone prestazioni in query di tipo
+OLAP e con grandi scansioni dei dati, oltre che alla facilità di integrazione come librerie preconfezionate.
+
+
 % TODO: gli strumenti analizzati non sono ancora utilizzabili in autonomia, servono
 % integrazioni per l'accesso diretto ai modelli.
+\section{Sviluppi Futuri}
+\label{sec:future_dev}
+
+Come premesso, questa tesi non vuole essere nulla di più di una breve analisi qualitativa e quantitativa della possibilità
+di usare RDF per l'immagazzinazione di Big Data, sarebbe molto utile procedere con questa idea individuando dei casi d'uso
+complessi e identificando i pattern di complessità ricorrenti oppure marginali ma comunque impattanti.
+\par Va inoltre fatto notare che le tecnologie utilizzate come riferimento qui, RDF, Owl, SPARQL e l'ecosistema del semantic web,
+sono solo uno delle piattaforme per lo sviluppo di software basato sulla conoscenza semantica e sui linked data. Esistono
+diverse alternative come i Labeled Property Graphs (LPGs) che usano linguaggi come Cypher o Gremlin per l'interrogazione,
+oppure il Property Graph Exchange Format (PGXF) con il Graph Query Language (GQL), standardizzato a livello globale dalla ISO/IEC.
 
 
-% TODO: breve dissertazione sugli altri tipi di grafi. (oltre a RDF)
-
-\section{Intelligenza artificiale agentica}
+\subsection{Intelligenza artificiale agentica}
 \label{sec:agentic_ai}
+
+
 
 % TODO (sviluppi futuri): molto rilevante con le recenti piattaforme e strumenti di AI
 % agentica, permette un'ampia rappresentazione della conoscenza e un accesso semplice
