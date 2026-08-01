@@ -56,8 +56,65 @@ Si riporta quindi una breve lista di ricerche e progetti che hanno usato RDF app
 di dati, sfruttando le sue capacità aggregative, oltre che benchmark preesistenti, con una comparazione negli aspetti
 qui proposti e nelle loro differenze.
 
+\subsection{Progetti rilevanti}
 
-% TODO: breve dissertazione sugli altri tipi di grafi.
+Un progetto molto interessante è Linked Building Data, che aggrega dati da diverse sorgenti per monitorare lo sviluppo
+dei cantieri. Parte da una rappresentazione RDF dei dati BIM e usa l'ontoligia V4Design come base di costruzione semantica.
+Integra inoltre GEOSPARQL per la correlazione di dati geospaziali insieme all'ontologia FOG per la rappresentazione dei punti.
+Il punto chiave del progetto poi è il collegamento con la sensoristica esistente, è un problema comune (perlaltro affrontato 
+anche da 3Dont) quello dell'integrazione di dati da sorgenti così disparate, mantendendo una coesione spaziotemporale,
+basti pensare al gran numero di formati proprietari usati dai sensori sul mercato, le diverse proiezioni geografiche e
+temporali (ad esempio i sensori GNSS spesso usano il tempo GPS, leggermente ma significativamente scostato da quello UTC).
+Un aspetto interessante sicuramente il fatto che vengano usate molte ongologie già esistenti per la definizione dei dati,
+rendendo ancora più semplice l'interoperabilità, anche se GEOSPARQL limita l'utilizzo ai soli triple store che lo supportano,
+come GraphDB e Virtuoso.
+
+\par Nell'albito del progetto WaterFRAME inoltre è stato sperimentato l'utilizzo di LDES (Linked Data Event Streams), uno
+standard basato su RDF per la gestione di eventi sequenziali e serie di dati temporali. L'utilizzo di Time Series Snippets 
+permette di ridurre la quantità di dati da processare, andando a compattare senza perdida di conoscenza le triple che descrivono
+una serie temporale in un solo valore letterale.
+Viene poi usato Virtuoso, pratico data la sua integrazione con GEOSPARQL (che anche qui viene utilizzato), che garantisce le
+prestazioni necessarie.
+
+\par Anche Brick prova a risolvere il problema dell'integrazione sensoristica, diventato chiave per l'intepretazione
+e l'ottimizzazione dei consumi energetici negli edifici. Usando appunto un'ontologia comune sarebbe possibile avere software
+che funzionano per un vasto numero di edifici senza nessuna modifica, anche se la completezza nella rappresentazione
+è una sfida complidata. Il risultato è un framework open source (https://brickschema.org/) estensibile by-default. 
+Sistemi come questi sono essenziali e condividono l'idea alla base del semantic web, evitano il problema del vendor lock-in
+e in questi casi raggiungono anche delle prestazioni ottime.
+
+\par Questi progetti rendono l'idea di come sia possibile effettivamente usare RDF per un approccio più aperto alla condivisione
+dei dati, ma non tengono in considerazione il problema delle prestazione. La quantità di dati utilizzata raramente riesce
+a raggiungere il milione di triple quando convertita in RDF pertanto non pone nessun particolare problema alla maggior parte
+dei motori SPARQL più popolari. Ma per questo esistono diversi benchmark, analizzati nella prossima sezione.
+
+\subsection{Benchmark esistenti}
+
+Naturalemente esiste un gran numero di insiemi di datasets e query che possiamo usare per misurare le prestazioni dei vari
+triple store qui considerati, ma nessuno sembrerebbe rispecchiare in modo preciso e complete il carico di lavoro che si andrebbe 
+ad incontrare se si utilizzasse RDF come formato generico di rappresentazione. Se pensiamo agli accessi che normalmente vengono
+fatti su un file, la maggior parte sono letture di grandi porzioni dello stesso. Questo cambierebbe forse avendo a supporto
+le query SPARQL ma dall'esperienza di 3DOnt il grande collo di bottiglia sono appunto gli enormi risultati e il poco vantaggio
+dato dall'indicizzazione classica nelle grandi scansioni. 
+
+\par BowlognaBench ad esempio parte sì da una base di dati consistente (i registri accademici dell'Università di Bologna) ma
+nel vasto numero di query analitiche definite la dimensione dei risultati è sempre molto ridotta. È quindi comunque interessante
+ma incompleto per il nostro caso d'uso. Soltanto la quarta query avrebbe un insieme di risultati largo ma prendendo in considerazione
+dati privati degli studenti non è pubblicamente localmente.
+\par Stesso vale per SSB-QB4OLAP, il cui volume dei risultati è soltanto una frazione del volume totale dei dati, nonostante
+stiamo sempre parlando di query OLAP. É comunque interessante confrontare i risultati qui ottenuti con quelli di questi 
+altri benchmark, si vanno a rendere chiare le differenze di scopo nelle implementazioni dei vari motori.
+\par LDBC Semantic Publishing Benchmark invece si mostra interessante su due delle query definite. La quarta infatti permette
+di limitare le dimensioni del risultato, scegliento un valore di limite sufficientemente elevato si possono analizzare appunto
+le prestazioni dei triple store in più scansioni complete dei dati. Stesso discorso per la seconda query nella categoria avanzata,
+simile a quella appena citata non ha nessun limite nella dimensione dei risultati.
+Il benchmark in realtà è molto più complesso di così e andrebbe a simulare il lavoro su una base dati condivisa con operazioni di
+modifica e aggregazione concorrenti. Il nostro caso d'uso invece richiede soltanto un accesso sequenziale da parte di un solo utente,
+per cui le tecnologie implementate per aumentare il parallelismo dei triple store non forniscono alcun guadagno.
+\par Va citato inoltre Smart City RDF Benchmark, che usa dati geospaziali proveniente dai sensori della città di Firenze, che però
+richiede complesse capacità di indicizzazione del testo e accede solo a ridotte porzioni temporali per ogni query, trattandosi
+di dati storici urbani.
+
 
 \section{3Dont}
 \label{sec:3dont}
