@@ -371,11 +371,6 @@ come RDF. Riesce inoltre a garantire delle prestazioni molto elevate, oltre a un
 e funzionalità aggiuntive.
 La versione utilizzata è la `7.2` con risultati in formato TSV.
 
-\section{Confronto con i tipi nativi}
-\label{sec:native_type_comparison}
-
-% TODO: dimensione e velocità rispetto alle rappresentazioni native.
-
 \section{Risultati}
 \label{sec:results}
 
@@ -386,6 +381,29 @@ La versione utilizzata è la `7.2` con risultati in formato TSV.
 \section{Analisi dei risultati}
 \label{sec:results_analysis}
 
+Dai risultati appena presentati si evince una serie di osservazioni:
+\begin{itemize}
+\item Motori come QLever e RDFox riescono a mantenere il tempo di esecuzione al di sotto dei 10 secondi in tutte le query analizzate.
+Lo si osserva nei grafici che mostrano i risultati dei singoli motori.
+\item La complessità computazionale osservata empiricamente dell'esecuzione delle query in funzione delle dimensioni
+del datasets è lineare, lo si evince dai grafici che mettono in relazione le prestazioni del singolo motore sui vari datasets.
+\item Owlready2, nonostante non sia progettato per gestire in modo efficace carichi di lavoro di questo tipo, raggiunge prestazioni
+comparabili a quelle di motori avanzati come Fuseki e GraphDB, al contrario di Rdflib (con e senza persistenza) che in
+alcuni casi non riesce nemmeno a rendere disponibile il dataset.
+
+E alcune osservazioni sui risultati, espresse per chiarire dei risultati che possono generare confusione:
+\begin{itemize}
+\item Rdflib nella versione base non ha a disposizione memoria sufficiente per caricare il dataset grande, mentre in quello
+medio tutte le query raggiungono il timeout prima di produrre alcun risultato.
+\item Rdflib con la persistenza data da Berkeley DB non viene analizzata sul dataset grande a causa delle esagerate dimensioni
+che andrebbe ad occupare su disco e per il fatto che presumibilmente produrrebbe soltanto risultati timeout. Data inoltre la sua scarsa
+rilevanza ai fini di questa tesi questa combinazione viene esclusa dall'analisi.
+\item Gli ultimi tre grafi sono riportati per completezza ma non rappresentano il fulcro dell'analisi qui condotta; i motori infatti
+sono stati configurati per ottenere le massime prestazioni in termini di velocità e gestione di dataset di grandi dimensioni.
+Sarebbe certamente possibile creare configurazioni che bilancino di più queste metriche.
+\item QEndpoint presenta un bug nella versiona analizzata che rende impossibile condurre un caricamento di datasets sfruttando
+più processori, ne viene quindi usato uno soltanto, con un grande impatto facilelmente osservabile. Ne risulta appunto come il
+peggiore in quanto a prestazioni di caricamento.
 
 
-% TODO: analisi dei risultati.
+\end{itemize}
