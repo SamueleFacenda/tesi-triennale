@@ -64,6 +64,7 @@
           sparqlwrapper
           owlready2
           berkeleydb   # rdflib persistent store backend
+          matplotlib   # `kbench thesis` charts
         ]);
 
         # Native SPARQL engines available as nix packages.

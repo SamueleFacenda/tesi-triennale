@@ -1,4 +1,12 @@
 \chapter{Allegato}
 \label{cha:attachment}
 
-% TODO: materiale di supporto (tabelle complete dei risultati, configurazioni, ...).
+Vengono qui riportati per intero i risultati del benchmark descritto nel
+capitolo~\ref{cha:benchmark}: il costo del caricamento di ogni dataset in ogni motore e,
+per ogni dataset, tutte le misurazioni aggregate sulle ripetizioni di ogni query.
+
+% Tabelle generate da `kbench thesis --run-dir runs/big`.
+\IfFileExists{generated/results_tables.tex}{\input{generated/results_tables.tex}}
+  {\textit{[tabelle non generate: eseguire \texttt{kbench thesis --run-dir runs/big}]}}
+
+% TODO: altro materiale di supporto (configurazioni, ...).

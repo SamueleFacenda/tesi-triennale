@@ -19,6 +19,7 @@ kbench run --config bench.toml          # run the benchmark
 kbench status  --run-dir runs/default   # progress so far
 kbench resume  --run-dir runs/default   # continue after Ctrl-C
 kbench report  --run-dir runs/default --format csv   # export results
+kbench thesis  --run-dir runs/big                    # charts + LaTeX for thesis/
 ```
 
 (`kbench` is `python -m bench`; both work inside the dev shell.)
@@ -161,6 +162,30 @@ oxigraph convert -f ~/downloads/ontos/colosseo_3DGraph.ttl \
 Only owlready2 picks it up; every other engine still loads the Turtle. `santa_chiara` is
 Turtle-only too and would need the same treatment before owlready2 can run it.
 
+## Thesis output
+
+`kbench thesis --run-dir runs/big` regenerates everything the thesis shows, straight from
+`bench.db`:
+
+- `thesis/images/plots/*.png` — one chart per query (engines grouped by dataset), one per
+  engine (queries grouped by dataset), plus load time / disk size / peak RSS. Query times
+  are medians **net of that engine's `__baseline__`**, on a log axis.
+- `thesis/generated/results_figures.tex` — the figure floats, two panels each, `\input` by
+  `chapters/benchmark.tex`.
+- `thesis/generated/results_tables.tex` — the appendix tables (raw medians, means, CV,
+  min/max, row counts, plus the base-latency row), `\input` by `attachments/attachment.tex`.
+- `thesis/generated/results.json` — the same grid, machine-readable.
+
+Cells with no measurement are labelled rather than dropped: `TO` timed out, `n.d.` the
+query does not apply to that dataset (`chained_segmentation` and `taxonomical_hierarchy`
+only exist on `colosseo` — see `APPLICABLE_ONLY` in `bench/thesis_export.py`), `n.e.` was
+never executed (excluded pair, failed load, or an interrupted run).
+
+Both directories must be **committed**: `nix build .#thesis` builds from the git tree, so
+untracked charts are invisible to it. To regenerate while a run is still in progress, copy
+`bench.db` and `config.json` elsewhere and point `--run-dir` at the copy — `BenchStore`
+opens the database read-write.
+
 ## Known limitations / notes
 
 - **Serialization overhead** is measured primarily via the per-engine `__baseline__`
@@ -197,6 +222,9 @@ bench/
   store.py        SQLite persistence (resumable)
   runner.py       sequential orchestration
   report.py       CSV / JSON / parquet export
+  thesis_export.py  full result grid (missing cells explained) for the thesis
+  thesis_charts.py  matplotlib PNG charts
+  thesis_tables.py  generated LaTeX (figure floats + appendix tables)
   tui.py          rich progress + plain fallback
 nix/              custom derivations (qendpoint, qlever-control) copied from 3dont
 ```

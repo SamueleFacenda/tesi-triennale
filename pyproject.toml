@@ -12,6 +12,10 @@ dependencies = [
     "sparqlwrapper",
 ]
 
+[project.optional-dependencies]
+# `kbench thesis` only: chart rendering
+charts = ["matplotlib"]
+
 [project.scripts]
 kbench = "bench.__main__:main"
 

@@ -4,6 +4,7 @@
     kbench resume    --run-dir runs/default [--no-tui]
     kbench status    --run-dir runs/default
     kbench report    --run-dir runs/default [--format csv|json|parquet] [--out DIR]
+    kbench thesis    --run-dir runs/default [--out thesis] [--no-charts]
     kbench list-engines | list-queries | list-datasets
 """
 
@@ -117,6 +118,23 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_thesis(args: argparse.Namespace) -> int:
+    """Charts (PNG) and generated LaTeX for the thesis, from a run directory."""
+    from .thesis_export import ResultSet, dump_json
+    from .thesis_tables import write_all
+
+    thesis_dir = Path(args.out)
+    rs = ResultSet(args.run_dir)
+    written = write_all(rs, thesis_dir / "generated")
+    written.append(dump_json(rs, thesis_dir / "generated" / "results.json"))
+    if not args.no_charts:
+        from .thesis_charts import render_all
+        written += render_all(rs, thesis_dir / "images" / "plots")
+    for p in written:
+        print(p)
+    return 0
+
+
 def cmd_list_engines(args: argparse.Namespace) -> int:
     for name, (ok, reason) in engines_mod.available_engines().items():
         mark = "✓" if ok else "✗"
@@ -167,6 +185,12 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("--format", choices=["csv", "json", "parquet"], default="csv")
     rp.add_argument("--out", default=None)
     rp.set_defaults(func=cmd_report)
+
+    th = sub.add_parser("thesis", help="render the thesis charts and LaTeX tables")
+    th.add_argument("--run-dir", required=True)
+    th.add_argument("--out", default="thesis", help="thesis source dir (default: thesis)")
+    th.add_argument("--no-charts", action="store_true", help="only regenerate the LaTeX")
+    th.set_defaults(func=cmd_thesis)
 
     sub.add_parser("list-engines", help="list engines and availability").set_defaults(func=cmd_list_engines)
     sub.add_parser("list-queries", help="list registered queries").set_defaults(func=cmd_list_queries)

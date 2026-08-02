@@ -64,6 +64,7 @@ def summarize(store: BenchStore) -> list[dict]:
             "wall_median_s": wall.get("median"),
             "wall_mean_s": wall.get("mean"),
             "wall_p95_s": wall.get("p95"),
+            "wall_max_s": wall.get("max"),
             "wall_stddev_s": wall.get("stddev"),
             "server_median_s": server.get("median"),
             # transport + (de)serialization estimate = wall - server

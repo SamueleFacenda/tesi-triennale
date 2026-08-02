@@ -379,9 +379,10 @@ La versione utilizzata è la `7.2` con risultati in formato TSV.
 \section{Risultati}
 \label{sec:results}
 
-% TODO: tabelle grezze, medie su 10 query, con e senza cache, con e senza caricamento
-% in memoria. Bar plot raggruppati per query, plot raggruppati per motore per confrontare
-% le dimensioni.
+% Figure generate da `kbench thesis --run-dir runs/big`; le tabelle complete sono
+% nell'allegato~\ref{cha:attachment}.
+\IfFileExists{generated/results_figures.tex}{\input{generated/results_figures.tex}}
+  {\textit{[figure non generate: eseguire \texttt{kbench thesis --run-dir runs/big}]}}
 
 \section{Analisi dei risultati}
 \label{sec:results_analysis}

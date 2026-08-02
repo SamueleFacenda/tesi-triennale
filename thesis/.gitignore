@@ -18,3 +18,6 @@ build/
 
 # keep source images/PDFs under version control
 !images/**/*.pdf
+
+# i grafici generati da `kbench thesis` finiscono in images/plots/ e vanno versionati:
+# `nix build .#thesis` vede solo i file tracciati da git.
