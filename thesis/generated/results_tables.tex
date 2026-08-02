@@ -1,4 +1,4 @@
-% Generato da `kbench thesis` — non modificare a mano.
+% Generato da `kbench thesis`: non modificare a mano.
 % Rigenerare con: kbench thesis --run-dir runs/big
 
 \begin{table}[htbp]
@@ -22,7 +22,7 @@ Virtuoso & 46,5 & 92,6 & 183 & 227 \\
 \bottomrule
 \end{tabular}
 \end{small}
-\caption{Tempo impiegato per il caricamento iniziale di ogni dataset. \textsf{err} indica un caricamento fallito, \textsf{escl.} una coppia esclusa dalla configurazione.}
+\caption{Tempo impiegato per il caricamento iniziale di ogni dataset. \textsf{err} indica un caricamento fallito, \textsf{escl.} una coppia motore/dataset esclusa dalla configurazione.}
 \label{tab:load_time}
 \end{table}
 
@@ -72,13 +72,13 @@ Virtuoso & 14,75 & 16,19 & 15,33 & 16,66 \\
 \bottomrule
 \end{tabular}
 \end{small}
-\caption{Picco di memoria residente (RSS) osservato durante l'esecuzione delle query, massimo su tutte le query del dataset.}
+\caption{Picco di memoria residente (RSS) raggiunto durante l'esecuzione, massimo fra tutte le query del dataset.}
 \label{tab:peak_rss}
 \end{table}
 
 \begin{small}
 \begin{longtable}{lrrrrrr r}
-\caption{Risultati completi sul dataset Piccolo. I tempi sono quelli misurati, comprensivi della latenza base riportata in fondo a ogni motore; CV è il coefficiente di variazione (deviazione standard sulla media) delle 8 ripetizioni.}\label{tab:raw_ytu3d}\\
+\caption{Risultati completi sul dataset Piccolo. I tempi sono quelli misurati, latenza base compresa; questa è riportata nell'ultima riga di ciascun motore. CV è il coefficiente di variazione, cioè il rapporto fra deviazione standard e media delle 8 ripetizioni.}\label{tab:raw_ytu3d}\\
 \toprule
 Query & n & mediana & media & CV & min & max & righe \\
  & & [s] & [s] & & [s] & [s] & \\
@@ -210,7 +210,7 @@ Query & n & mediana & media & CV & min & max & righe \\
 
 \begin{small}
 \begin{longtable}{lrrrrrr r}
-\caption{Risultati completi sul dataset Medio. I tempi sono quelli misurati, comprensivi della latenza base riportata in fondo a ogni motore; CV è il coefficiente di variazione (deviazione standard sulla media) delle 8 ripetizioni.}\label{tab:raw_torre_modena}\\
+\caption{Risultati completi sul dataset Medio. I tempi sono quelli misurati, latenza base compresa; questa è riportata nell'ultima riga di ciascun motore. CV è il coefficiente di variazione, cioè il rapporto fra deviazione standard e media delle 8 ripetizioni.}\label{tab:raw_torre_modena}\\
 \toprule
 Query & n & mediana & media & CV & min & max & righe \\
  & & [s] & [s] & & [s] & [s] & \\
@@ -342,7 +342,7 @@ Query & n & mediana & media & CV & min & max & righe \\
 
 \begin{small}
 \begin{longtable}{lrrrrrr r}
-\caption{Risultati completi sul dataset Medio 2. I tempi sono quelli misurati, comprensivi della latenza base riportata in fondo a ogni motore; CV è il coefficiente di variazione (deviazione standard sulla media) delle 8 ripetizioni.}\label{tab:raw_nettuno}\\
+\caption{Risultati completi sul dataset Medio 2. I tempi sono quelli misurati, latenza base compresa; questa è riportata nell'ultima riga di ciascun motore. CV è il coefficiente di variazione, cioè il rapporto fra deviazione standard e media delle 8 ripetizioni.}\label{tab:raw_nettuno}\\
 \toprule
 Query & n & mediana & media & CV & min & max & righe \\
  & & [s] & [s] & & [s] & [s] & \\
@@ -474,7 +474,7 @@ Query & n & mediana & media & CV & min & max & righe \\
 
 \begin{small}
 \begin{longtable}{lrrrrrr r}
-\caption{Risultati completi sul dataset Grande. I tempi sono quelli misurati, comprensivi della latenza base riportata in fondo a ogni motore; CV è il coefficiente di variazione (deviazione standard sulla media) delle 8 ripetizioni.}\label{tab:raw_colosseo}\\
+\caption{Risultati completi sul dataset Grande. I tempi sono quelli misurati, latenza base compresa; questa è riportata nell'ultima riga di ciascun motore. CV è il coefficiente di variazione, cioè il rapporto fra deviazione standard e media delle 8 ripetizioni.}\label{tab:raw_colosseo}\\
 \toprule
 Query & n & mediana & media & CV & min & max & righe \\
  & & [s] & [s] & & [s] & [s] & \\
@@ -579,7 +579,7 @@ Query & n & mediana & media & CV & min & max & righe \\
 \quad Altezza media & 8 & 0,0015 & 0,0015 & 14,1\% & 0,0010 & 0,0017 & 1 \\
 \quad Latenza base & 8 & 0,0012 & 0,0011 & 17,8\% & 0,0008 & 0,0014 & 1 \\
 \addlinespace
-\multicolumn{8}{p{0.95\linewidth}}{\footnotesize Motori assenti dalla tabella --- RDFLib: caricamento del dataset fallito; RDFLib+BDB: esclusi dalla configurazione del benchmark.}\\
+\multicolumn{8}{p{0.95\linewidth}}{\footnotesize Motori assenti dalla tabella: RDFLib (caricamento del dataset fallito), RDFLib+BDB (esclusione dalla configurazione del benchmark).}\\
 \end{longtable}
 \end{small}
 

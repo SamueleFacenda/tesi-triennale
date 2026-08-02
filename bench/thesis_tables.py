@@ -25,23 +25,23 @@ from .thesis_export import (
     ResultSet,
 )
 
-_HEADER = ("% Generato da `kbench thesis` — non modificare a mano.\n"
+_HEADER = ("% Generato da `kbench thesis`: non modificare a mano.\n"
            "% Rigenerare con: kbench thesis --run-dir runs/big\n\n")
 
 _PLOTS = "images/plots"
 
 _MARKER_NOTE = (
-    "I tempi sono mediane al netto della latenza base del motore, in scala logaritmica; "
-    "le barre verticali indicano l'intervallo fra minimo e massimo; "
-    "le barre appoggiate al limite inferiore dell'asse corrispondono a tempi non "
-    "distinguibili dalla latenza base (sotto il millisecondo). "
-    "\\textsf{TO} indica il superamento del timeout, "
+    "I tempi sono le mediane misurate meno la latenza base del motore, in scala "
+    "logaritmica, e le barre verticali coprono l'intervallo fra minimo e massimo. "
+    "Una barra appoggiata al limite inferiore dell'asse indica un tempo sotto il "
+    "millisecondo, non distinguibile da tale latenza. "
+    "\\textsf{TO} segnala il superamento del timeout, "
     "\\textsf{n.d.} una query non applicabile al dataset, "
     "\\textsf{n.e.} una misurazione non eseguita."
 )
 
 _REASON_NOTE = {
-    EXCLUDED: "esclusi dalla configurazione del benchmark",
+    EXCLUDED: "esclusione dalla configurazione del benchmark",
     LOAD_FAILED: "caricamento del dataset fallito",
     MISSING: "misurazioni non eseguite",
 }
@@ -159,7 +159,8 @@ def figures_tex(rs: ResultSet) -> str:
     out.append(_figure(
         [(f"{_PLOTS}/load_time.png", "Tempo di caricamento.", "fig:load_time"),
          (f"{_PLOTS}/disk_size.png", "Spazio occupato su disco.", "fig:disk_size")],
-        "Costo del caricamento dei dataset in ogni motore, in scala logaritmica.",
+        "Tempo e spazio richiesti dal caricamento dei dataset in ogni motore, "
+        "in scala logaritmica.",
         "fig:loads",
     ))
     out.append(_figure(
@@ -187,18 +188,18 @@ def _missing_note(rs: ResultSet, dataset: str) -> str:
                 ENGINE_LABEL.get(engine, engine))
     if not by_reason:
         return ""
-    parts = [f"{', '.join(names)}: {_REASON_NOTE.get(reason, reason)}"
+    parts = [f"{', '.join(names)} ({_REASON_NOTE.get(reason, reason)})"
              for reason, names in by_reason.items()]
-    return "Motori assenti dalla tabella --- " + "; ".join(parts) + "."
+    return "Motori assenti dalla tabella: " + ", ".join(parts) + "."
 
 
 def _dataset_table(rs: ResultSet, dataset: str) -> str:
     label = DATASET_LABEL.get(dataset, dataset)
     caption = (f"Risultati completi sul dataset {label}. "
-               f"I tempi sono quelli misurati, comprensivi della latenza base riportata "
-               f"in fondo a ogni motore; CV è il coefficiente di variazione "
-               f"(deviazione standard sulla media) delle {rs.config.repetitions} "
-               f"ripetizioni.")
+               f"I tempi sono quelli misurati, latenza base compresa; questa è riportata "
+               f"nell'ultima riga di ciascun motore. CV è il coefficiente di variazione, "
+               f"cioè il rapporto fra deviazione standard e media delle "
+               f"{rs.config.repetitions} ripetizioni.")
     out = [
         "\\begin{small}\n",
         "\\begin{longtable}{lrrrrrr r}\n",
@@ -262,7 +263,7 @@ def tables_tex(rs: ResultSet) -> str:
         rs,
         "Tempo impiegato per il caricamento iniziale di ogni dataset. "
         "\\textsf{err} indica un caricamento fallito, \\textsf{escl.} una coppia "
-        "esclusa dalla configurazione.",
+        "motore/dataset esclusa dalla configurazione.",
         "tab:load_time", "tempo di caricamento [s]",
         lambda e, d: _load_value(rs, e, d, "load_time_s"),
     ))
@@ -274,8 +275,8 @@ def tables_tex(rs: ResultSet) -> str:
     ))
     out.append(_matrix_table(
         rs,
-        "Picco di memoria residente (RSS) osservato durante l'esecuzione delle query, "
-        "massimo su tutte le query del dataset.",
+        "Picco di memoria residente (RSS) raggiunto durante l'esecuzione, "
+        "massimo fra tutte le query del dataset.",
         "tab:peak_rss", "picco RSS [GB]",
         lambda e, d: _gigabytes(rs.peak_rss_bytes(e, d)),
     ))
