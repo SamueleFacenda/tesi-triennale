@@ -3,7 +3,7 @@
 
 \par
 RDF (Resource Description Framework) è la specifica definita da W3C per la rappresentazione di ontologie e grafi di conoscenze
-nell'ambito del web semantico. È una specifica essenziale con il potenziale per essere estesa,
+nell'ambito del web semantico. È uno standard essenziale con il potenziale per essere esteso,
 come ad esempio succede con OWL (Web Ontology Language), una sua potente estensione utilizzata per definire
 ontologie complete. Di base è stata creata per la condivisione di risorse web, ognuna identificata da un IRI univoco
 teoricamente accessibile in rete, ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
@@ -16,7 +16,7 @@ rimane comunque alla base di uno dei più vasti e avanzati sistemi per la manipo
 grazie alla sua estensibilità by-design esso permette facilmente di valicare i domini della rete per essere utilizzato
 in ambienti fondamentalmente diversi rispetto all'originale idea del semantic web.
 Tramite la creazione di ontologie specifiche per dei dati domini è possibile rappresentare qualsiasi tipo di dato
-tramite modelli RDF, mantenendo la stessa espressività del dato originale e quindi la completezza.
+tramite modelli RDF, mantenendo la stessa espressività dell'originale e quindi la completezza.
 I vantaggi con questo approccio sono molteplici, in primis si andrebbe a creare una rappresentazione estensibile per il
 dominio preso in analisi, permettendo a chiunque abbia accesso all'ontologia di espandere le possibilità di rappresentazione
 del modello senza compromettere l'interoperabilità con altri sistemi non aggiornati. Questo non è invece possibile quasi mai
@@ -26,6 +26,9 @@ Inoltre, con questo approccio, si può andare a sfruttare la potenza dei sistemi
 andando a definire regole per espandere la conoscenza nelle nostre rappresentazioni e potenzialmente anche ottenere un guadagno
 dal punto di vista della memoria di massa utilizzata, se il motore che stiamo andando ad utilizzare supporta il ragionamento ``virtuale''
 a tempo di interrogazione (come nel caso di graphdb o owlready2, analizzati nel capitolo~\ref{cha:benchmark}).
+Per finire, si renderebbe possibile l'accesso e l'analisi dei dati così organizzati attraverso le query SPARQL, le quali garantiscono
+espressività e una capacità di interrogazione avanzata. Calcoli e analisi complesse che richiederebbero l'implementazione di algoritmi
+ad-hoc possono essere completati con una sola query SPARQL, aumentando l'accessibilità e la facilità di fruizione dei dati.
 \par
 In questa tesi si andrà quindi ad analizzare la fattibilità tecnica di questo approccio, con una particolare focalizzazione sull'ambito
 dei big data, dati che se rappresentati come grafi di conoscenza superano le decine di milioni di nodi.
@@ -37,13 +40,13 @@ delle sottoporzioni per andare a condurre delle analisi su questi dati, o produr
 (grafici, ad esempio) per cui è necessario accedere in lettura a grandi porzioni di dati. Stiamo quindi parlando di query di tipo OLAP
 contro il tipico carico di lavoro OLTP del semantic web: la sua natura predispone la ricerca per singole risorse ed elementi collegati,
 facilmente ottimizzabile con l'utilizzo di indici a vario livello. La maggior parte dei DBMS con supporto per SPARQL non sono quindi
-ottimizzati per query che contengono scansioni su grandi porzioni del modello quando sull'accesso casuale e sul collegamento dei nodi.
+ottimizzati per query che contengono scansioni su grandi porzioni del modello quanto sull'accesso casuale e sul collegamento dei nodi.
 Questa è appunto la sfida più grande all'utilizzo diffuso dell'approccio proposto, e in questa tesi si andranno quindi soprattutto
 ad analizzare le prestazioni di un certo numero di motori di query SPARQL nell'esecuzione di carichi di lavoro specifici,
 con lo scopo di valutarne la predisposizione all'utilizzo con big data di dominio diverso dal web semantico.
 Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3Dont, approfondito nel capitolo dedicato,
 all'interno di vari motori la cui prerogativa principale è che siano eseguibili localmente. Questo è importante soprattutto per
-poter confrontare le prestazioni dei vari motori nello stesso ambiente ma anche perché se si volessero poi utilizzare come base
+poter confrontare le prestazioni dei vari motori nello stesso ambiente, ma anche perché se si volessero poi utilizzare come base
 per l'accesso ai modelli RDF è importante che possano essere integrati all'interno degli applicativi che li utilizzerebbero.
 
 \section{Lavori correlati}
@@ -62,7 +65,7 @@ Un progetto molto interessante è Linked Building Data, che aggrega dati da dive
 dei cantieri. Parte da una rappresentazione RDF dei dati BIM e usa l'ontoligia V4Design come base di costruzione semantica.
 Integra inoltre GEOSPARQL per la correlazione di dati geospaziali insieme all'ontologia FOG per la rappresentazione dei punti.
 Il punto chiave del progetto poi è il collegamento con la sensoristica esistente, è un problema comune (perlaltro affrontato 
-anche da 3Dont) quello dell'integrazione di dati da sorgenti così disparate, mantendendo una coesione spaziotemporale,
+anche da 3Dont) quello dell'integrazione di dati da sorgenti così disparate, mantendendo una coesione spaziotemporale:
 basti pensare al gran numero di formati proprietari usati dai sensori sul mercato, le diverse proiezioni geografiche e
 temporali (ad esempio i sensori GNSS spesso usano il tempo GPS, leggermente ma significativamente scostato da quello UTC).
 Un aspetto interessante sicuramente il fatto che vengano usate molte ongologie già esistenti per la definizione dei dati,
@@ -70,7 +73,7 @@ rendendo ancora più semplice l'interoperabilità, anche se GEOSPARQL limita l'u
 come GraphDB e Virtuoso.
 
 \par Nell'albito del progetto WaterFRAME inoltre è stato sperimentato l'utilizzo di LDES (Linked Data Event Streams), uno
-standard basato su RDF per la gestione di eventi sequenziali e serie di dati temporali. L'utilizzo di Time Series Snippets 
+standard basato su RDF per la gestione di eventi sequenziali e serie di dati temporali. L'utilizzo di Time Series Snippets inoltre
 permette di ridurre la quantità di dati da processare, andando a compattare senza perdida di conoscenza le triple che descrivono
 una serie temporale in un solo valore letterale.
 Viene poi usato Virtuoso, pratico data la sua integrazione con GEOSPARQL (che anche qui viene utilizzato), che garantisce le
@@ -84,7 +87,7 @@ Sistemi come questi sono essenziali e condividono l'idea alla base del semantic 
 e in questi casi raggiungono anche delle prestazioni ottime.
 
 \par Questi progetti rendono l'idea di come sia possibile effettivamente usare RDF per un approccio più aperto alla condivisione
-dei dati, ma non tengono in considerazione il problema delle prestazione. La quantità di dati utilizzata raramente riesce
+dei dati, ma non si pongono il problema delle prestazione. La quantità di dati utilizzata raramente riesce
 a raggiungere il milione di triple quando convertita in RDF pertanto non pone nessun particolare problema alla maggior parte
 dei motori SPARQL più popolari. Ma per questo esistono diversi benchmark, analizzati nella prossima sezione.
 
@@ -94,20 +97,20 @@ Naturalemente esiste un gran numero di insiemi di datasets e query che possiamo 
 triple store qui considerati, ma nessuno sembrerebbe rispecchiare in modo preciso e complete il carico di lavoro che si andrebbe 
 ad incontrare se si utilizzasse RDF come formato generico di rappresentazione. Se pensiamo agli accessi che normalmente vengono
 fatti su un file, la maggior parte sono letture di grandi porzioni dello stesso. Questo cambierebbe forse avendo a supporto
-le query SPARQL ma dall'esperienza di 3DOnt il grande collo di bottiglia sono appunto gli enormi risultati e il poco vantaggio
-dato dall'indicizzazione classica nelle grandi scansioni. 
+le query SPARQL ma dall'esperienza di 3DOnt il grande collo di bottiglia sono appunto le dimensioni degli enormi risultati e 
+il poco vantaggio dato dall'indicizzazione classica nelle grandi scansioni. 
 
 \par BowlognaBench ad esempio parte sì da una base di dati consistente (i registri accademici dell'Università di Bologna) ma
 nel vasto numero di query analitiche definite la dimensione dei risultati è sempre molto ridotta. È quindi comunque interessante
-ma incompleto per il nostro caso d'uso. Soltanto la quarta query avrebbe un insieme di risultati largo ma prendendo in considerazione
-dati privati degli studenti non è pubblicamente localmente.
+ma incompleto per il nostro caso d'uso. Soltanto la quarta query avrebbe un insieme di risultati largo ma prendendo essa in 
+considerazione dati privati degli studenti non è replicabile localmente.
 \par Stesso vale per SSB-QB4OLAP, il cui volume dei risultati è soltanto una frazione del volume totale dei dati, nonostante
 stiamo sempre parlando di query OLAP. É comunque interessante confrontare i risultati qui ottenuti con quelli di questi 
 altri benchmark, si vanno a rendere chiare le differenze di scopo nelle implementazioni dei vari motori.
 \par LDBC Semantic Publishing Benchmark invece si mostra interessante su due delle query definite. La quarta infatti permette
-di limitare le dimensioni del risultato, scegliento un valore di limite sufficientemente elevato si possono analizzare appunto
+di limitare le dimensioni del risultato, scegliendo un valore di limite sufficientemente elevato si possono analizzare appunto
 le prestazioni dei triple store in più scansioni complete dei dati. Stesso discorso per la seconda query nella categoria avanzata,
-simile a quella appena citata non ha nessun limite nella dimensione dei risultati.
+simile a quella appena citata ma non ha nessun limite nella dimensione dei risultati.
 Il benchmark in realtà è molto più complesso di così e andrebbe a simulare il lavoro su una base dati condivisa con operazioni di
 modifica e aggregazione concorrenti. Il nostro caso d'uso invece richiede soltanto un accesso sequenziale da parte di un solo utente,
 per cui le tecnologie implementate per aumentare il parallelismo dei triple store non forniscono alcun guadagno.
@@ -121,16 +124,17 @@ di dati storici urbani.
 
 \subsection{Ambito}
 
-La nuvola di punti è un formato molto diffuso per la rappresentazione di dati tridimensionali geospaziali. Questo formato viene usato
-da ambiti che vanno dall'urbanistica ai beni culturali e alle scienze forestali. La maggior parte dei processi di scansione e 
+La nuvola di punti è un tipo di rappresentazione molto diffuso per dati tridimensionali geospaziali. Questo formato viene usato
+in ambiti che vanno dall'urbanistica ai beni culturali e alle scienze forestali. La maggior parte dei processi di scansione e 
 acquisizione di ambienti tridimensionali produce come primo risultato una nuvola di punti, su cui possono essere poi eseguiti un
-vasto numero di processi, dalla segmentazione istanze all'analisi numerica delle sue caratteristiche. Una singola nuvola di punti
-può rappresentare un piccolo oggetto come un'intera città, e a variare della risoluzione e della dimensione può arrivare ad avere
+vasto numero di processi, dalla segmentazione delle istanze all'individuazione delle geometrie esistenti. Una singola nuvola di punti
+può rappresentare un piccolo oggetto come un'intera città, e al variare della risoluzione e della dimensione può arrivare ad avere
 centinaia di milioni di punti. 
 \par Esistono diversi formati per la condivisione di nuvole di punti, come PCD (Point Cloud Data), LAS (LASer) e LAZ (LASzip),
 che in pratica permettono di definire una serie di campi presenti per ogni punto e la lista di punti della nuvola. Questi formati
 sono più o meno complessi, LAS ad esempio permette solo 11 formati di nuvole di punti diverse (come con o senza tempo GPS, colore, etc.)
-anche se grazie a questa caratteristica LASzip permettere di comprimere file LAS senza perdita di dettaglio in modo molto efficace.
+anche se grazie a questa caratteristica LASzip (la sua evoluzione con compressione) permettere di comprimere file LAS senza perdita 
+di dettaglio in modo molto efficace.
 
 \subsection{Il framework}
 
@@ -165,14 +169,14 @@ senza bisogno di iterare sull'interezza dei punti.
 Il framework mette disposizione, oltre allo strumento di creazione dei grafi popolati dai punti, un visualizzatore per questi grafi.
 Caricando l'ontologia popolata in uno dei vari formati disponibili per rdf (turtle, n-triples, rdf-xml etc.) permette di creare
 un progetto persistente con un'interfaccia diretta alla nuvola di punti, che può essere esplorata astraendo sopra alle nozioni di
-grafo e SPARQL, interagendo con i punti usando mouse a tastiera e interrogazioni in linguaggio naturale. 
-\par Il visualizzatore permette di visualizzare fondamentalmente quattro categorie diverse di risultati:
+grafo e SPARQL, interagendo con i punti usando mouse, tastiera e interrogazioni in linguaggio naturale. 
+\par Il visualizzatore permette di visualizzare fondamentalmente quattro categorie diverse di risultati alle interrogazioni:
 \begin{itemize}
 \item Query di selezione: vengono evidenziati i punti ritornati dalla query, come ad esempio quelli appartenenti a un dato
 oggetto oppure tutti i punti di un certo materiale.
 \item Query scalari: i punti vengono colorati secondo una scala colorata lineare in base a un valore che viene ritornato dalla
 query, come ad esempio la temperatura in una data acquisizione oppure una certa caratteristica del materiale dei punti.
-\item Query di classificazione: tutti i punti appartenenti a un certo oggetto vengono colorati allo stesso modo, in modo univoco.
+\item Query di classificazione: tutti i punti appartenenti a un certo oggetto vengono colorati allo stesso modo, univocamente.
 Si può così visualizzare la nuvola completamente segmentata, semanticamente o per istanza, a qualunque punto desiderato della scala
 tassonomico o mereologica: un singolo punto può essere contemporaneamente parte di un capitello, della colonna a cui appartiene il capitello,
 della facciata a cui appartiene la colonna e l'edificio a cui appartiene la facciata; è disponibile quindi una segmentazione per
@@ -187,7 +191,7 @@ La sfida principale nell'implementazione di 3Dont è sicuramente il raggiungimen
 di un'interfaccia grafica e di un applicativo destinato a un'utenza inesperta. 
 Nuvole di punti di medie dimensione (meno di 5 milioni di punti) possono richiedere per la query iniziale, che domanda coordinate e 
 colori di ogni punto, diversi minuti di esecuzione, ma si può scendere a meno di una decina di secondi con qualche accorgimento.
-\par Il principale fattore determinante (oltre ovviamente all'hardware utilizzato, che però ovviamente non dipende dall'implementazione
+\par Il principale fattore determinante (oltre naturalmente all'hardware utilizzato, che però ovviamente non dipende dall'implementazione
 del framework) è il motore di query utilizzato e la sua configurazione. Nello specifico viene impegato QLever (TODO link) con vocabolario
 compresso su disco e i prefissi dell'ontologia codificati. Viene quindi usata la versione integrata di QLever, disponibile come libreria
 c++, che permette di ridurre al minimo l'utilizzo di risorse dato dall'IPC (Inter Process Communication) e dalla deserializzazione

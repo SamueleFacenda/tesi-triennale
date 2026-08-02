@@ -11,19 +11,17 @@ Le seguenti metrice sono state prese in considerazione:
 \begin{itemize} % TODO grassetto
 \item Tempo di caricamento: tempo impiegato per caricare un dataset la prima volta.
 \item Spazio utilizzato: spazio utilizzato dal motore per persistere il grafo su disco.
-\item Tempo di esecuzione query: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
+\item Tempo di esecuzione delle query: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
 viene inviata alla fine della ricezione del risultato.
 \item Memoria utilizzata: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi del motore a intervalli
 regolari (ogni 0.05 secondi).
 \end{itemize}
 
-% TODO: introduzione al benchmark.
-
 \section{Dati e query}
 \label{sec:data_query}
 
-Sono stati scelti quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, e con risuluzioni diverse,
-mentre le query sono otto (TODO), tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3Dont, ponendo particolare
+Sono state scelte quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, e con risuluzioni diverse,
+mentre le query sono otto , tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3Dont, ponendo particolare
 attenzione all'avere rappresentate diverse dimensioni di risultato e all'essere omogenee tra le diverse ontologie.
 
 \subsection{Dati}
@@ -75,8 +73,8 @@ Numero di triple: $156.937.172$
 \subsection{Query}
 
 Al fine di valutare le prestazioni dei vari motori sono state individuate otto interrogazioni da eseguire su ognuno
-dei dataset. Segue una breve sezione con la query vera e proprio, parametrizzata con degli attributi specifici di ogni
-database (indicati con ), e una descrizione del suo utilizzo all'interno del framework 3Dont.
+dei dataset. Segue una breve sezione con la query vera e proprio, parametrizzata con gli attributi specifici di ogni
+database (indicati con la notazione `{attributo}`), e una descrizione del suo utilizzo all'interno del framework 3Dont.
 I seguenti prefissi sono utilizzati in ogni query: 
 \begin{lstlisting}[language=SPARQL]
 PREFIX base:<{namespace}>
@@ -86,7 +84,8 @@ PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
 
 \subsubsection{Seleziona tutto}
 
-Questa query viene eseguita quado un nuovo progetto viene aperto, richiedendo per ogni punto le sue coordinate e il suo colore.
+Questa query viene eseguita quado un progetto viene aperto, richiedendo per ogni punto le sue coordinate e il suo colore al
+fine di visualizzarlo.
 Alcuni dataset possono essere creati soltanto da acquisizioni LiDAR, ne consegue che non è assicurato che tutti i punti
 abbiano un colore definito (viene applicato il colore bianco come valore di default).
 È la query con cui la maggior parte dei motori faticano di più, a causa soprattutto delle grandi dimensioni del suo risultato,
@@ -165,6 +164,10 @@ appartiene va a selezionare l'IRI della classificazione tassonomica dell'oggetto
 la classe tassonomica più specifica a cui appartiene il punto, con il filtro che rimuove tutti gli elementi che non sono foglie
 nell'albero tassonomico dell'ontologia.
 
+%TODO nb
+\par Non in tutti i dataset è disponibile questa gerarchia interna, laddove la query non producesse nessun
+risultato è stato evidenziata come `N/A` (Non Applicabile).
+
 \begin{lstlisting}[language=SPARQL]
 SELECT DISTINCT ?s ?x
 WHERE {
@@ -206,7 +209,7 @@ WHERE {
 
 Questa query, una delle più complesse utilizzate nel normale funzionamento del framework 3Dont, permette di ottenere
 l'intero albero tassonomico dell'ontologia popolata. Ritorna una tabella con in ogni riga una classe tassonomica,
-il suo genitore e la sua profondità nell'albero, di modo che un semplice algoritmo può ricostruire la struttura
+il suo genitore e la sua profondità nell'albero, di modo che un semplice algoritmo possa ricostruire la struttura
 data la sua serializzazione in lista.
 Il numero di righe del risultato difficilmente supera il centinaio, rendendo la query piuttosto efficiente.
 
@@ -256,19 +259,19 @@ WHERE {
 \label{sec:environment}
 
 L'ambiente di esecuzione è stato mantenuto il più possibile uguale durante le varie fasi di esecuzione del benchmark.
-È stato scelto una workstation con un'installazione linux senza particolari capacità di calcolo: lo scopo del test
+È stata scelta una workstation con un'installazione linux senza particolari capacità di calcolo: lo scopo del test
 è valutare la predisposizione dei vari motori ad essere una base per un utilizzo più vasto di RDF e una prerogativa
 è che ciò sia possibile per un'utenza comune, senza accesso ad attrezzatura professionale o in ogni caso fuori dal comune.
 
 \subsection{Hardware}
 
-Il calcolatore utilizzato disponeva di un processore intel di 13° generazione con 14 cores totali, 20 threads virtuali. Di questi
-6 cores sono capaci di raggiungere una frequenza di 5.4 GHz e 8 una frequenza di 4.1 GHz. È da notare come questa sia la frequenza
-di picco del turbo, per cui viene raramente mantenuta per più di qualche secondo durante l'esecuzione delle query (che invece
-possono durare diversi minuti).
+Il calcolatore utilizzato disponeva di un processore intel di 13° generazione con 14 cores totali, 20 threads virtuali. Di questi,
+6 cores sono capaci di raggiungere una frequenza di clock di 5.4 GHz e 8 una frequenza di 4.1 GHz. È da notare come questa sia la 
+frequenza di picco del turbo, per cui viene raramente mantenuta per più di qualche secondo durante l'esecuzione delle query 
+(che invece possono durare diversi minuti).
 \par Sulla macchina è inoltre disponibile un totale di 46.68 GiB (48 GB) di memoria RAM DDR5 operante a una frequenza di 
-4800 MHz. È inoltre disponibile un totale di 56.00 GiB di memoria swap, quasi mai utilizzato se non per qualche processo di sistema.
-Va menzionato che la macchina dispone anche di un GPU NVIDIA GeForce RTX 4060 Max-Q che però non viene utilizzata da nessuno dei
+4800 MHz, oltre che un totale di 56.00 GiB di memoria swap, quasi mai utilizzato se non per qualche processo di sistema.
+Va menzionato che la macchina dispone anche di un GPU NVIDIA GeForce RTX 4060 Max-Q, la quale però non viene sfruttata da nessuno dei
 motori presi in considerazione qui.
 % TODO codeblock
 \par Attraverso l'interfaccia ACPI messa a disposizione dal kernel linux è stato configurato un profilo piattaforma `performance` e
@@ -280,41 +283,45 @@ Un problema che si ha analizzando le prestazioni di motori con architetture cos�
 Alcuni di questi vanno utilizzati come librerie (soprattutto per il linguaggio Python) mentre altri sono disponibili per essere
 eseguiti dentro dei container OCI e accessibili tramite l'interfaccia http di SPARQL, oppure attraverso degli strumenti
 appositi via linea di comando. Questo genera non poche differenze nel tempo di esecuzione tra i motori che ritornano un risultato
-serializzato e via HTTP e quelli che lo rendono disponibile nel loro formato nativo (strutture dati) direttamente nella memoria
+serializzato, via HTTP, e quelli che lo rendono disponibile nel loro formato nativo (strutture dati) direttamente nella memoria
 del processo. Per ovviare a questa distinzione è stato aggiunta un'interfaccia intermedia per l'accesso ai motori che non operano
-attraverso HTTP che introduce una serializzazione e comunicazione con un server HTTP locale avviato apposta, oltre alla misurazione
-della latenza base di ogni motore tramite una semplice query vuota, che viene poi integrata nel risultato finale.
-\par Ad ogni modo è difficile poter avere risultati affidabili e riproducibili soltanto con queste accortezze, i motori sono scatole
-chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione anche durante le nostre richieste. Per ridurre
+attraverso HTTP che introduce una serializzazione e comunicazione con un server HTTP locale avviato appositamente, oltre alla misurazione
+della latenza base di ogni motore tramite una semplice query vuota, che viene poi sottratta al risultato finale.
+\par Ad ogni modo, è difficile poter avere risultati affidabili e riproducibili soltanto con queste accortezze, i motori sono scatole
+chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione di routine anche durante le nostre richieste. Per ridurre
 al minimo la varianza vengono quindi eseguite più volte le stesse query e viene poi scelto il tempo mediano come rappresentativo.
 Inoltre, per evitare la latenza data dalla lettura su disco iniziale del dataset, prima delle query che vengono effettivamente
-misurate ne vengono eseguite altre per caricare i file nella RAM cache diminuendo la casualità data dagli algoritmi di paginazione
-e swapping.
+misurate ne vengono eseguite altre due identiche per caricare i file nella RAM cache diminuendo la casualità data dagli algoritmi 
+di paginazione e swapping.
 \par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione 7.1.4 basato sulla
 build di NixOS unstable al commit e2587caef70cea85dd97d7daab492899902dbf5d (il sistema è stato compilato senza ottimizzazioni
 per il processore specifico ma con una configurazione generica per linux x86-64). Il software eseguito invece è ottenibile in
 modo completamente riproducibile attraverso il gestore di pacchetti nix dalla repository (TODO link), di seguito verranno riportate
 le versioni dei singoli motori utilizzate~\ref{sec:engines}
+\par Infine, è stato predisposto un limite al tempo di esecuzione delle singole query, pari a 10 minuti, in primis perché un risultato
+di questo tipo non sarebbe interessante ai fini dell'analisi qui condotta, ma soprattutto per ridurre il tempo di esecuzione totale
+del benchmark (già di gran lunga superiore alle 40 ore), che verrebbe monopolizzato da un numero ridotto di query poco performanti
+su pochi motori.
 % TODO cite https://nixos.org/research/
 
 %TODO timeout 10 minuti
 
 % TODO: ambiente di esecuzione.
 
-\section{Motori}
+\section{Motori analizzati}
 \label{sec:engines}
 
 Viene riportata, in ordine alfabetico una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
 che ha portato alla scelta del motore ed eventuali note che risultino interessanti al fine del benchmark.
 Per i vari motori è stata inoltre condotta una breve analisi delle prestazioni di serializzazione nei vari formati 
-supportati, come JSON e CSV, di modo da ridurre il tempo impiegato in questa fase. Si anticipa che il formato
-prediletto è stato TSV (Tab Separated Values), simile a CSV ma che per i tipi di dati trattati non richiede mai
-l'escape di nessun carattere (il carattere tab non è mai presente nei datasets).
+supportati, come JSON e CSV, di modo da impiegarne uno ottimale e ridurre il tempo impiegato in questa fase. 
+Si anticipa che il formato prediletto è stato TSV (Tab Separated Values), simile a CSV ma che per i tipi di dati trattati 
+non richiede mai l'escape di nessun carattere (il carattere tab non è mai presente nei datasets).
 
 \subsection{Fuseki}
 
 Fuseki è un server SPARQL basato su Apache Jena, una delle soluzioni più popolari. È scritto in Java
-e supporta il ragionamento OWL usando Pellet. È stato scelto per la sua popolarità ed è stata usata 
+e supporta il ragionamento OWL usando Pellet. È stato scelto per la sua popolarità mentre è stata usata 
 la versione `5.1.0` e il formato dei risultati utilizzato è TSV.
 
 \subsection{Graphdb}
@@ -322,7 +329,7 @@ la versione `5.1.0` e il formato dei risultati utilizzato è TSV.
 GraphDB è uno dei triple store più utilizzati in ambito aziendale, rinomato per le sue elevate prestazioni
 e per la quantità di features disponibili, come l'integrazione con un vasto numero di piattaforme usate
 nello sviluppo di applicazioni basate sui dati (ad esempio Apache Kafka o ElasticSearch).
-La versione utilizzata è la `10.7.0` mentre il formato dei risultati è CSV.
+La versione utilizzata è la `10.7.0` mentre il formato dei risultati scelto è CSV.
 
 \subsection{Owlready2}
 
@@ -335,10 +342,10 @@ La versione utilizzata è la '0.47', con risultati in formato TSV.
 
 \subsection{Oxigraph}
 
-Come l'appena citato Owlready2, Oxigraph a sua volta è una libreria integrabile direttamente dentro altri software.
+Come l'appena citato Owlready2, anche Oxigraph a sua volta è una libreria integrabile direttamente dentro altri software.
 Scritta in Rust, è integrabile anche con Python e RDFLib, una delle librerie più usate nel settore. Si basa su RocksDB
-come backend di persistenza e volendo può essere usata come server SPARQL HTTP direttamente.
-La versione utilizzata è la `0.5.0` e il formato dei risultati è TSV.
+come backend di persistenza e volendo può essere usata direttamente come server SPARQL HTTP.
+La versione utilizzata è la `0.5.0` e il formato dei risultati scelto è TSV.
 
 \subsection{Qendpoint}
 
@@ -355,14 +362,15 @@ La versione utilizzata è la `2.5.2`, con risultati in formato TSV.
 QLever è un motore open-source molto recente che mira a supportare l'esecuzioni di query SPARQL su datasets di grandi dimensioni
 utilizzando hardware non professionale e con un consumo di risurse ridotto. Il codice, scritto in C++, contiene un vasto numero
 di ottimizzazioni avanzata a diversi livelli e supporta anch'esso l'integrazione come libreria.
-La versione utilizzata è la `0.5.42` mentre il formato dei risultati è TSV.
+La versione utilizzata è la `0.5.42` mentre il formato dei risultati scelto è TSV.
 
 \subsection{RDFLib}
 
 RDFLib è una popolare libreria Python per la creazione di applicazioni per il semantic web. Permette di usare Berkeley DB per
 la persistenza di un grafo in memoria, oltre che un vasto numero di altri motori, e supporta query le SPARQL in modo nativo.
 Considerata un punto di riferimento per lo standard RDF è stata scelta per la sua popolarità e per poter comparare le prestazioni
-di un software open-source integrabile da chiunque con motori proprietari e concessi su licenza (come GraphDB e RDFox)
+di un software open-source integrabile da chiunque con motori proprietari e concessi su licenza (come GraphDB e RDFox).
+Vengono riportate le prestazione per il suo utilizzo senza configurazione e con la persistenza data da Berkeley DB attiva (rdflib-bdb).
 É stata utilizzata la versione `7.1.4` con risultati in formato CSV.
 
 \subsection{RDFox}
