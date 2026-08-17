@@ -45,3 +45,159 @@
   pages = {1289-1306},
   year = 2006
 }
+
+% 3DONT
+@Article{isprs-archives-XLVIII-2-W8-2024-101-2024,
+AUTHOR = {Codiglione, M. and Beber, R. and Remondino, F.},
+TITLE = {Leveraging ontology for enhanced queries and analyses of urban point clouds},
+JOURNAL = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+VOLUME = {XLVIII-2/W8-2024},
+YEAR = {2024},
+PAGES = {101--108},
+URL = {https://isprs-archives.copernicus.org/articles/XLVIII-2-W8-2024/101/2024/},
+DOI = {10.5194/isprs-archives-XLVIII-2-W8-2024-101-2024}
+}
+
+% 3DONT
+@Article{isprs-archives-XLVIII-2-W4-2024-119-2024,
+AUTHOR = {Codiglione, M. and Mazzacca, G. and Remondino, F.},
+TITLE = {DIMENSIONAL DISCOVERIES: UNVEILING THE POTENTIAL OF 3D HERITAGE POINT CLOUDS WITH A ROBUST ONTOLOGY FRAMEWORK},
+JOURNAL = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+VOLUME = {XLVIII-2/W4-2024},
+YEAR = {2024},
+PAGES = {119--125},
+URL = {https://isprs-archives.copernicus.org/articles/XLVIII-2-W4-2024/119/2024/},
+DOI = {10.5194/isprs-archives-XLVIII-2-W4-2024-119-2024}
+}
+
+% 3DONT nl 2 sparql
+@inproceedings{inproceedings,
+author = {Codiglione, Matteo and Remondino, Fabio},
+year = {2025},
+month = {09},
+pages = {},
+title = {NL-2-SPARQL: Ontology-Based Natural Language Querying over 3D Point Cloud Knowledge Graphs},
+doi = {10.2312/dh.20253280}
+}
+
+% Qlever
+@inproceedings{10.1145/3132847.3132921,
+author = {Bast, Hannah and Buchhold, Bj{\"o}rn},
+title = {QLever: A Query Engine for Efficient SPARQL+Text Search},
+year = {2017},
+isbn = {9781450349185},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3132847.3132921},
+doi = {10.1145/3132847.3132921},
+abstract = {We present QLever, a query engine for efficient combined search on a knowledge base and a text corpus, in which named entities from the knowledge base have been identified (that is, recognized and disambiguated). The query language is SPARQL extended by two QLever-specific predicates ql:contains-entity and ql:contains-word, which can express the occurrence of an entity or word (the object of the predicate) in a text record (the subject of the predicate). We evaluate QLever on two large datasets, including FACC (the ClueWeb12 corpus linked to Freebase). We compare against three state-of-the-art query engines for knowledge bases with varying support for text search: RDF-3X, Virtuoso, Broccoli. Query times are competitive and often faster on the pure SPARQL queries, and several orders of magnitude faster on the SPARQL+Text queries. Index size is larger for pure SPARQL queries, but smaller for SPARQL+Text queries.},
+booktitle = {Proceedings of the 2017 ACM on Conference on Information and Knowledge Management},
+pages = {647–656},
+numpages = {10},
+keywords = {sparql+text, indexing, efficiency},
+location = {Singapore, Singapore},
+series = {CIKM '17}
+}
+
+% Qendpoint
+@article{willerval:hal-04769164,
+  TITLE = {{qEndpoint: A Novel Triple Store Architecture for Large RDF Graphs}},
+  AUTHOR = {Willerval, Antoine and Diefenbach, Dennis and Bonifati, Angela},
+  URL = {https://hal.science/hal-04769164},
+  JOURNAL = {{Semantic Web -- Interoperability, Usability, Applicability}},
+  PUBLISHER = {{IOS Press}},
+  YEAR = {2024},
+  MONTH = Jan,
+  KEYWORDS = {RDF qEndpoint HDT RDF4J Wikidata ; RDF ; qEndpoint ; HDT ; RDF4J ; Wikidata},
+  PDF = {https://hal.science/hal-04769164v1/file/swj3616.pdf},
+  HAL_ID = {hal-04769164},
+  HAL_VERSION = {v1},
+}
+
+% HDT
+@article{FMPGPA:13,
+author = {Javier D. Fernández and Miguel A. Martínez-Prieto and Claudio Gutiérrez and Axel Polleres and Mario Arias},
+title = {Binary RDF Representation for Publication and Exchange (HDT)},
+url = {http://www.websemanticsjournal.org/index.php/ps/article/view/328},
+journal={Web Semantics: Science, Services and Agents on the World Wide Web},
+volume={19},
+pages={22–41},
+year={2013},
+publisher={Elsevier}
+}
+
+@inproceedings{MPAF:12,
+author = {Miguel A. Martínez-Prieto and Mario Arias and Javier D. Fernández},
+title = {Exchange and Consumption of Huge RDF Data},
+year = {2012},
+booktitle={The Semantic Web: Research and Applications},
+pages = {437-452},
+publisher={Springer}
+}
+
+% RDFOX
+@InProceedings{10.1007/978-3-319-25010-6_1,
+author="Nenov, Yavor
+and Piro, Robert
+and Motik, Boris
+and Horrocks, Ian
+and Wu, Zhe
+and Banerjee, Jay",
+editor="Arenas, Marcelo
+and Corcho, Oscar
+and Simperl, Elena
+and Strohmaier, Markus
+and d'Aquin, Mathieu
+and Srinivas, Kavitha
+and Groth, Paul
+and Dumontier, Michel
+and Heflin, Jeff
+and Thirunarayan, Krishnaprasad
+and Staab, Steffen",
+title="RDFox: A Highly-Scalable RDF Store",
+booktitle="The Semantic Web - ISWC 2015",
+year="2015",
+publisher="Springer International Publishing",
+address="Cham",
+pages="3--20",
+abstract="We present RDFox---a main-memory, scalable, centralised RDF store that supports materialisation-based parallel datalog reasoning and SPARQL query answering. RDFox uses novel and highly-efficient parallel reasoning algorithms for the computation and incremental update of datalog materialisations with efficient handling of owl:sameAs. In this system description paper, we present an overview of the system architecture and highlight the main ideas behind our indexing data structures and our novel reasoning algorithms. In addition, we evaluate RDFox on a high-end SPARC T5-8 server with 128 physical cores and 4TB of RAM. Our results show that RDFox can effectively exploit such a machine, achieving speedups of up to 87 times, storage of up to 9.2 billion triples, memory usage as low as 36.9 bytes per triple, importation rates of up to 1 million triples per second, and reasoning rates of up to 6.1 million triples per second.",
+isbn="978-3-319-25010-6"
+}
+
+% TODO owl w3c
+
+% TODO rdf w3c
+
+% TODO LPG w3c
+
+% TODO PGXF
+
+% TODO MCP
+
+% TODO SPARQL
+
+% TODO graphDB?
+
+% OLAP? 
+@inproceedings{Salley1998ProvidingOT,
+  title={Providing OLAP to User-Analysts: An IT Mandate},
+  author={Columbus Salley and E. F. Codd},
+  year={1998},
+  url={https://api.semanticscholar.org/CorpusID:14440855}
+}
+
+% TODO https://www.ogc.org/standards/geosparql/
+
+% Linked building data
+@article{article,
+author = {Bassier, Maarten and Vermandere, Jelle and De Winter, Heinder},
+year = {2022},
+month = {05},
+pages = {159-165},
+title = {LINKED BUILDING DATA FOR CONSTRUCTION SITE MONITORING: A TEST CASE},
+volume = {V-2-2022},
+journal = {ISPRS Annals of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+doi = {10.5194/isprs-annals-V-2-2022-159-2022}
+}
+
+% TODO https://v4design.eu/publications/ ?
