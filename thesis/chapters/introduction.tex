@@ -147,6 +147,25 @@ che grazie a un LLM e un'analisi dell'ontologia vengono tradotte in linguaggio S
 senza una formazione specifica su nuvole di punti, ontologie o informatica (come ad esempio un pianificatore urbanistico) 
 di interagire con i dati e supportare il proprio lavoro in autonomia.
 
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.36\textwidth}
+    \centering
+    \input{images/tikz/gerarchia_mereologica.tex}
+    \caption{Risoluzione mereologica: quanto scendere nell'annidamento.}
+    \label{fig:mereologia}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.60\textwidth}
+    \centering
+    \input{images/tikz/gerarchia_tassonomica.tex}
+    \caption{Risoluzione tassonomica: le classi, con \texttt{rdfs:subClassOf}.}
+    \label{fig:tassonomia}
+  \end{subfigure}
+  \caption{Le due risoluzioni con cui 3Dont controlla la segmentazione, indipendenti l'una dall'altra. La prima scegle quanto scendere nell'annidamento parte-tutto degli oggetti che un punto costituisce, la seconda quanto generalizzare la classe così ottenuta. Che siano davvero indipendenti si legge confrontando i due pannelli: \texttt{Capital}, \texttt{Column} e \texttt{Facade}, che a sinistra sono livelli successivi, a destra sono classi sorelle sotto \texttt{base:Architectural\_Element}. Le classi intermedie come \texttt{base:Immovable\_Object} si raggiungono soltanto generalizzando lungo il secondo asse.}
+  \label{fig:gerarchie}
+\end{figure}
+
 \subsection{Vantaggi}
 
 Come spiegato nell'introduzione, uno dei vantaggi principali di RDF rispetto ai corrispondenti formati nativi è l'estensibilità.
@@ -164,6 +183,13 @@ di supporto per questa vasta gamma di informazioni è senza dubbio un ulteriore 
 in questo modo possiamo accedere in modo casuale alle nuvole di punti, esprimere potenti filtri e condurre analisi numeriche
 senza bisogno di iterare sull'interezza dei punti.
 
+\begin{figure}[htb]
+  \centering
+  \input{images/tikz/punto_rdf.tex}
+  \caption{Le triple che descrivono un singolo punto: una per coordinata, una per canale di colore e una per ogni oggetto che il punto costituisce, da cui si risale alla classe dell'oggetto. Il costo in triple per punto è quello che porta la nuvola più piccola qui analizzata da $1.065.725$ punti a $11.725.772$ triple (sezione~\ref{ssub:dataset_piccolo}); l'estensione dell'ontologia consiste nell'aggiungere archi a questo grafo, senza toccare quelli esistenti.}
+  \label{fig:punto_rdf}
+\end{figure}
+
 \subsection{Visualizzatore}
 
 Il framework mette disposizione, oltre allo strumento di creazione dei grafi popolati dai punti, un visualizzatore per questi grafi.
@@ -178,7 +204,7 @@ oggetto oppure tutti i punti di un certo materiale.
 query, come ad esempio la temperatura in una data acquisizione oppure una certa caratteristica del materiale dei punti.
 \item Query di classificazione (figure~\ref{fig:vis_semantic} e~\ref{fig:vis_instance}): tutti i punti appartenenti a un certo oggetto vengono colorati allo stesso modo, univocamente.
 Si può così visualizzare la nuvola completamente segmentata, semanticamente o per istanza, a qualunque punto desiderato della scala
-tassonomico o mereologica: un singolo punto può essere contemporaneamente parte di un capitello, della colonna a cui appartiene il capitello,
+tassonomico o mereologica (figura~\ref{fig:gerarchie}): un singolo punto può essere contemporaneamente parte di un capitello, della colonna a cui appartiene il capitello,
 della facciata a cui appartiene la colonna e l'edificio a cui appartiene la facciata; è disponibile quindi una segmentazione per
 diversi livelli di dettaglio.
 \item Query tabellari: il risultato non è visualizzato graficamente attraverso la nuvola di punti ma in una tabella a lato, è il caso

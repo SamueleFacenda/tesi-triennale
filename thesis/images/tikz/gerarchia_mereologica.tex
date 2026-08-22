@@ -1,0 +1,26 @@
+% I livelli che la risoluzione mereologica attraversa: le classi degli oggetti che un
+% singolo punto costituisce, dal piu' esteso al piu' specifico.
+% Incluso da chapters/introduction.tex (sottosezione Il framework).
+\begin{tikzpicture}[
+  font=\footnotesize,
+  node distance=6mm,
+  cls/.style={draw, semithick, rounded corners=3pt, fill=black!6,
+              inner sep=3pt, minimum height=5.5mm, minimum width=32mm},
+  leaf/.style={cls, double, fill=black!16},
+  livello/.style={-{Stealth[length=4pt]}, semithick, black!55},
+]
+  \node[cls]              (build)  {\texttt{base:Building}};
+  \node[cls,  below=of build]  (fac) {\texttt{base:Facade}};
+  \node[cls,  below=of fac]    (col) {\texttt{base:Column}};
+  \node[leaf, below=of col]    (cap) {\texttt{base:Capital}};
+
+  \draw[livello] (build) -- (fac);
+  \draw[livello] (fac)   -- (col);
+  \draw[livello] (col)   -- (cap);
+
+  % l'asse, non gli archi: non sono triple, sono livelli di risoluzione
+  \draw[-{Stealth[length=5pt]}, semithick]
+    ($ (build.north east) + (5mm,0) $) -- ($ (cap.south east) + (5mm,0) $);
+  \node[right=1mm, font=\scriptsize, align=left, anchor=north west]
+    at ($ (build.north east) + (5mm,0) $) {risoluzione\\mereologica};
+\end{tikzpicture}

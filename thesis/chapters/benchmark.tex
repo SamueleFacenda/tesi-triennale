@@ -33,21 +33,21 @@ né particolari costruzioni, a parte dove indicato.
 
 \begin{figure}[htb]
   \centering
-  \begin{subfigure}[b]{0.32\textwidth}
+  \begin{subfigure}[b]{0.34\textwidth}
     \centering
     \includegraphics[height=4.5cm]{images/ytu3d.jpg}
     \caption{Piccolo: ytu3d.}
     \label{fig:dataset_ytu3d}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[b]{0.26\textwidth}
+  \begin{subfigure}[b]{0.24\textwidth}
     \centering
     \includegraphics[height=4.5cm]{images/torre_modena.jpg}
     \caption{Medio: Ghirlandina.}
     \label{fig:dataset_ghirlandina}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[b]{0.34\textwidth}
+  \begin{subfigure}[b]{0.35\textwidth}
     \centering
     \includegraphics[height=4.5cm]{images/nettuno.jpg}
     \caption{Medio 2: tempio di Nettuno.}
@@ -185,7 +185,7 @@ WHERE {
 \subsubsection{Segmentazione tassonomica}
 
 Questa query è una variazione di quella precedente e invece di selezionare l'IRI della singola istanza di oggetto a cui un punto
-appartiene va a selezionare l'IRI della classificazione tassonomica dell'oggetto. Qui invece andiamo direttamente a selezionare
+appartiene va a selezionare l'IRI della classificazione tassonomica dell'oggetto (figura~\ref{fig:tassonomia}). Qui invece andiamo direttamente a selezionare
 la classe tassonomica più specifica a cui appartiene il punto, con il filtro che rimuove tutti gli elementi che non sono foglie
 nell'albero tassonomico dell'ontologia.
 
@@ -210,7 +210,7 @@ WHERE {
 \subsubsection{LOD massimo}
 
 Questa query viene utilizzata per individuare la profondità massima nell'albero mereologico dell'ongologia, definendo come
-classe a maggiore dettaglio una classe con un numero minore di elementi. Siccome ogni punto appartiene sia all'oggetto più specifico
+classe a maggiore dettaglio una classe con un numero minore di elementi (figura~\ref{fig:mereologia}). Siccome ogni punto appartiene sia all'oggetto più specifico
 che a tutti i suoi antenati nell'albero mereologico (come spiegato prima, un punto è sia parte ad esempio di una colonna 
 che dell'edificio di cui la colonna è parte) è sufficiente contare il numero di oggetti di cui un punto è parte per ottenere la
 profondità richiesta. 
@@ -233,7 +233,7 @@ WHERE {
 \subsubsection{Gerarchia tassonomica}
 
 Questa query, una delle più complesse utilizzate nel normale funzionamento del framework 3Dont, permette di ottenere
-l'intero albero tassonomico dell'ontologia popolata. Ritorna una tabella con in ogni riga una classe tassonomica,
+l'intero albero tassonomico dell'ontologia popolata (figura~\ref{fig:tassonomia}). Ritorna una tabella con in ogni riga una classe tassonomica,
 il suo genitore e la sua profondità nell'albero, di modo che un semplice algoritmo possa ricostruire la struttura
 data la sua serializzazione in lista.
 Il numero di righe del risultato difficilmente supera il centinaio, rendendo la query piuttosto efficiente.
@@ -314,10 +314,17 @@ attraverso HTTP che introduce una serializzazione e comunicazione con un server 
 della latenza base di ogni motore tramite una semplice query vuota, che viene poi sottratta al risultato finale.
 \par Ad ogni modo, è difficile poter avere risultati affidabili e riproducibili soltanto con queste accortezze, i motori sono scatole
 chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione di routine anche durante le nostre richieste. Per ridurre
-al minimo la varianza vengono quindi eseguite più volte le stesse query e viene poi scelto il tempo mediano come rappresentativo.
+al minimo la varianza ogni query viene eseguita otto volte e viene poi scelto il tempo mediano come rappresentativo.
 Inoltre, per evitare la latenza data dalla lettura su disco iniziale del dataset, prima delle query che vengono effettivamente
 misurate ne vengono eseguite altre due identiche per caricare i file nella RAM cache diminuendo la casualità data dagli algoritmi 
-di paginazione e swapping.
+di paginazione e swapping. La figura~\ref{fig:pipeline} riassume il percorso completo di una misurazione.
+
+\begin{figure}[htb]
+  \centering
+  \input{images/tikz/pipeline.tex}
+  \caption{Come viene misurata una coppia motore/dataset. I motori disponibili come container OCI e quelli usati come libreria, avviati in un sottoprocesso che li espone via HTTP, convergono sullo stesso endpoint locale: il punto di misura è quindi lo stesso per tutti. Il ciclo in basso viene ripetuto per ogni query.}
+  \label{fig:pipeline}
+\end{figure}
 \par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione 7.1.4 basato sulla
 build di NixOS unstable al commit e2587caef70cea85dd97d7daab492899902dbf5d (il sistema è stato compilato senza ottimizzazioni
 per il processore specifico ma con una configurazione generica per linux x86-64). Il software eseguito invece è ottenibile in
@@ -328,8 +335,6 @@ di questo tipo non sarebbe interessante ai fini dell'analisi qui condotta, ma so
 del benchmark (già di gran lunga superiore alle 40 ore), che verrebbe monopolizzato da un numero ridotto di query poco performanti
 su pochi motori.
 % TODO cite https://nixos.org/research/
-
-%TODO timeout 10 minuti
 
 % TODO: ambiente di esecuzione.
 
@@ -342,9 +347,16 @@ Per i vari motori è stata inoltre condotta una breve analisi delle prestazioni 
 supportati, come JSON e CSV, di modo da impiegarne uno ottimale e ridurre il tempo impiegato in questa fase. 
 Si anticipa che il formato prediletto è stato TSV (Tab Separated Values), simile a CSV ma che per i tipi di dati trattati 
 non richiede mai l'escape di nessun carattere (il carattere tab non è mai presente nei datasets).
+\par I loghi riportati a fianco delle descrizioni appartengono ai rispettivi titolari e sono usati qui
+al solo scopo di identificare il software di cui si parla. Per i motori che non ne pubblicano uno la
+descrizione resta senza marchio.
 
 \subsection{Fuseki}
 
+\begin{wrapfigure}{r}{2.8cm}
+  \centering
+  \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/fuseki.pdf}
+\end{wrapfigure}
 Fuseki è un server SPARQL basato su Apache Jena, una delle soluzioni più popolari. È scritto in Java
 e supporta il ragionamento OWL usando Pellet. È stato scelto per la sua popolarità mentre è stata usata 
 la versione `5.1.0` e il formato dei risultati utilizzato è TSV.
@@ -367,6 +379,10 @@ La versione utilizzata è la '0.47', con risultati in formato TSV.
 
 \subsection{Oxigraph}
 
+\begin{wrapfigure}{r}{2.8cm}
+  \centering
+  \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/oxigraph.pdf}
+\end{wrapfigure}
 Come l'appena citato Owlready2, anche Oxigraph a sua volta è una libreria integrabile direttamente dentro altri software.
 Scritta in Rust, è integrabile anche con Python e RDFLib, una delle librerie più usate nel settore. Si basa su RocksDB
 come backend di persistenza e volendo può essere usata direttamente come server SPARQL HTTP.
@@ -374,6 +390,10 @@ La versione utilizzata è la `0.5.0` e il formato dei risultati scelto è TSV.
 
 \subsection{Qendpoint}
 
+\begin{wrapfigure}{r}{2.8cm}
+  \centering
+  \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/qendpoint.pdf}
+\end{wrapfigure}
 Qendpoint è un triple store con supporto GeoSPARQL (come GraphDB d'altronde) basato sul formato file HDT (Header, Dictionary, Triples). 
 Questo si pone come alternativa efficiente ai più comuni RDF-XML e Turtle, integrando un indice direttamente al suo interno e rendendone
 l'accesso molto veloce. Qendpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
@@ -391,6 +411,10 @@ La versione utilizzata è la `0.5.42` mentre il formato dei risultati scelto è 
 
 \subsection{RDFLib}
 
+\begin{wrapfigure}{r}{2.8cm}
+  \centering
+  \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/rdflib.png}
+\end{wrapfigure}
 RDFLib è una popolare libreria Python per la creazione di applicazioni per il semantic web. Permette di usare Berkeley DB per
 la persistenza di un grafo in memoria, oltre che un vasto numero di altri motori, e supporta query le SPARQL in modo nativo.
 Considerata un punto di riferimento per lo standard RDF è stata scelta per la sua popolarità e per poter comparare le prestazioni
@@ -400,6 +424,10 @@ Vengono riportate le prestazione per il suo utilizzo senza configurazione e con 
 
 \subsection{RDFox}
 
+\begin{wrapfigure}{r}{2.8cm}
+  \centering
+  \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/rdfox.pdf}
+\end{wrapfigure}
 RDFox è un motore per grafi semantici che opera interamente all'interno della memoria RAM. È quindi molto interessante
 da comparare e potenzialmente permette di ridurre la latenza di risposta alle query a costo di un maggiore consumo di memoria.
 Sviluppato dall'Università di Oxford è disponibile solamente su licenza, la versione utilizzata è la `7.6` con risultati

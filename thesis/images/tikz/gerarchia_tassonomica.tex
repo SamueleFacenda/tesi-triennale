@@ -1,0 +1,30 @@
+% L'albero tassonomico di 3DOntCore fino a Macro_Entity, dove si fermano le query.
+% Capital, Column e Facade sono classi sorelle: e' il punto della figura.
+% Incluso da chapters/introduction.tex (sottosezione Il framework).
+\begin{tikzpicture}[
+  font=\footnotesize,
+  cls/.style={draw, semithick, rounded corners=3pt, fill=black!6, align=center,
+              inner sep=2.5pt, minimum height=5.5mm},
+  leaf/.style={cls, double, fill=black!16},
+  arc/.style={-{Stealth[length=4pt]}, semithick},
+]
+  \node[cls] (macro) at (1.8, 0.00) {\texttt{base:Macro\_Entity}};
+  \node[cls] (obj)   at (1.8,-1.15) {\texttt{base:Object}};
+  \node[cls] (immo)  at (1.8,-2.30) {\texttt{base:Immovable\_Object}};
+  \node[cls] (arch)  at (0.0,-3.60) {\texttt{base:Architectural}\\\texttt{\_Element}};
+  \node[cls] (bld)   at (3.7,-3.60) {\texttt{base:Building}};
+
+  % le tre foglie affiancate: e' cosi' che si vede che sono sorelle
+  \node[leaf] (cap) at (-2.8,-5.05) {\texttt{base:Capital}};
+  \node[leaf] (col) at ( 0.0,-5.05) {\texttt{base:Column}};
+  \node[leaf] (fac) at ( 2.8,-5.05) {\texttt{base:Facade}};
+
+  \draw[arc] (obj)  -- (macro)
+    node[font=\scriptsize, pos=0.55, fill=white, inner sep=1pt] {\texttt{rdfs:subClassOf}};
+  \draw[arc] (immo) -- (obj);
+  \draw[arc] (arch) -- (immo);
+  \draw[arc] (bld)  -- (immo);
+  \draw[arc] (cap)  -- (arch);
+  \draw[arc] (col)  -- (arch);
+  \draw[arc] (fac)  -- (arch);
+\end{tikzpicture}

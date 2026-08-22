@@ -1,0 +1,37 @@
+% Un punto della nuvola e le triple che lo descrivono.
+% Nomi reali di 3DOntCore (si veda colosseo_3DGraph.nt).
+% Incluso da chapters/introduction.tex (sottosezione Vantaggi).
+\begin{tikzpicture}[
+  font=\footnotesize,
+  iri/.style={draw, semithick, rounded corners=3pt, fill=black!6,
+              inner sep=3pt, minimum height=5.5mm},
+  cls/.style={draw, semithick, rounded corners=3pt, fill=black!14,
+              inner sep=3pt, minimum height=5.5mm},
+  lit/.style={draw, semithick, inner sep=3pt, minimum height=5.5mm,
+              minimum width=20mm},
+  arc/.style={-{Stealth[length=4.5pt]}, semithick},
+  side/.style={font=\scriptsize, inner sep=1pt, fill=white},
+]
+  % catena punto -> oggetto -> classe, in verticale: le etichette stanno a fianco
+  % degli archi e non toccano i nodi
+  \node[iri] (p) at (0,0)      {\texttt{base:9805241}};
+  \node[iri] (o) at (0,-1.55)  {\texttt{base:\_Capital\_number\_10\_}};
+  \node[cls] (c) at (0,-3.10)  {\texttt{base:Capital}};
+
+  \draw[arc] (p) -- (o)
+    node[side, anchor=west, pos=0.5, xshift=2mm] {\texttt{base:Constitutes}};
+  \draw[arc] (o) -- (c)
+    node[side, anchor=west, pos=0.5, xshift=2mm] {\texttt{rdf:type}};
+
+  % coordinate e colore: una tripla per letterale, ben distanziate perche' le
+  % quattro etichette abbiano spazio lungo gli archi
+  \node[lit] (x)   at (-5.7, 1.35) {\texttt{12.4}};
+  \node[lit] (y)   at (-5.7, 0.45) {\texttt{3.1}};
+  \node[lit] (z)   at (-5.7,-0.45) {\texttt{88.0}};
+  \node[lit] (rgb) at (-5.7,-1.35) {\texttt{210} \texttt{198} \texttt{173}};
+
+  \draw[arc] (p) -- (x)   node[side, pos=0.45, above] {\texttt{base:X}};
+  \draw[arc] (p) -- (y)   node[side, pos=0.45, above] {\texttt{base:Y}};
+  \draw[arc] (p) -- (z)   node[side, pos=0.45, below] {\texttt{base:Z}};
+  \draw[arc] (p) -- (rgb) node[side, pos=0.45, below] {\texttt{base:R/G/B}};
+\end{tikzpicture}

@@ -1,0 +1,41 @@
+% Come viene misurata una coppia motore/dataset.
+% Incluso da chapters/benchmark.tex (sezione Ambiente, Condizioni software).
+\begin{tikzpicture}[
+  font=\footnotesize,
+  box/.style={draw, semithick, rounded corners=3pt, fill=black!6, align=center,
+              inner sep=3.5pt, minimum height=8mm},
+  plain/.style={draw, semithick, align=center, inner sep=3.5pt, minimum height=8mm},
+  arc/.style={-{Stealth[length=4.5pt]}, semithick},
+  note/.style={font=\scriptsize, align=left},
+]
+  % --- avvio del motore: due strade che convergono sullo stesso endpoint
+  \node[plain] (dump) at (0,4.3) {dump N-Triples};
+  \node[box]   (oci)  at (-1.9,2.9) {container OCI};
+  \node[box]   (proc) at ( 2.0,2.9) {sottoprocesso\\\texttt{bench.servers}};
+  \node[plain] (ep)   at (0,1.5) {\texttt{127.0.0.1:}\textit{porta}\texttt{/sparql}};
+
+  \draw[arc] (dump) -- (oci);
+  \draw[arc] (dump) -- (proc);
+  \draw[arc] (oci)  -- (ep);
+  \draw[arc] (proc) -- (ep);
+
+  \node[note, right=4mm of ep]
+    {qualunque sia la strada di avvio,\\il punto di misura è lo stesso};
+
+  % --- ciclo di misura, ripetuto per ogni query
+  \node[box]   (base) at (0,0) {query vuota:\\latenza base};
+  \node[plain] (warm) at (3.5,0) {2 riscaldamenti\\non misurati};
+  \node[box]   (rep)  at (7.0,0) {8 ripetizioni\\misurate};
+  \node[plain] (med)  at (10.1,0) {mediana};
+
+  \draw[arc] (ep)   -- (base);
+  \draw[arc] (base) -- (warm);
+  \draw[arc] (warm) -- (rep);
+  \draw[arc] (rep)  -- (med);
+
+  % --- condizioni valide su tutto il ciclo
+  \node[note, anchor=north west] at (-3.0,-1.1)
+    {RSS campionato ogni 0,05\,s sull'albero dei processi del motore\\
+     latenza base sottratta dal tempo finale di ogni query\\
+     timeout di 10 minuti, terminale per la query che lo supera};
+\end{tikzpicture}
