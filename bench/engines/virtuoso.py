@@ -2,7 +2,8 @@
 
 Not packaged in this nixpkgs, so docker is the fallback (as allowed by the spec).
 Virtuoso has no implicit default-graph union, so data is loaded into ``BENCH_GRAPH``
-and queries are sent with a matching ``default-graph-uri``.
+and queries are sent with a matching ``default-graph-uri``. Its endpoint also truncates a
+single response at 2^20 rows, so queries are paged (``chunk_rows``).
 """
 
 from __future__ import annotations
@@ -18,12 +19,24 @@ from .registry import register_engine
 
 _PASSWORD = "benchdba"
 
+# Virtuoso's endpoint silently truncates one response at 2^20 = 1048576 rows (HTTP 200,
+# no warning), so every result above that was simply cut off. Fetch it in pages instead,
+# with the round number just below the cap that the 3dont viewer already uses.
+_CHUNK_ROWS = 1_000_000
+
+# Virtuoso refuses ORDER BY combined with LIMIT/OFFSET when offset+limit exceeds
+# MaxSortedTopRows ("Sorted TOP clause specifies more than N rows to sort", default
+# 10000), which the paging above would trip on any ordered query. Raise the ceiling well
+# past the largest result the benchmark asks for; it is a guard, not an allocation.
+_MAX_SORTED_TOP_ROWS = 100_000_000
+
 
 @register_engine("virtuoso")
 class VirtuosoEngine(DockerEngine):
     image = "openlink/virtuoso-opensource-7:latest"
     container_port = 8890
     default_graph = BENCH_GRAPH
+    chunk_rows = _CHUNK_ROWS
     # inherits the tsv default: measured (15k-row result) json 203ms vs tsv/csv ~74ms,
     # so JSON is ~2.7x slower here — exactly what to avoid.
 
@@ -41,6 +54,7 @@ class VirtuosoEngine(DockerEngine):
             "-e", f"VIRT_Parameters_MaxDirtyBuffers={self.tuning.virtuoso_dirty_buffers}",
             "-e", f"VIRT_Parameters_MaxQueryMem={max(2, self.tuning.budget_gb // 4)}G",
             "-e", f"VIRT_Parameters_ThreadsPerQuery={self.tuning.cores}",
+            "-e", f"VIRT_Parameters_MaxSortedTopRows={_MAX_SORTED_TOP_ROWS}",
             "-v", f"{self._db_dir}:/database",
         ]
 

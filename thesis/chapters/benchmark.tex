@@ -421,6 +421,11 @@ Sarebbe certamente possibile creare configurazioni che bilancino di più queste 
 \item QEndpoint presenta un bug nella versiona analizzata che rende impossibile condurre un caricamento di datasets sfruttando
 più processori, ne viene quindi usato uno soltanto, con un grande impatto facilelmente osservabile. Ne risulta appunto come il
 peggiore in quanto a prestazioni di caricamento.
+\item L'endpoint di Virtuoso tronca silenziosamente ogni risposta a $2^{20}$ (1.048.576) righe, senza segnalare in alcun modo
+che il risultato è incompleto. Le query rivolte a Virtuoso vengono quindi eseguite a pagine di un milione di righe, tramite
+\texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3dont; i tempi delle pagine vengono sommati
+in un'unica misurazione. I risultati di Virtuoso sulle query che producono molte righe includono perciò il costo delle richieste
+aggiuntive, che è quanto un client deve effettivamente pagare per ottenere il risultato completo.
 
 
 \end{itemize}

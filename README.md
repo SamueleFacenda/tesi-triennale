@@ -195,10 +195,17 @@ opens the database read-write.
   from a query's median for a pure-execution estimate.
 - **Result correctness across engines is not yet cross-checked.** The harness records the
   row count per engine; some engines legitimately differ on the same query (e.g. Virtuoso
-  returned fewer rows on the property-path queries). Differences are recorded, not hidden
-  — a row-count/hash cross-check is a natural next step. (Queries are kept to portable
-  SPARQL 1.1: e.g. `taxonomical_hierarchy` projects its `COUNT` as `?depth` and orders by
-  the alias, since a bare aggregate in `ORDER BY` is rejected by qEndpoint/GraphDB/Virtuoso.)
+  returns fewer rows on the property-path queries, `chained_segmentation` and
+  `taxonomical_hierarchy`). Differences are recorded, not hidden — a row-count/hash
+  cross-check is a natural next step. (Queries are kept to portable SPARQL 1.1: e.g.
+  `taxonomical_hierarchy` projects its `COUNT` as `?depth` and orders by the alias, since
+  a bare aggregate in `ORDER BY` is rejected by qEndpoint/GraphDB/Virtuoso.)
+- **Virtuoso truncates a single response at 2^20 = 1048576 rows** — with HTTP 200 and no
+  warning, so a truncated answer is indistinguishable from a complete one. Its queries are
+  therefore fetched in `OFFSET`/`LIMIT` pages of 1M rows (`VirtuosoEngine.chunk_rows`,
+  same fix as the 3dont viewer) and the pages are summed into one measurement, so its
+  timings for large results include the paging round-trips. The per-query timeout is the
+  budget for the whole paged result, not per page.
 - **Docker engines write root-owned files**; `--fresh` and re-load remove them via a
   throwaway `busybox` container. Docker RSS is read from `docker stats`.
 - **Loader output is logged** to `runs/<run>/storage/<engine>/<engine>.log` (native

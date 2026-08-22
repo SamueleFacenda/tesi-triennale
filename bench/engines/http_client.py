@@ -6,10 +6,14 @@ because that choice materially changes latency (JSON is slow on some engines). T
 always reads the whole body (so transfer is timed) and counts rows with an O(n),
 format-appropriate method that costs the same for every engine, so measured differences
 reflect the engine's serialization rather than our parser.
+
+One engine (Virtuoso) truncates a single response at 2^20 rows, so the client can fetch a
+result in ``OFFSET``/``LIMIT`` pages — see :meth:`SparqlHttpClient._query_chunked`.
 """
 
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass
 
@@ -61,6 +65,20 @@ def _parse_server_time(payload: dict) -> float | None:
     return None
 
 
+_TRAILING_MODIFIER = re.compile(r"\b(LIMIT|OFFSET)\b", re.IGNORECASE)
+
+
+def _has_trailing_modifier(sparql: str) -> bool:
+    """Whether the query already ends with its own LIMIT/OFFSET.
+
+    A solution modifier can only follow the query's last ``}``, so looking there is both
+    sufficient and immune to a LIMIT nested in a subselect (``select_points_in_object``).
+    Such a query cannot be paged — a second LIMIT is a syntax error — so it is sent as-is.
+    """
+    tail = sparql[sparql.rfind("}") + 1:]
+    return _TRAILING_MODIFIER.search(tail) is not None
+
+
 def _count_lines_minus_header(body: bytes) -> int:
     """Data-row count for CSV/TSV: non-empty lines minus the mandatory header row."""
     if not body:
@@ -73,9 +91,13 @@ def _count_lines_minus_header(body: bytes) -> int:
 
 class SparqlHttpClient:
     def __init__(self, endpoint: str, timeout: float = 300.0,
-                 default_graph: str | None = None, result_format: str = "tsv"):
+                 default_graph: str | None = None, result_format: str = "tsv",
+                 chunk_rows: int | None = None):
         self.endpoint = endpoint
         self.timeout = timeout
+        # page size for endpoints that cap a single response (None = one request per
+        # query, which is what every engine but Virtuoso does)
+        self.chunk_rows = chunk_rows
         # Sent as the SPARQL-protocol default-graph-uri param (used by Virtuoso, which
         # has no implicit default-graph union). None for stores that query the real
         # default graph directly.
@@ -84,16 +106,61 @@ class SparqlHttpClient:
         self._session = requests.Session()
 
     def query(self, sparql: str) -> QueryResult:
+        if self.chunk_rows is None or _has_trailing_modifier(sparql):
+            return self._request(sparql, self.timeout)
+        return self._query_chunked(sparql)
+
+    def _query_chunked(self, sparql: str) -> QueryResult:
+        """Fetch the result one page at a time, stopping at the first short page.
+
+        Virtuoso's endpoint truncates a single response at 2^20 rows and still answers
+        200, so a large result has to be paged (same fix as the 3dont viewer). The pages
+        are summed into one :class:`QueryResult`: that total is what a client actually
+        pays to obtain the whole result, round-trips included. ``timeout`` stays the
+        budget for the *whole* result rather than per page, so a paged engine gets exactly
+        the budget every other engine gets.
+        """
+        base = sparql.rstrip()
+        offset = rows = nbytes = 0
+        server_s, server_all = 0.0, True
+        start = time.perf_counter()
+        while True:
+            left = self.timeout - (time.perf_counter() - start)
+            paged = f"{base}\nOFFSET {offset} LIMIT {self.chunk_rows}\n"
+            try:
+                page = self._request(paged, left) if left > 0 else None
+            except QueryTimeout:
+                page = None
+            if page is None:
+                raise QueryTimeout(
+                    f"timed out after {self.timeout:g}s "
+                    f"({rows} rows in {offset // self.chunk_rows} chunks)"
+                )
+            rows += page.rows
+            nbytes += page.bytes
+            if page.server_s is None:
+                server_all = False
+            else:
+                server_s += page.server_s
+            if page.rows < self.chunk_rows:
+                break
+            offset += self.chunk_rows
+        return QueryResult(
+            wall_s=time.perf_counter() - start, rows=rows, bytes=nbytes,
+            server_s=server_s if server_all else None,
+        )
+
+    def _request(self, sparql: str, timeout: float) -> QueryResult:
         headers = {"Accept": self.accept, "Content-Type": "application/sparql-query"}
         params = {"default-graph-uri": self.default_graph} if self.default_graph else None
         start = time.perf_counter()
         try:
             resp = self._session.post(
                 self.endpoint, data=sparql.encode("utf-8"), params=params,
-                headers=headers, timeout=self.timeout,
+                headers=headers, timeout=timeout,
             )
         except requests.Timeout as e:  # subclass of RequestException — must come first
-            raise QueryTimeout(f"timed out after {self.timeout:g}s") from e
+            raise QueryTimeout(f"timed out after {timeout:g}s") from e
         except requests.RequestException as e:
             raise QueryError(f"request failed: {e}") from e
 

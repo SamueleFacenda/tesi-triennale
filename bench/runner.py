@@ -6,9 +6,9 @@ precede each measured batch to avoid cold-cache bias. A serialization/connection
 baseline (a trivial 1-row query) is measured per engine+dataset.
 
 Everything is checkpointed through :class:`BenchStore`, so a run is resumable: already
-completed measurements and already loaded datasets are skipped. A query that exceeds
-``timeout_s`` is recorded as a timeout and never attempted again — otherwise every resume
-would re-pay the full timeout for both the warmups and every repetition.
+completed measurements and already loaded datasets are skipped, warmups included. A query
+that exceeds ``timeout_s`` is recorded as a timeout and never attempted again — otherwise
+every resume would re-pay the full timeout for both the warmups and every repetition.
 """
 
 from __future__ import annotations
@@ -213,6 +213,12 @@ class BenchRunner:
             self.reporter.log(
                 f"    {query.name}: skipped (timed out previously, >{engine.timeout_s:g}s)"
             )
+            self.reporter.unit_done()
+            return
+        # already fully measured: skip before the warmups, which would otherwise be
+        # re-paid on every resume for a query that has nothing left to run
+        if self.store.measured_count(engine_name, dataset_name, query.name) >= plan.repetitions:
+            self.reporter.log(f"    {query.name}: complete, skipping")
             self.reporter.unit_done()
             return
 
