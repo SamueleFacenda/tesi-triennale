@@ -67,14 +67,13 @@ ENGINE_LABEL = {
     "virtuoso": "Virtuoso",
 }
 
-# Queries whose pattern only exists in some ontologies. The runner does not gate them
-# (bench/queries/builtin.py has no `applies_to` here): they run everywhere and return an
-# empty result, so an empty-result timing would be compared against a real one. Gate them
-# at presentation time instead.
-APPLICABLE_ONLY = {
-    "chained_segmentation": {"colosseo"},
-    "taxonomical_hierarchy": {"colosseo"},
-}
+# Queries to gate at presentation time, rendered as `n.d.` on the datasets they are not in.
+# Needed for a query that runs everywhere but returns an empty result on some ontology,
+# whose timing would otherwise be compared against a real one.
+# Empty: the two taxonomy queries used to sit here, but their empty results on Heritage and
+# Urban came from a hardcoded root class name, not from a missing hierarchy — the root is
+# parameterised per dataset in datasets.py now. Query.applies_to gates at the runner level.
+APPLICABLE_ONLY: dict[str, set[str]] = {}
 
 # Cell states.
 OK = "ok"

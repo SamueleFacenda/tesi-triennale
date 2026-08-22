@@ -6,9 +6,11 @@ dataset's ontology namespace and reads from the default graph (no ``FROM``).
 
 Predicate names come from the 3D ontologies (Heritage / Urban / 3DOntCore):
 ``base:X/Y/Z`` + ``base:R/G/B`` on points, ``base:Constitutes`` (point -> object),
-``base:Point`` / ``base:Macro_Entity`` classes, the object coordinate-extent predicate
-(``base:{max_x}`` — Has_X_Max on Heritage/Urban, Max_X on 3DOntCore) and
-``base:Has_Z_Lenght``.
+``base:Has_Z_Lenght``. Two names differ per ontology and are
+substituted from the dataset: ``base:{max_x}`` (object coordinate-extent predicate —
+Has_X_Max on Heritage/Urban, Max_X on 3DOntCore) and ``base:{macro_entity}`` (root of the
+macro-entity taxonomy — Macro_Entities on the legacy ontologies, Macro_Entity on
+3DOntCore).
 """
 
 from __future__ import annotations
@@ -94,18 +96,20 @@ WHERE {{
 """),
 ))
 
-# 5. chained segmentation — most specific Macro_Entity class of each point's object.
+# 5. chained segmentation — most specific taxonomy class of each point's object.
+# No `?s a base:Point` guard: Constitutes is declared Point -> Macro_Entity, so ?s is a point
+# by construction. The guard would also be unportable — the legacy ontologies call the class
+# Points, and the Urban graph never materialised it on its points at all (0 such triples).
 register(Query(
     name="chained_segmentation",
     kind="select",
-    description="Point -> object -> most specific Macro_Entity subclass (leaf type).",
+    description="Point -> object -> most specific taxonomy subclass (leaf type).",
     template=_q("""
 SELECT DISTINCT ?s ?x
 WHERE {{
-    ?s a base:Point .
     ?s base:Constitutes ?obj .
     ?obj a ?x .
-    ?x rdfs:subClassOf* base:Macro_Entity .
+    ?x rdfs:subClassOf* base:{macro_entity} .
     FILTER NOT EXISTS {{
         ?sub rdfs:subClassOf ?x .
         ?point rdf:type ?sub .
@@ -133,28 +137,27 @@ WHERE {{
 """),
 ))
 
-# 7. taxonomical hierarchy — class -> ancestor chain up to Macro_Entity.
+# 7. taxonomical hierarchy — class -> ancestor chain up to the taxonomy root.
 register(Query(
     name="taxonomical_hierarchy",
     kind="select",
-    description="For each instantiated leaf class, its ancestor classes up to Macro_Entity.",
+    description="For each instantiated leaf class, its ancestor classes up to the taxonomy root.",
     template=_q("""
 SELECT ?c ?sup (COUNT(DISTINCT ?sup2) AS ?depth)
 WHERE {{
   {{
     SELECT DISTINCT ?c
     WHERE {{
-      ?point a base:Point .
       ?point base:Constitutes ?obj .
       ?obj a ?c .
-      ?c rdfs:subClassOf* base:Macro_Entity .
+      ?c rdfs:subClassOf* base:{macro_entity} .
     }}
   }}
   ?c rdfs:subClassOf* ?sup .
-  ?sup rdfs:subClassOf+ base:Macro_Entity .
+  ?sup rdfs:subClassOf+ base:{macro_entity} .
   OPTIONAL {{
     ?sup rdfs:subClassOf* ?sup2 .
-    ?sup2 rdfs:subClassOf* base:Macro_Entity .
+    ?sup2 rdfs:subClassOf* base:{macro_entity} .
   }}
 }}
 GROUP BY ?c ?sup

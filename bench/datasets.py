@@ -97,32 +97,34 @@ def _paths(base_dir, stem: str, fmts: dict[str, str]) -> dict[str, str]:
     return {fmt: str(Path(base_dir) / f"{stem}.{ext}") for fmt, ext in fmts.items()}
 
 
-# coordinate-extent predicate per ontology (for the scalar_max_x query)
-_HXMAX = {"max_x": "Has_X_Max"}   # Heritage, Urban
-_MAXX = {"max_x": "Max_X"}        # 3DOntCore
+# Ontology-specific names substituted into query templates. Two differ between the
+# legacy ontologies and the reference one: the coordinate-extent predicate (scalar_max_x)
+# and the root of the macro-entity taxonomy (chained_segmentation, taxonomical_hierarchy).
+_LEGACY_PARAMS = {"max_x": "Has_X_Max", "macro_entity": "Macro_Entities"}  # Heritage, Urban
+_CORE_PARAMS = {"max_x": "Max_X", "macro_entity": "Macro_Entity"}          # 3DOntCore
 
 
 def _builtin() -> None:
     # Big source graphs in ~/downloads/ontos (referenced by path, never copied).
-    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"}), _HXMAX))
+    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"}), _LEGACY_PARAMS))
     register(Dataset("torre_modena", _HERITAGE,
-                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
-    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"}), _HXMAX))
-    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}), _MAXX))
+                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _LEGACY_PARAMS))
+    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"}), _LEGACY_PARAMS))
+    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}), _CORE_PARAMS))
     # the .nt is converted from the .ttl (see README): owlready2 has no Turtle parser
     register(Dataset("colosseo", _CORE,
-                     _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl", "nt": "nt"}), _MAXX))
+                     _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl", "nt": "nt"}), _CORE_PARAMS))
 
     # Small real-shaped samples (head of the big files), generated locally under testdata/.
     # Fast complete test that still exercises per-engine format selection.
     register(Dataset("mini_heritage", _HERITAGE,
-                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
+                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _LEGACY_PARAMS))
     register(Dataset("mini_urban", _URBAN,
-                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _HXMAX))
+                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _LEGACY_PARAMS))
 
     # Tiny synthetic fixture (committed) in all three formats — smoke tests.
     register(Dataset("tiny", _CORE,
-                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"}), _MAXX))
+                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"}), _CORE_PARAMS))
 
 
 _builtin()

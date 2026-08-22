@@ -189,17 +189,12 @@ appartiene va a selezionare l'IRI della classificazione tassonomica dell'oggetto
 la classe tassonomica più specifica a cui appartiene il punto, con il filtro che rimuove tutti gli elementi che non sono foglie
 nell'albero tassonomico dell'ontologia.
 
-%TODO nb
-\par Non in tutti i dataset è disponibile questa gerarchia interna, laddove la query non producesse nessun
-risultato è stato evidenziata come `N/A` (Non Applicabile).
-
 \begin{lstlisting}[language=SPARQL]
 SELECT DISTINCT ?s ?x
 WHERE {
-    ?s a base:Point .
     ?s base:Constitutes ?obj .
     ?obj a ?x .
-    ?x rdfs:subClassOf* base:Macro_Entity .
+    ?x rdfs:subClassOf* base:{macro_entity} .
     FILTER NOT EXISTS {
         ?sub rdfs:subClassOf ?x .
         ?point rdf:type ?sub .
@@ -227,7 +222,7 @@ WHERE {
     }
     GROUP BY ?s
   }
-}}
+}
 \end{lstlisting}
 
 \subsubsection{Gerarchia tassonomica}
@@ -238,27 +233,22 @@ il suo genitore e la sua profondità nell'albero, di modo che un semplice algori
 data la sua serializzazione in lista.
 Il numero di righe del risultato difficilmente supera il centinaio, rendendo la query piuttosto efficiente.
 
-%TODO nb
-\par Non in tutti i dataset è disponibile questa categorizzazione interna, laddove la query non producesse nessun
-risultato è stato evidenziata come `N/A` (Non Applicabile).
-
 \begin{lstlisting}[language=SPARQL]
 SELECT ?c ?sup (COUNT(DISTINCT ?sup2) AS ?depth)
 WHERE {
   {
     SELECT DISTINCT ?c
     WHERE {
-      ?point a base:Point .
       ?point base:Constitutes ?obj .
       ?obj a ?c .
-      ?c rdfs:subClassOf* base:Macro_Entity .
+      ?c rdfs:subClassOf* base:{macro_entity} .
     }
   }
   ?c rdfs:subClassOf* ?sup .
-  ?sup rdfs:subClassOf+ base:Macro_Entity .
+  ?sup rdfs:subClassOf+ base:{macro_entity} .
   OPTIONAL {
     ?sup rdfs:subClassOf* ?sup2 .
-    ?sup2 rdfs:subClassOf* base:Macro_Entity .
+    ?sup2 rdfs:subClassOf* base:{macro_entity} .
   }
 }
 GROUP BY ?c ?sup
