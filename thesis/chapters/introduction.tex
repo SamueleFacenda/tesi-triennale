@@ -2,16 +2,17 @@
 \label{cha:introduction}
 
 \par
-RDF (Resource Description Framework) è la specifica definita da W3C per la rappresentazione di ontologie e grafi di conoscenze
-nell'ambito del web semantico. È uno standard essenziale con il potenziale per essere esteso,
-come ad esempio succede con OWL (Web Ontology Language), una sua potente estensione utilizzata per definire
+RDF (Resource Description Framework)~\cite{w3c-rdf11} è la specifica definita da W3C per la rappresentazione di ontologie e grafi
+di conoscenze nell'ambito del web semantico, oggi in corso di revisione verso la versione 1.2~\cite{w3c-rdf12}. È uno standard essenziale con il potenziale per essere esteso,
+come ad esempio succede con OWL (Web Ontology Language)~\cite{w3c-owl2}, una sua potente estensione utilizzata per definire
 ontologie complete. Di base è stata creata per la condivisione di risorse web, ognuna identificata da un IRI univoco
 teoricamente accessibile in rete, ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
 software per l'interrogazione e la manipolazione di grafi RDF. Nella pratica, molti DBMS sono stati integrati o creati con
-il supporto per interrogazioni SPARQL (SPARQL Protocol and RDF Query Language), il protocollo e linguaggio standardizzato
+il supporto per interrogazioni SPARQL (SPARQL Protocol and RDF Query Language)~\cite{w3c-sparql11}, il protocollo e linguaggio standardizzato
 sempre da W3C per interrogare basi di conoscenza nel web semantico.
 \par
-Anche se il semantic web non ha raggiunto l'adozione e l'impatto sperato al momento della creazione di questi standard,
+Anche se il semantic web non ha raggiunto l'adozione e l'impatto sperato al momento della creazione di questi
+standard~\cite{bernerslee2001semantic},
 rimane comunque alla base di uno dei più vasti e avanzati sistemi per la manipolazione di basi di conoscenza. Inoltre,
 grazie alla sua estensibilità by-design esso permette facilmente di valicare i domini della rete per essere utilizzato
 in ambienti fondamentalmente diversi rispetto all'originale idea del semantic web.
@@ -25,7 +26,7 @@ con le rappresentazioni native solitamente utilizzate per i loro domini, focaliz
 Inoltre, con questo approccio, si può andare a sfruttare la potenza dei sistemi di ragionamento sui modelli utilizzati,
 andando a definire regole per espandere la conoscenza nelle nostre rappresentazioni e potenzialmente anche ottenere un guadagno
 dal punto di vista della memoria di massa utilizzata, se il motore che stiamo andando ad utilizzare supporta il ragionamento ``virtuale''
-a tempo di interrogazione (come nel caso di graphdb o owlready2, analizzati nel capitolo~\ref{cha:benchmark}).
+a tempo di interrogazione (come nel caso di graphdb~\cite{bishop2011owlim} o owlready2~\cite{lamy2017owlready}, analizzati nel capitolo~\ref{cha:benchmark}).
 Per finire, si renderebbe possibile l'accesso e l'analisi dei dati così organizzati attraverso le query SPARQL, le quali garantiscono
 espressività e una capacità di interrogazione avanzata. Calcoli e analisi complesse che richiederebbero l'implementazione di algoritmi
 ad-hoc possono essere completati con una sola query SPARQL, aumentando l'accessibilità e la facilità di fruizione dei dati.
@@ -37,14 +38,16 @@ così dire ``risolto'' dalla grande espressività ed estensibilità by-design di
 Se vogliamo utilizzare RDF come modello di salvataggio per big data in modo generico dobbiamo fare i conti con dei pattern di accesso
 fondamentalmente diversi da quelli tipici del semantic web. Si andrà spesso ad analizzare l'interezza del modello oppure
 delle sottoporzioni per andare a condurre delle analisi su questi dati, o produrre delle rappresentazioni in formati alternativi
-(grafici, ad esempio) per cui è necessario accedere in lettura a grandi porzioni di dati. Stiamo quindi parlando di query di tipo OLAP
+(grafici, ad esempio) per cui è necessario accedere in lettura a grandi porzioni di dati. Stiamo quindi parlando di query di tipo OLAP~\cite{codd1998olap,chaudhuri1997olap}
 contro il tipico carico di lavoro OLTP del semantic web: la sua natura predispone la ricerca per singole risorse ed elementi collegati,
 facilmente ottimizzabile con l'utilizzo di indici a vario livello. La maggior parte dei DBMS con supporto per SPARQL non sono quindi
-ottimizzati per query che contengono scansioni su grandi porzioni del modello quanto sull'accesso casuale e sul collegamento dei nodi.
+ottimizzati per query che contengono scansioni su grandi porzioni del modello quanto sull'accesso casuale e sul
+collegamento dei nodi~\cite{ali2022survey}.
 Questa è appunto la sfida più grande all'utilizzo diffuso dell'approccio proposto, e in questa tesi si andranno quindi soprattutto
 ad analizzare le prestazioni di un certo numero di motori di query SPARQL nell'esecuzione di carichi di lavoro specifici,
 con lo scopo di valutarne la predisposizione all'utilizzo con big data di dominio diverso dal web semantico.
-Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3Dont, approfondito nel capitolo dedicato,
+Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3Dont~\cite{codiglione2024urban,codiglione2024heritage},
+approfondito nel capitolo dedicato,
 all'interno di vari motori la cui prerogativa principale è che siano eseguibili localmente. Questo è importante soprattutto per
 poter confrontare le prestazioni dei vari motori nello stesso ambiente, ma anche perché se si volessero poi utilizzare come base
 per l'accesso ai modelli RDF è importante che possano essere integrati all'interno degli applicativi che li utilizzerebbero.
@@ -61,9 +64,10 @@ qui proposti e nelle loro differenze.
 
 \subsection{Progetti rilevanti}
 
-Un progetto molto interessante è Linked Building Data, che aggrega dati da diverse sorgenti per monitorare lo sviluppo
-dei cantieri. Parte da una rappresentazione RDF dei dati BIM e usa l'ontologia V4Design come base di costruzione semantica.
-Integra inoltre GEOSPARQL per la correlazione di dati geospaziali insieme all'ontologia FOG per la rappresentazione dei punti.
+Un progetto molto interessante è Linked Building Data~\cite{bassier2022lbd}, che aggrega dati da diverse sorgenti per monitorare
+lo sviluppo dei cantieri. Parte da una rappresentazione RDF dei dati BIM e usa l'ontologia V4Design~\cite{bassier2020v4design}
+come base di costruzione semantica. Integra inoltre GEOSPARQL~\cite{ogc-geosparql11} per la correlazione di dati geospaziali
+insieme all'ontologia FOG~\cite{bonduel2019fog} per la rappresentazione dei punti.
 Il punto chiave del progetto poi è il collegamento con la sensoristica esistente, è un problema comune (perlaltro affrontato 
 anche da 3Dont) quello dell'integrazione di dati da sorgenti così disparate, mantendendo una coesione spaziotemporale:
 basti pensare al gran numero di formati proprietari usati dai sensori sul mercato, le diverse proiezioni geografiche e
@@ -72,17 +76,18 @@ Un aspetto interessante sicuramente il fatto che vengano usate molte ongologie g
 rendendo ancora più semplice l'interoperabilità, anche se GEOSPARQL limita l'utilizzo ai soli triple store che lo supportano,
 come GraphDB e Virtuoso.
 
-\par Nell'albito del progetto WaterFRAME inoltre è stato sperimentato l'utilizzo di LDES (Linked Data Event Streams), uno
-standard basato su RDF per la gestione di eventi sequenziali e serie di dati temporali. L'utilizzo di Time Series Snippets inoltre
-permette di ridurre la quantità di dati da processare, andando a compattare senza perdida di conoscenza le triple che descrivono
-una serie temporale in un solo valore letterale.
-Viene poi usato Virtuoso, pratico data la sua integrazione con GEOSPARQL (che anche qui viene utilizzato), che garantisce le
-prestazioni necessarie.
+\par Nell'ambito del progetto WaterFRAME inoltre è stato sperimentato l'utilizzo di LDES (Linked Data Event
+Streams)~\cite{ldes-spec}, uno standard basato su RDF per la gestione di eventi sequenziali e serie di dati temporali.
+L'utilizzo di Time Series Snippets inoltre permette di ridurre la quantità di dati da processare, andando a compattare
+senza perdita di conoscenza le triple che descrivono una serie temporale in un solo valore letterale.
+I dati, modellati con GEOSPARQL insieme a SSN/SOSA e QUDT, vengono poi caricati in tre motori diversi, Virtuoso, Oxigraph
+e Postgres, per confrontarne il comportamento~\cite{abdelfatah2026water}. È un confronto vicino a quello condotto qui,
+anche se limitato a un carico di lavoro di sole serie temporali.
 
-\par Anche Brick prova a risolvere il problema dell'integrazione sensoristica, diventato chiave per l'intepretazione
+\par Anche Brick~\cite{balaji2018brick} prova a risolvere il problema dell'integrazione sensoristica, diventato chiave per l'interpretazione
 e l'ottimizzazione dei consumi energetici negli edifici. Usando appunto un'ontologia comune sarebbe possibile avere software
 che funzionano per un vasto numero di edifici senza nessuna modifica, anche se la completezza nella rappresentazione
-è una sfida complidata. Il risultato è un framework open source (https://brickschema.org/) estensibile by-default. 
+è una sfida complicata. Il risultato è un framework open source estensibile by-default. 
 Sistemi come questi sono essenziali e condividono l'idea alla base del semantic web, evitano il problema del vendor lock-in
 e in questi casi raggiungono anche delle prestazioni ottime.
 
@@ -100,21 +105,30 @@ fatti su un file, la maggior parte sono letture di grandi porzioni dello stesso.
 le query SPARQL ma dall'esperienza di 3DOnt il grande collo di bottiglia sono appunto le dimensioni degli enormi risultati e 
 il poco vantaggio dato dall'indicizzazione classica nelle grandi scansioni. 
 
-\par BowlognaBench ad esempio parte sì da una base di dati consistente (i registri accademici dell'Università di Bologna) ma
+\par Il confronto tra triple store passa di solito per un piccolo insieme di benchmark sintetici: LUBM~\cite{guo2005lubm},
+il Berlin SPARQL Benchmark~\cite{bizer2009bsbm}, SP\textsuperscript{2}Bench~\cite{schmidt2009sp2bench} e
+WatDiv~\cite{aluc2014watdiv}. Sono strumenti maturi e utili per misurare i motori tra loro, ma il carico che costruiscono
+ruota attorno alla selettività delle query e all'ordinamento dei join, non al volume dei risultati; WatDiv in particolare
+fa variare la struttura delle query più di quanto faccia variare quante righe tornano. Nessuno di questi mette quindi sotto
+pressione la parte che qui interessa, ovvero la scansione e la serializzazione di milioni di righe.
+
+\par BowlognaBench~\cite{demartini2012bowlogna} ad esempio parte sì da una base di dati consistente (i registri accademici dell'Università di Bologna) ma
 nel vasto numero di query analitiche definite la dimensione dei risultati è sempre molto ridotta. È quindi comunque interessante
 ma incompleto per il nostro caso d'uso. Soltanto la quarta query avrebbe un insieme di risultati largo ma prendendo essa in 
 considerazione dati privati degli studenti non è replicabile localmente.
-\par Stesso vale per SSB-QB4OLAP, il cui volume dei risultati è soltanto una frazione del volume totale dei dati, nonostante
+\par Stesso vale per SSB-QB4OLAP~\cite{etcheverry2017cubes}, che riprende da SSB-QB~\cite{kampgen2013ssbqb} l'idea di tradurre
+lo Star Schema Benchmark in SPARQL, e il cui volume dei risultati è soltanto una frazione del volume totale dei dati, nonostante
 stiamo sempre parlando di query OLAP. É comunque interessante confrontare i risultati qui ottenuti con quelli di questi 
 altri benchmark, si vanno a rendere chiare le differenze di scopo nelle implementazioni dei vari motori.
-\par LDBC Semantic Publishing Benchmark invece si mostra interessante su due delle query definite. La quarta infatti permette
+\par LDBC Semantic Publishing Benchmark~\cite{kotsev2016spb} invece si mostra interessante su due delle query definite. La quarta infatti permette
 di limitare le dimensioni del risultato, scegliendo un valore di limite sufficientemente elevato si possono analizzare appunto
 le prestazioni dei triple store in più scansioni complete dei dati. Stesso discorso per la seconda query nella categoria avanzata,
 simile a quella appena citata ma non ha nessun limite nella dimensione dei risultati.
 Il benchmark in realtà è molto più complesso di così e andrebbe a simulare il lavoro su una base dati condivisa con operazioni di
 modifica e aggregazione concorrenti. Il nostro caso d'uso invece richiede soltanto un accesso sequenziale da parte di un solo utente,
 per cui le tecnologie implementate per aumentare il parallelismo dei triple store non forniscono alcun guadagno.
-\par Va citato inoltre Smart City RDF Benchmark, che usa dati geospaziali proveniente dai sensori della città di Firenze, che però
+\par Va citato inoltre Smart City RDF Benchmark~\cite{bellini2018smartcity}, che usa dati geospaziali proveniente dai sensori
+della città di Firenze, che però
 richiede complesse capacità di indicizzazione del testo e accede solo a ridotte porzioni temporali per ogni query, trattandosi
 di dati storici urbani.
 
@@ -130,7 +144,8 @@ acquisizione di ambienti tridimensionali produce come primo risultato una nuvola
 vasto numero di processi, dalla segmentazione delle istanze all'individuazione delle geometrie esistenti. Una singola nuvola di punti
 può rappresentare un piccolo oggetto come un'intera città, e al variare della risoluzione e della dimensione può arrivare ad avere
 centinaia di milioni di punti. 
-\par Esistono diversi formati per la condivisione di nuvole di punti, come PCD (Point Cloud Data), LAS (LASer) e LAZ (LASzip),
+\par Esistono diversi formati per la condivisione di nuvole di punti, come PCD (Point Cloud Data)~\cite{rusu2011pcl},
+LAS (LASer)~\cite{asprs-las14} e LAZ (LASzip)~\cite{isenburg2013laszip},
 che in pratica permettono di definire una serie di campi presenti per ogni punto e la lista di punti della nuvola. Questi formati
 sono più o meno complessi, LAS ad esempio permette solo 11 formati di nuvole di punti diverse (come con o senza tempo GPS, colore, etc.)
 anche se grazie a questa caratteristica LASzip (la sua evoluzione con compressione) permettere di comprimere file LAS senza perdita 
@@ -138,12 +153,13 @@ di dettaglio in modo molto efficace.
 
 \subsection{Il framework}
 
-3Dont è un framework basato su RDF che permette di modellare nuvole di punti attraverso un'ontologia definita ma estensibile.
+3Dont~\cite{codiglione2024urban,codiglione2024heritage} è un framework basato su RDF che permette di modellare nuvole di punti
+attraverso un'ontologia definita ma estensibile.
 In fase di creazione del grafo classifica i punti e gli oggetti della nuvola in base all'ambito scelto (urbano o beni culturali)
 secondo una struttura gerarchica, per poi eseguire una fase di ragionamento che materializza delle informazioni aggiuntive come la
 correlazione spaziale, classificazione tassonomica, proprietà dei materiali e così via.
 \par Il modello così creato è pronto per essere visualizzato ed esplorato, anche attraverso delle interrogazioni in linguaggio naturale,
-che grazie a un LLM e un'analisi dell'ontologia vengono tradotte in linguaggio SPARQL ed eseguite. Questo permette anche a individui
+che grazie a un LLM e un'analisi dell'ontologia vengono tradotte in linguaggio SPARQL ed eseguite~\cite{codiglione2025nl2sparql}. Questo permette anche a individui
 senza una formazione specifica su nuvole di punti, ontologie o informatica (come ad esempio un pianificatore urbanistico) 
 di interagire con i dati e supportare il proprio lavoro in autonomia.
 
@@ -251,7 +267,7 @@ di un'interfaccia grafica e di un applicativo destinato a un'utenza inesperta.
 Nuvole di punti di medie dimensione (meno di 5 milioni di punti) possono richiedere per la query iniziale, che domanda coordinate e 
 colori di ogni punto, diversi minuti di esecuzione, ma si può scendere a meno di una decina di secondi con qualche accorgimento.
 \par Il principale fattore determinante (oltre naturalmente all'hardware utilizzato, che però ovviamente non dipende dall'implementazione
-del framework) è il motore di query utilizzato e la sua configurazione. Nello specifico viene impegato QLever (TODO link) con vocabolario
+del framework) è il motore di query utilizzato e la sua configurazione. Nello specifico viene impiegato QLever~\cite{bast2017qlever,bast2022qlever} con vocabolario
 compresso su disco e i prefissi dell'ontologia codificati. Viene quindi usata la versione integrata di QLever, disponibile come libreria
 c++, che permette di ridurre al minimo l'utilizzo di risorse dato dall'IPC (Inter Process Communication) e dalla deserializzazione
 dei risultati, che invece sarebbe necessaria usando SPARQL tramite l'interfaccia HTTP.

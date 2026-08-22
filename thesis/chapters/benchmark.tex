@@ -60,7 +60,7 @@ né particolari costruzioni, a parte dove indicato.
 \subsubsection{Piccolo}
 \label{ssub:dataset_piccolo}
 
-Questa nuvola rappresenta una porzione del dataset ytu3d (https://github.com/3DOM-FBK/YTU3D), un'acquisizione 
+Questa nuvola rappresenta una porzione del dataset ytu3d~\cite{bayrak2023ytu3d}, un'acquisizione 
 dell'ambiente urbano del Davutpasa Campus dell'Yildiz Technical University (YTU), Turchia.
 La nuvola è completamente segmentata con 45 classi diverse, garantendo una totale copertura dei punti (figura~\ref{fig:dataset_ytu3d}).
 
@@ -318,13 +318,13 @@ di paginazione e swapping. La figura~\ref{fig:pipeline} riassume il percorso com
 \par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione 7.1.4 basato sulla
 build di NixOS unstable al commit e2587caef70cea85dd97d7daab492899902dbf5d (il sistema è stato compilato senza ottimizzazioni
 per il processore specifico ma con una configurazione generica per linux x86-64). Il software eseguito invece è ottenibile in
-modo completamente riproducibile attraverso il gestore di pacchetti nix dalla repository (TODO link), di seguito verranno riportate
-le versioni dei singoli motori utilizzate~\ref{sec:engines}
+modo completamente riproducibile attraverso il gestore di pacchetti nix~\cite{dolstra2010nixos} dalla repository
+\url{https://github.com/SamueleFacenda/tesi-triennale}, di seguito verranno riportate le versioni dei singoli motori
+utilizzate~\ref{sec:engines}
 \par Infine, è stato predisposto un limite al tempo di esecuzione delle singole query, pari a 10 minuti, in primis perché un risultato
 di questo tipo non sarebbe interessante ai fini dell'analisi qui condotta, ma soprattutto per ridurre il tempo di esecuzione totale
 del benchmark (già di gran lunga superiore alle 40 ore), che verrebbe monopolizzato da un numero ridotto di query poco performanti
 su pochi motori.
-% TODO cite https://nixos.org/research/
 
 % TODO: ambiente di esecuzione.
 
@@ -347,21 +347,23 @@ descrizione resta senza marchio.
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/fuseki.pdf}
 \end{wrapfigure}
-Fuseki è un server SPARQL basato su Apache Jena, una delle soluzioni più popolari. È scritto in Java
-e supporta il ragionamento OWL usando Pellet. È stato scelto per la sua popolarità mentre è stata usata 
+Fuseki è un server SPARQL basato su Apache Jena~\cite{carroll2004jena}, una delle soluzioni più popolari. È scritto
+in Java ed espone la propria interfaccia di inferenza, a cui è possibile collegare ragionatori OWL esterni come
+Pellet~\cite{sirin2007pellet}. È stato scelto per la sua popolarità mentre è stata usata 
 la versione `5.1.0` e il formato dei risultati utilizzato è TSV.
 
 \subsection{Graphdb}
 
-GraphDB è uno dei triple store più utilizzati in ambito aziendale, rinomato per le sue elevate prestazioni
-e per la quantità di features disponibili, come l'integrazione con un vasto numero di piattaforme usate
-nello sviluppo di applicazioni basate sui dati (ad esempio Apache Kafka o ElasticSearch).
+GraphDB, discendente diretto di OWLIM~\cite{bishop2011owlim}, è uno dei triple store più utilizzati in ambito
+aziendale, rinomato per le sue elevate prestazioni e per la quantità di features disponibili, come l'integrazione con
+un vasto numero di piattaforme usate nello sviluppo di applicazioni basate sui dati (ad esempio Apache Kafka o
+ElasticSearch)~\cite{ontotext-graphdb}.
 La versione utilizzata è la `10.7.0` mentre il formato dei risultati scelto è CSV.
 
 \subsection{Owlready2}
 
-Owlready2 è una libreria Python per la programmazione di ontologie che integra un layer di persistenza basato 
-su SQLite con supporto per query SPARQL. È un motore essenzialmente differente rispetto a quelli fino ad adesso
+Owlready2~\cite{lamy2017owlready} è una libreria Python per la programmazione di ontologie che integra un layer di
+persistenza basato su SQLite con supporto per query SPARQL. È un motore essenzialmente differente rispetto a quelli fino ad adesso
 citati, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comprarabili a
 prodotti molto più avanzati, soprattutto se usato come interfaccia diretta, visto che si va a ridurre la latenza
 data dal protocollo SPARQL su HTTP.
@@ -373,9 +375,10 @@ La versione utilizzata è la '0.47', con risultati in formato TSV.
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/oxigraph.pdf}
 \end{wrapfigure}
-Come l'appena citato Owlready2, anche Oxigraph a sua volta è una libreria integrabile direttamente dentro altri software.
-Scritta in Rust, è integrabile anche con Python e RDFLib, una delle librerie più usate nel settore. Si basa su RocksDB
-come backend di persistenza e volendo può essere usata direttamente come server SPARQL HTTP.
+Come l'appena citato Owlready2, anche Oxigraph~\cite{tanon-oxigraph} a sua volta è una libreria integrabile direttamente
+dentro altri software. Scritta in Rust, è integrabile anche con Python e RDFLib~\cite{rdflib}, una delle librerie più usate
+nel settore. Si basa su RocksDB~\cite{dong2021rocksdb} come backend di persistenza e volendo può essere usata direttamente
+come server SPARQL HTTP.
 La versione utilizzata è la `0.5.0` e il formato dei risultati scelto è TSV.
 
 \subsection{Qendpoint}
@@ -384,7 +387,8 @@ La versione utilizzata è la `0.5.0` e il formato dei risultati scelto è TSV.
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/qendpoint.pdf}
 \end{wrapfigure}
-Qendpoint è un triple store con supporto GeoSPARQL (come GraphDB d'altronde) basato sul formato file HDT (Header, Dictionary, Triples). 
+Qendpoint~\cite{willerval2024qendpoint} è un triple store con supporto GeoSPARQL~\cite{ogc-geosparql11} (come GraphDB
+d'altronde) basato sul formato file HDT (Header, Dictionary, Triples)~\cite{fernandez2013hdt,martinezprieto2012hdt}. 
 Questo si pone come alternativa efficiente ai più comuni RDF-XML e Turtle, integrando un indice direttamente al suo interno e rendendone
 l'accesso molto veloce. Qendpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
 di un nuovo indice da capo), attraverso un buffer di modifica che viene integrato periodicamente nel file sottostante.
@@ -394,7 +398,8 @@ La versione utilizzata è la `2.5.2`, con risultati in formato TSV.
 
 \subsection{QLever}
 
-QLever è un motore open-source molto recente che mira a supportare l'esecuzioni di query SPARQL su datasets di grandi dimensioni
+QLever~\cite{bast2017qlever,bast2022qlever} è un motore open-source molto recente che mira a supportare l'esecuzioni di
+query SPARQL su datasets di grandi dimensioni
 utilizzando hardware non professionale e con un consumo di risurse ridotto. Il codice, scritto in C++, contiene un vasto numero
 di ottimizzazioni avanzata a diversi livelli e supporta anch'esso l'integrazione come libreria.
 La versione utilizzata è la `0.5.42` mentre il formato dei risultati scelto è TSV.
@@ -405,7 +410,7 @@ La versione utilizzata è la `0.5.42` mentre il formato dei risultati scelto è 
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/rdflib.png}
 \end{wrapfigure}
-RDFLib è una popolare libreria Python per la creazione di applicazioni per il semantic web. Permette di usare Berkeley DB per
+RDFLib~\cite{rdflib} è una popolare libreria Python per la creazione di applicazioni per il semantic web. Permette di usare Berkeley DB per
 la persistenza di un grafo in memoria, oltre che un vasto numero di altri motori, e supporta query le SPARQL in modo nativo.
 Considerata un punto di riferimento per lo standard RDF è stata scelta per la sua popolarità e per poter comparare le prestazioni
 di un software open-source integrabile da chiunque con motori proprietari e concessi su licenza (come GraphDB e RDFox).
@@ -418,14 +423,15 @@ Vengono riportate le prestazione per il suo utilizzo senza configurazione e con 
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/rdfox.pdf}
 \end{wrapfigure}
-RDFox è un motore per grafi semantici che opera interamente all'interno della memoria RAM. È quindi molto interessante
+RDFox~\cite{nenov2015rdfox} è un motore per grafi semantici che opera interamente all'interno della memoria RAM. È quindi molto interessante
 da comparare e potenzialmente permette di ridurre la latenza di risposta alle query a costo di un maggiore consumo di memoria.
 Sviluppato dall'Università di Oxford è disponibile solamente su licenza, la versione utilizzata è la `7.6` con risultati
 in formato CSV.
 
 \subsection{Virtuoso}
 
-Virtuoso è l'ultimo engine preso in considerazione in questo benchmark, nella sua versione open-source. Virtuoso è un motore
+Virtuoso~\cite{erling2009virtuoso} è l'ultimo engine preso in considerazione in questo benchmark, nella sua versione
+open-source. Virtuoso è un motore
 ibrido con supporto per un vasto numero di tipi di database, dai classici database relazionali SQL a formati non strutturati
 come RDF. Riesce inoltre a garantire delle prestazioni molto elevate, oltre a una versione disponibile su licenza con supporto
 e funzionalità aggiuntive.
@@ -450,6 +456,7 @@ del datasets è lineare, lo si evince dai grafici che mettono in relazione le pr
 \item Owlready2, nonostante non sia progettato per gestire in modo efficace carichi di lavoro di questo tipo, raggiunge prestazioni
 comparabili a quelle di motori avanzati come Fuseki e GraphDB, al contrario di Rdflib (con e senza persistenza) che in
 alcuni casi non riesce nemmeno a rendere disponibile il dataset.
+\end{itemize}
 
 E alcune osservazioni sui risultati, espresse per chiarire dei risultati che possono generare confusione:
 \begin{itemize}

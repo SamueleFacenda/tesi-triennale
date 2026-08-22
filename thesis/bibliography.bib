@@ -1,203 +1,695 @@
-% Website
-% Required fields: 'title' | 'author' | 'howpublished' | 'note'
-% Optional fields: 'month' | 'year'
-@misc{misc,
-  title = {{Title}},
-  author = {{Name Surname, Name Surname and Name Surname}},
-  howpublished = {\url{https://www.google.com}},
-  note = {{Accessed 31/01/2000}}
+% Bibliografia della tesi. Backend: BibTeX classico con \bibliographystyle{plain}.
+%
+% Convenzioni adottate in questo file:
+%  - i titoli sono racchiusi in doppie graffe {{...}} perche' plain.bst altrimenti
+%    forza il minuscolo e distruggerebbe gli acronimi (RDF, SPARQL, OWL, HDT, ...);
+%  - plain.bst ignora i campi `doi` e `url`, quindi il DOI viene ripetuto in `note`
+%    per comparire nella bibliografia stampata come link cliccabile;
+%  - i metadati provengono da Crossref/DataCite o dalla pagina dell'editore.
+%
+% Campi richiesti da plain.bst, per tipo di voce (senza la chiocciola: BibTeX la
+% interpreterebbe come inizio di una voce anche dentro un commento):
+%  misc          -> nessuno obbligatorio; usare 'howpublished' e 'note'
+%  book          -> author|editor, title, publisher, year
+%  inproceedings -> author, title, booktitle, year
+%  incollection  -> author, title, booktitle, publisher, year
+%  article       -> author, title, journal, year
+
+
+% ============================================================
+% Standard e specifiche
+% ============================================================
+
+% RDF (W3C)
+@misc{w3c-rdf11,
+  author       = {Richard Cyganiak and David Wood and Markus Lanthaler},
+  title        = {{RDF 1.1 Concepts and Abstract Syntax}},
+  howpublished = {W3C Recommendation, \url{https://www.w3.org/TR/rdf11-concepts/}},
+  year         = 2014,
+  month        = feb,
+  note         = {Consultato il 22/08/2026}
+}
+
+% RDF 1.2, ancora in corso di standardizzazione
+@misc{w3c-rdf12,
+  author       = {Olaf Hartig and Pierre-Antoine Champin and Andy Seaborne},
+  title        = {{RDF 1.2 Concepts and Abstract Data Model}},
+  howpublished = {W3C Candidate Recommendation Snapshot, \url{https://www.w3.org/TR/rdf12-concepts/}},
+  year         = 2026,
+  month        = apr,
+  note         = {Consultato il 22/08/2026}
+}
+
+% OWL (W3C)
+@misc{w3c-owl2,
+  author       = {{W3C OWL Working Group}},
+  title        = {{OWL 2 Web Ontology Language Document Overview (Second Edition)}},
+  howpublished = {W3C Recommendation, \url{https://www.w3.org/TR/owl2-overview/}},
+  year         = 2012,
+  month        = dec,
+  note         = {Consultato il 22/08/2026}
+}
+
+% SPARQL (W3C)
+@misc{w3c-sparql11,
+  author       = {Steve Harris and Andy Seaborne},
+  title        = {{SPARQL 1.1 Query Language}},
+  howpublished = {W3C Recommendation, \url{https://www.w3.org/TR/sparql11-query/}},
+  year         = 2013,
+  month        = mar,
+  note         = {Consultato il 22/08/2026}
+}
+
+% GeoSPARQL (OGC)
+@misc{ogc-geosparql11,
+  author       = {Nicholas J. Car and Timo Homburg and Matthew Perry and Frans Knibbe and
+                  Simon J. D. Cox and Joseph Abhayaratna and Mathias Bonduel and
+                  Paul J. Cripps and Krzysztof Janowicz},
+  title        = {{OGC GeoSPARQL: A Geographic Query Language for RDF Data, version 1.1}},
+  howpublished = {OGC Implementation Standard 22-047r1, \url{http://www.opengis.net/doc/IS/geosparql/1.1}},
+  year         = 2024,
+  month        = jan,
+  note         = {Consultato il 22/08/2026}
+}
+
+% GQL (ISO/IEC), lo standard per i property graph
+@misc{iso-gql,
+  author       = {{ISO/IEC JTC 1/SC 32}},
+  title        = {{ISO/IEC 39075:2024 Information technology --- Database languages --- GQL}},
+  howpublished = {\url{https://www.iso.org/standard/76120.html}},
+  year         = 2024,
+  month        = apr,
+  note         = {Consultato il 22/08/2026}
+}
+
+% PGXF, formato di scambio per i property graph (non standardizzato ISO)
+@misc{chiba2024pgxf,
+  author       = {Hirokazu Chiba and Jakob Vo{\ss}},
+  title        = {{Property Graph Exchange Format (PG)}},
+  howpublished = {Zenodo},
+  year         = 2024,
+  doi          = {10.5281/zenodo.13859531},
+  note         = {\url{https://doi.org/10.5281/zenodo.13859531}}
+}
+
+% MCP, il protocollo usato dagli agenti IA per collegarsi a sorgenti esterne
+@misc{mcp-spec,
+  key          = {Model Context Protocol},
+  title        = {{Model Context Protocol Specification}},
+  howpublished = {Revisione 2026-07-28, \url{https://modelcontextprotocol.io/specification/2026-07-28}},
+  year         = 2026,
+  note         = {Consultato il 22/08/2026}
+}
+
+% LAS, il formato di riferimento per le nuvole di punti.
+% Il PDF su asprs.org e' dietro autenticazione, si cita il repository mantenuto.
+@misc{asprs-las14,
+  author       = {{American Society for Photogrammetry and Remote Sensing}},
+  title        = {{LAS Specification 1.4 --- R15}},
+  howpublished = {\url{https://github.com/ASPRSorg/LAS}},
+  year         = 2019,
+  month        = jul,
+  note         = {Consultato il 22/08/2026}
+}
+
+% LDES, lo standard usato dal progetto WaterFRAME
+@misc{ldes-spec,
+  author       = {Pieter Colpaert and Sander Van Dooren},
+  title        = {{Linked Data Event Streams}},
+  howpublished = {Versione 1.0.0, SEMIC, \url{https://w3id.org/ldes/specification}},
+  year         = 2026,
+  month        = may,
+  note         = {Consultato il 22/08/2026}
 }
 
 
-% Book
-% Required fields: 'author' or 'editor' | 'title' | 'publisher' | 'year'.
-% Optional fields: 'volume' or 'number' | 'series' | 'address' | 'edition' | 'month' | 'note'
-@book{book,
-  author = {{Name Surname, Name Surname and Name Surname}},
-  title = {{Title}},
-  publisher = {{University of Trento}},
-  year = 1994,
-  edition = 2
+% ============================================================
+% 3Dont
+% ============================================================
+
+@article{codiglione2024urban,
+  author  = {Codiglione, Matteo and Beber, Raniero and Remondino, Fabio},
+  title   = {{Leveraging ontology for enhanced queries and analyses of urban point clouds}},
+  journal = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+  volume  = {XLVIII-2/W8-2024},
+  pages   = {101--108},
+  year    = 2024,
+  month   = dec,
+  doi     = {10.5194/isprs-archives-XLVIII-2-W8-2024-101-2024},
+  note    = {\url{https://doi.org/10.5194/isprs-archives-XLVIII-2-W8-2024-101-2024}}
 }
 
-% Conference
-% Required fields: 'author' | 'title' | 'booktitle' | 'year'
-% Optional fields: 'editor' | 'volume' or 'number' | 'series' | 'pages' | 'address' | 'month' | 'organization' | 'publisher' | 'note'
-@conference{conference,
-  author = {{Name Surname, Name Surname and Name Surname}},
-  title = {{Title}},
-  booktitle = {{University of Trento}},
-  address = {{Trento | ITA}},
-  year = 2005,
-  month = jun,
-  pages = {886-893}
+@article{codiglione2024heritage,
+  author  = {Codiglione, M. and Mazzacca, G. and Remondino, F.},
+  title   = {{DIMENSIONAL DISCOVERIES: UNVEILING THE POTENTIAL OF 3D HERITAGE POINT CLOUDS WITH A ROBUST ONTOLOGY FRAMEWORK}},
+  journal = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+  volume  = {XLVIII-2/W4-2024},
+  pages   = {119--125},
+  year    = 2024,
+  month   = feb,
+  doi     = {10.5194/isprs-archives-XLVIII-2-W4-2024-119-2024},
+  note    = {\url{https://doi.org/10.5194/isprs-archives-XLVIII-2-W4-2024-119-2024}}
 }
 
-% Article
-% Required fields: 'author' | 'title' | 'journal' | 'year'
-% Optional fields: 'volume' | 'number' | 'pages' | 'month' | 'note'
-@article{article,
-  author = {{Name Surname, Name Surname and Name Surname}},
-  title = {{Title}},
-  journal = {{University of Trento}},
-  volume = 52,
-  number = 4,
-  pages = {1289-1306},
-  year = 2006
+@inproceedings{codiglione2025nl2sparql,
+  author    = {Codiglione, Matteo and Remondino, Fabio},
+  title     = {{NL-2-SPARQL: Ontology-Based Natural Language Querying over 3D Point Cloud Knowledge Graphs}},
+  booktitle = {{Digital Heritage}},
+  publisher = {The Eurographics Association},
+  isbn      = {978-3-03868-277-6},
+  year      = 2025,
+  doi       = {10.2312/dh.20253280},
+  note      = {\url{https://doi.org/10.2312/dh.20253280}}
 }
 
-% 3DONT
-@Article{isprs-archives-XLVIII-2-W8-2024-101-2024,
-AUTHOR = {Codiglione, M. and Beber, R. and Remondino, F.},
-TITLE = {Leveraging ontology for enhanced queries and analyses of urban point clouds},
-JOURNAL = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
-VOLUME = {XLVIII-2/W8-2024},
-YEAR = {2024},
-PAGES = {101--108},
-URL = {https://isprs-archives.copernicus.org/articles/XLVIII-2-W8-2024/101/2024/},
-DOI = {10.5194/isprs-archives-XLVIII-2-W8-2024-101-2024}
+% Il dataset ytu3d usato come nuvola "Piccolo"
+@article{bayrak2023ytu3d,
+  author  = {Bayrak, O. C. and Remondino, F. and Uzar, M.},
+  title   = {{A NEW DATASET AND METHODOLOGY FOR URBAN-SCALE 3D POINT CLOUD CLASSIFICATION}},
+  journal = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+  volume  = {XLVIII-1/W3-2023},
+  pages   = {1--8},
+  year    = 2023,
+  month   = oct,
+  doi     = {10.5194/isprs-archives-XLVIII-1-W3-2023-1-2023},
+  note    = {\url{https://doi.org/10.5194/isprs-archives-XLVIII-1-W3-2023-1-2023}}
 }
 
-% 3DONT
-@Article{isprs-archives-XLVIII-2-W4-2024-119-2024,
-AUTHOR = {Codiglione, M. and Mazzacca, G. and Remondino, F.},
-TITLE = {DIMENSIONAL DISCOVERIES: UNVEILING THE POTENTIAL OF 3D HERITAGE POINT CLOUDS WITH A ROBUST ONTOLOGY FRAMEWORK},
-JOURNAL = {The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
-VOLUME = {XLVIII-2/W4-2024},
-YEAR = {2024},
-PAGES = {119--125},
-URL = {https://isprs-archives.copernicus.org/articles/XLVIII-2-W4-2024/119/2024/},
-DOI = {10.5194/isprs-archives-XLVIII-2-W4-2024-119-2024}
+
+% ============================================================
+% Semantic web, OLAP e stato dell'arte dei triple store
+% ============================================================
+
+@article{bernerslee2001semantic,
+  author  = {Berners-Lee, Tim and Hendler, James and Lassila, Ora},
+  title   = {{The Semantic Web}},
+  journal = {Scientific American},
+  volume  = 284,
+  number  = 5,
+  pages   = {34--43},
+  year    = 2001,
+  month   = may,
+  doi     = {10.1038/scientificamerican0501-34},
+  note    = {\url{https://doi.org/10.1038/scientificamerican0501-34}}
 }
 
-% 3DONT nl 2 sparql
-@inproceedings{inproceedings,
-author = {Codiglione, Matteo and Remondino, Fabio},
-year = {2025},
-month = {09},
-pages = {},
-title = {NL-2-SPARQL: Ontology-Based Natural Language Querying over 3D Point Cloud Knowledge Graphs},
-doi = {10.2312/dh.20253280}
+@article{chaudhuri1997olap,
+  author  = {Chaudhuri, Surajit and Dayal, Umeshwar},
+  title   = {{An overview of data warehousing and OLAP technology}},
+  journal = {ACM SIGMOD Record},
+  volume  = 26,
+  number  = 1,
+  pages   = {65--74},
+  year    = 1997,
+  month   = mar,
+  doi     = {10.1145/248603.248616},
+  note    = {\url{https://doi.org/10.1145/248603.248616}}
 }
 
-% Qlever
-@inproceedings{10.1145/3132847.3132921,
-author = {Bast, Hannah and Buchhold, Bj{\"o}rn},
-title = {QLever: A Query Engine for Efficient SPARQL+Text Search},
-year = {2017},
-isbn = {9781450349185},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3132847.3132921},
-doi = {10.1145/3132847.3132921},
-abstract = {We present QLever, a query engine for efficient combined search on a knowledge base and a text corpus, in which named entities from the knowledge base have been identified (that is, recognized and disambiguated). The query language is SPARQL extended by two QLever-specific predicates ql:contains-entity and ql:contains-word, which can express the occurrence of an entity or word (the object of the predicate) in a text record (the subject of the predicate). We evaluate QLever on two large datasets, including FACC (the ClueWeb12 corpus linked to Freebase). We compare against three state-of-the-art query engines for knowledge bases with varying support for text search: RDF-3X, Virtuoso, Broccoli. Query times are competitive and often faster on the pure SPARQL queries, and several orders of magnitude faster on the SPARQL+Text queries. Index size is larger for pure SPARQL queries, but smaller for SPARQL+Text queries.},
-booktitle = {Proceedings of the 2017 ACM on Conference on Information and Knowledge Management},
-pages = {647–656},
-numpages = {10},
-keywords = {sparql+text, indexing, efficiency},
-location = {Singapore, Singapore},
-series = {CIKM '17}
+@misc{codd1998olap,
+  author       = {Columbus Salley and E. F. Codd},
+  title        = {{Providing OLAP to User-Analysts: An IT Mandate}},
+  howpublished = {\url{https://api.semanticscholar.org/CorpusID:14440855}},
+  year         = 1998,
+  note         = {Consultato il 22/08/2026}
 }
 
-% Qendpoint
-@article{willerval:hal-04769164,
-  TITLE = {{qEndpoint: A Novel Triple Store Architecture for Large RDF Graphs}},
-  AUTHOR = {Willerval, Antoine and Diefenbach, Dennis and Bonifati, Angela},
-  URL = {https://hal.science/hal-04769164},
-  JOURNAL = {{Semantic Web -- Interoperability, Usability, Applicability}},
-  PUBLISHER = {{IOS Press}},
-  YEAR = {2024},
-  MONTH = Jan,
-  KEYWORDS = {RDF qEndpoint HDT RDF4J Wikidata ; RDF ; qEndpoint ; HDT ; RDF4J ; Wikidata},
-  PDF = {https://hal.science/hal-04769164v1/file/swj3616.pdf},
-  HAL_ID = {hal-04769164},
-  HAL_VERSION = {v1},
+@article{ali2022survey,
+  author  = {Ali, Waqas and Saleem, Muhammad and Yao, Bin and Hogan, Aidan and
+             Ngonga Ngomo, Axel-Cyrille},
+  title   = {{A survey of RDF stores \& SPARQL engines for querying knowledge graphs}},
+  journal = {The VLDB Journal},
+  volume  = 31,
+  number  = 3,
+  pages   = {1--26},
+  year    = 2021,
+  month   = nov,
+  doi     = {10.1007/s00778-021-00711-3},
+  note    = {\url{https://doi.org/10.1007/s00778-021-00711-3}}
 }
 
-% HDT
-@article{FMPGPA:13,
-author = {Javier D. Fernández and Miguel A. Martínez-Prieto and Claudio Gutiérrez and Axel Polleres and Mario Arias},
-title = {Binary RDF Representation for Publication and Exchange (HDT)},
-url = {http://www.websemanticsjournal.org/index.php/ps/article/view/328},
-journal={Web Semantics: Science, Services and Agents on the World Wide Web},
-volume={19},
-pages={22–41},
-year={2013},
-publisher={Elsevier}
+
+% ============================================================
+% Benchmark esistenti
+% ============================================================
+
+@incollection{demartini2012bowlogna,
+  author    = {Demartini, Gianluca and Enchev, Iliya and Wylot, Marcin and
+               Gapany, Jo{\"e}l and Cudr{\'e}-Mauroux, Philippe},
+  title     = {{BowlognaBench --- Benchmarking RDF Analytics}},
+  booktitle = {Data-Driven Process Discovery and Analysis},
+  publisher = {Springer Berlin Heidelberg},
+  series    = {Lecture Notes in Business Information Processing},
+  pages     = {82--102},
+  year      = 2012,
+  doi       = {10.1007/978-3-642-34044-4_5},
+  note      = {\url{https://doi.org/10.1007/978-3-642-34044-4_5}}
 }
 
-@inproceedings{MPAF:12,
-author = {Miguel A. Martínez-Prieto and Mario Arias and Javier D. Fernández},
-title = {Exchange and Consumption of Huge RDF Data},
-year = {2012},
-booktitle={The Semantic Web: Research and Applications},
-pages = {437-452},
-publisher={Springer}
+% Definisce SSB-QB4OLAP
+@article{etcheverry2017cubes,
+  author  = {Etcheverry, Lorena and Vaisman, Alejandro A.},
+  title   = {{Efficient Analytical Queries on Semantic Web Data Cubes}},
+  journal = {Journal on Data Semantics},
+  volume  = 6,
+  number  = 4,
+  pages   = {199--219},
+  year    = 2017,
+  month   = oct,
+  doi     = {10.1007/s13740-017-0082-y},
+  note    = {\url{https://doi.org/10.1007/s13740-017-0082-y}}
 }
 
-% RDFOX
-@InProceedings{10.1007/978-3-319-25010-6_1,
-author="Nenov, Yavor
-and Piro, Robert
-and Motik, Boris
-and Horrocks, Ian
-and Wu, Zhe
-and Banerjee, Jay",
-editor="Arenas, Marcelo
-and Corcho, Oscar
-and Simperl, Elena
-and Strohmaier, Markus
-and d'Aquin, Mathieu
-and Srinivas, Kavitha
-and Groth, Paul
-and Dumontier, Michel
-and Heflin, Jeff
-and Thirunarayan, Krishnaprasad
-and Staab, Steffen",
-title="RDFox: A Highly-Scalable RDF Store",
-booktitle="The Semantic Web - ISWC 2015",
-year="2015",
-publisher="Springer International Publishing",
-address="Cham",
-pages="3--20",
-abstract="We present RDFox---a main-memory, scalable, centralised RDF store that supports materialisation-based parallel datalog reasoning and SPARQL query answering. RDFox uses novel and highly-efficient parallel reasoning algorithms for the computation and incremental update of datalog materialisations with efficient handling of owl:sameAs. In this system description paper, we present an overview of the system architecture and highlight the main ideas behind our indexing data structures and our novel reasoning algorithms. In addition, we evaluate RDFox on a high-end SPARC T5-8 server with 128 physical cores and 4TB of RAM. Our results show that RDFox can effectively exploit such a machine, achieving speedups of up to 87 times, storage of up to 9.2 billion triples, memory usage as low as 36.9 bytes per triple, importation rates of up to 1 million triples per second, and reasoning rates of up to 6.1 million triples per second.",
-isbn="978-3-319-25010-6"
+% SSB-QB, il predecessore di SSB-QB4OLAP
+@incollection{kampgen2013ssbqb,
+  author    = {K{\"a}mpgen, Benedikt and Harth, Andreas},
+  title     = {{No Size Fits All --- Running the Star Schema Benchmark with SPARQL and RDF Aggregate Views}},
+  booktitle = {The Semantic Web: Semantics and Big Data},
+  publisher = {Springer Berlin Heidelberg},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {290--304},
+  year      = 2013,
+  doi       = {10.1007/978-3-642-38288-8_20},
+  note      = {\url{https://doi.org/10.1007/978-3-642-38288-8_20}}
 }
 
-% TODO owl w3c
-
-% TODO rdf w3c
-
-% TODO LPG w3c
-
-% TODO PGXF
-
-% TODO MCP
-
-% TODO SPARQL
-
-% TODO graphDB?
-
-% OLAP? 
-@inproceedings{Salley1998ProvidingOT,
-  title={Providing OLAP to User-Analysts: An IT Mandate},
-  author={Columbus Salley and E. F. Codd},
-  year={1998},
-  url={https://api.semanticscholar.org/CorpusID:14440855}
+@inproceedings{kotsev2016spb,
+  author    = {Kotsev, Venelin and Minadakis, Nikos and Papakonstantinou, Vassilis and
+               Erling, Orri and Fundulaki, Irini and Kiryakov, Atanas},
+  title     = {{Benchmarking RDF Query Engines: The LDBC Semantic Publishing Benchmark}},
+  booktitle = {{BLINK at ISWC}},
+  series    = {CEUR Workshop Proceedings},
+  volume    = 1700,
+  publisher = {CEUR-WS.org},
+  year      = 2016,
+  note      = {\url{http://ceur-ws.org/Vol-1700/paper-01.pdf}}
 }
 
-% TODO https://www.ogc.org/standards/geosparql/
-
-% Linked building data
-@article{article,
-author = {Bassier, Maarten and Vermandere, Jelle and De Winter, Heinder},
-year = {2022},
-month = {05},
-pages = {159-165},
-title = {LINKED BUILDING DATA FOR CONSTRUCTION SITE MONITORING: A TEST CASE},
-volume = {V-2-2022},
-journal = {ISPRS Annals of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
-doi = {10.5194/isprs-annals-V-2-2022-159-2022}
+@article{bellini2018smartcity,
+  author  = {Bellini, Pierfrancesco and Nesi, Paolo},
+  title   = {{Performance assessment of RDF graph databases for smart city services}},
+  journal = {Journal of Visual Languages \& Computing},
+  volume  = 45,
+  pages   = {24--38},
+  year    = 2018,
+  month   = apr,
+  doi     = {10.1016/j.jvlc.2018.03.002},
+  note    = {\url{https://doi.org/10.1016/j.jvlc.2018.03.002}}
 }
 
-% TODO https://v4design.eu/publications/ ?
+@article{guo2005lubm,
+  author  = {Guo, Yuanbo and Pan, Zhengxiang and Heflin, Jeff},
+  title   = {{LUBM: A benchmark for OWL knowledge base systems}},
+  journal = {Journal of Web Semantics},
+  volume  = 3,
+  number  = {2-3},
+  pages   = {158--182},
+  year    = 2005,
+  month   = oct,
+  doi     = {10.1016/j.websem.2005.06.005},
+  note    = {\url{https://doi.org/10.1016/j.websem.2005.06.005}}
+}
+
+@article{bizer2009bsbm,
+  author  = {Bizer, Christian and Schultz, Andreas},
+  title   = {{The Berlin SPARQL Benchmark}},
+  journal = {International Journal on Semantic Web and Information Systems},
+  volume  = 5,
+  number  = 2,
+  pages   = {1--24},
+  year    = 2009,
+  month   = apr,
+  doi     = {10.4018/jswis.2009040101},
+  note    = {\url{https://doi.org/10.4018/jswis.2009040101}}
+}
+
+@inproceedings{schmidt2009sp2bench,
+  author    = {Schmidt, Michael and Hornung, Thomas and Lausen, Georg and Pinkel, Christoph},
+  title     = {{SP\^{}2Bench: A SPARQL Performance Benchmark}},
+  booktitle = {2009 IEEE 25th International Conference on Data Engineering},
+  publisher = {IEEE},
+  pages     = {222--233},
+  year      = 2009,
+  month     = mar,
+  doi       = {10.1109/ICDE.2009.28},
+  note      = {\url{https://doi.org/10.1109/ICDE.2009.28}}
+}
+
+@incollection{aluc2014watdiv,
+  author    = {Alu{\c c}, G{\"u}ne{\c s} and Hartig, Olaf and {\"O}zsu, M. Tamer and
+               Daudjee, Khuzaima},
+  title     = {{Diversified Stress Testing of RDF Data Management Systems}},
+  booktitle = {The Semantic Web --- ISWC 2014},
+  publisher = {Springer International Publishing},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {197--212},
+  year      = 2014,
+  doi       = {10.1007/978-3-319-11964-9_13},
+  note      = {\url{https://doi.org/10.1007/978-3-319-11964-9_13}}
+}
+
+
+% ============================================================
+% Progetti che usano RDF come formato di aggregazione
+% ============================================================
+
+@article{bassier2022lbd,
+  author  = {Bassier, M. and Vermandere, J. and De Winter, H.},
+  title   = {{LINKED BUILDING DATA FOR CONSTRUCTION SITE MONITORING: A TEST CASE}},
+  journal = {ISPRS Annals of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+  volume  = {V-2-2022},
+  pages   = {159--165},
+  year    = 2022,
+  month   = may,
+  doi     = {10.5194/isprs-annals-V-2-2022-159-2022},
+  note    = {\url{https://doi.org/10.5194/isprs-annals-V-2-2022-159-2022}}
+}
+
+% Le ontologie V4Design usate da Linked Building Data
+@article{bassier2020v4design,
+  author  = {Bassier, Maarten and Bonduel, Mathias and Derdaele, Jens and Vergauwen, Maarten},
+  title   = {{Processing existing building geometry for reuse as Linked Data}},
+  journal = {Automation in Construction},
+  volume  = 115,
+  pages   = {103180},
+  year    = 2020,
+  month   = jul,
+  doi     = {10.1016/j.autcon.2020.103180},
+  note    = {\url{https://doi.org/10.1016/j.autcon.2020.103180}}
+}
+
+% Introduce l'ontologia FOG
+@inproceedings{bonduel2019fog,
+  author    = {Bonduel, Mathias and Wagner, Anna and Pauwels, Pieter and
+               Vergauwen, Maarten and Klein, Ralf},
+  title     = {{Including widespread geometry formats in semantic graphs using RDF literals}},
+  booktitle = {Proceedings of the 2019 European Conference on Computing in Construction},
+  publisher = {University College Dublin},
+  pages     = {341--350},
+  year      = 2019,
+  month     = jul,
+  doi       = {10.35490/EC3.2019.166},
+  note      = {\url{https://doi.org/10.35490/EC3.2019.166}}
+}
+
+% WaterFRAME
+@inproceedings{abdelfatah2026water,
+  author    = {Abdelfatah, Shehabeldeen and Rojas, Juli{\'a}n and Alferes, Janelcy and
+               Colpaert, Pieter},
+  title     = {{Monitoring water using an RDF-based Water Data Space}},
+  booktitle = {{Poster and Demo Track, 23rd European Semantic Web Conference (ESWC)}},
+  address   = {Dubrovnik, Croazia},
+  year      = 2026,
+  month     = may,
+  note      = {\url{https://biblio.ugent.be/publication/01KZ8YK09XR0YSD28Q8350YE9X}}
+}
+
+@article{balaji2018brick,
+  author  = {Balaji, Bharathan and Bhattacharya, Arka and Fierro, Gabriel and Gao, Jingkun and
+             Gluck, Joshua and Hong, Dezhi and Johansen, Aslak and Koh, Jason and
+             Ploennigs, Joern and Agarwal, Yuvraj and Berg{\'e}s, Mario and Culler, David and
+             Gupta, Rajesh K. and Kj{\ae}rgaard, Mikkel Baun and Srivastava, Mani and
+             Whitehouse, Kamin},
+  title   = {{Brick: Metadata schema for portable smart building applications}},
+  journal = {Applied Energy},
+  volume  = 226,
+  pages   = {1273--1292},
+  year    = 2018,
+  month   = sep,
+  doi     = {10.1016/j.apenergy.2018.02.091},
+  note    = {\url{https://doi.org/10.1016/j.apenergy.2018.02.091}}
+}
+
+
+% ============================================================
+% Formati per nuvole di punti
+% ============================================================
+
+@inproceedings{rusu2011pcl,
+  author    = {Rusu, Radu Bogdan and Cousins, Steve},
+  title     = {{3D is here: Point Cloud Library (PCL)}},
+  booktitle = {2011 IEEE International Conference on Robotics and Automation},
+  publisher = {IEEE},
+  pages     = {1--4},
+  year      = 2011,
+  month     = may,
+  doi       = {10.1109/ICRA.2011.5980567},
+  note      = {\url{https://doi.org/10.1109/ICRA.2011.5980567}}
+}
+
+@article{isenburg2013laszip,
+  author  = {Isenburg, Martin},
+  title   = {{LASzip: lossless compression of LiDAR data}},
+  journal = {Photogrammetric Engineering \& Remote Sensing},
+  volume  = 79,
+  number  = 2,
+  pages   = {209--217},
+  year    = 2013,
+  month   = feb,
+  doi     = {10.14358/PERS.79.2.209},
+  note    = {\url{https://doi.org/10.14358/PERS.79.2.209}}
+}
+
+
+% ============================================================
+% Motori di query analizzati
+% ============================================================
+
+% Fuseki / Apache Jena
+@inproceedings{carroll2004jena,
+  author    = {Carroll, Jeremy J. and Dickinson, Ian and Dollin, Chris and Reynolds, Dave and
+               Seaborne, Andy and Wilkinson, Kevin},
+  title     = {{Jena: implementing the semantic web recommendations}},
+  booktitle = {Proceedings of the 13th International World Wide Web Conference on Alternate
+               Track Papers \& Posters},
+  publisher = {ACM Press},
+  pages     = {74--83},
+  year      = 2004,
+  doi       = {10.1145/1013367.1013381},
+  note      = {\url{https://doi.org/10.1145/1013367.1013381}}
+}
+
+@article{sirin2007pellet,
+  author  = {Sirin, Evren and Parsia, Bijan and Grau, Bernardo Cuenca and
+             Kalyanpur, Aditya and Katz, Yarden},
+  title   = {{Pellet: A practical OWL-DL reasoner}},
+  journal = {Journal of Web Semantics},
+  volume  = 5,
+  number  = 2,
+  pages   = {51--53},
+  year    = 2007,
+  month   = jun,
+  doi     = {10.1016/j.websem.2007.03.004},
+  note    = {\url{https://doi.org/10.1016/j.websem.2007.03.004}}
+}
+
+% GraphDB discende direttamente da OWLIM
+@article{bishop2011owlim,
+  author  = {Bishop, Barry and Kiryakov, Atanas and Ognyanoff, Damyan and Peikov, Ivan and
+             Tashev, Zdravko and Velkov, Ruslan},
+  title   = {{OWLIM: A family of scalable semantic repositories}},
+  journal = {Semantic Web},
+  volume  = 2,
+  number  = 1,
+  pages   = {33--42},
+  year    = 2011,
+  doi     = {10.3233/SW-2011-0026},
+  note    = {\url{https://doi.org/10.3233/SW-2011-0026}}
+}
+
+@misc{ontotext-graphdb,
+  author       = {{Ontotext}},
+  title        = {{GraphDB Documentation}},
+  howpublished = {\url{https://graphdb.ontotext.com/documentation/10.7/}},
+  note         = {Consultato il 22/08/2026}
+}
+
+@article{lamy2017owlready,
+  author  = {Lamy, Jean-Baptiste},
+  title   = {{Owlready: Ontology-oriented programming in Python with automatic classification
+             and high level constructs for biomedical ontologies}},
+  journal = {Artificial Intelligence in Medicine},
+  volume  = 80,
+  pages   = {11--28},
+  year    = 2017,
+  month   = jul,
+  doi     = {10.1016/j.artmed.2017.07.002},
+  note    = {\url{https://doi.org/10.1016/j.artmed.2017.07.002}}
+}
+
+@misc{tanon-oxigraph,
+  author       = {Pellissier Tanon, Thomas},
+  title        = {{Oxigraph}},
+  howpublished = {Zenodo},
+  year         = 2023,
+  doi          = {10.5281/zenodo.7408022},
+  note         = {\url{https://doi.org/10.5281/zenodo.7408022}}
+}
+
+@article{dong2021rocksdb,
+  author  = {Dong, Siying and Kryczka, Andrew and Jin, Yanqin and Stumm, Michael},
+  title   = {{RocksDB: Evolution of Development Priorities in a Key-value Store Serving
+             Large-scale Applications}},
+  journal = {ACM Transactions on Storage},
+  volume  = 17,
+  number  = 4,
+  pages   = {1--32},
+  year    = 2021,
+  month   = oct,
+  doi     = {10.1145/3483840},
+  note    = {\url{https://doi.org/10.1145/3483840}}
+}
+
+@article{willerval2024qendpoint,
+  author  = {Willerval, Antoine and Diefenbach, Dennis and Bonifati, Angela},
+  title   = {{qEndpoint: A novel triple store architecture for large RDF graphs}},
+  journal = {Semantic Web},
+  volume  = 15,
+  number  = 5,
+  pages   = {2069--2087},
+  year    = 2024,
+  month   = oct,
+  doi     = {10.3233/SW-243616},
+  note    = {\url{https://doi.org/10.3233/SW-243616}}
+}
+
+% HDT, il formato su cui si basa qEndpoint
+@article{fernandez2013hdt,
+  author  = {Fern{\'a}ndez, Javier D. and Mart{\'i}nez-Prieto, Miguel A. and
+             Guti{\'e}rrez, Claudio and Polleres, Axel and Arias, Mario},
+  title   = {{Binary RDF representation for publication and exchange (HDT)}},
+  journal = {Journal of Web Semantics},
+  volume  = 19,
+  pages   = {22--41},
+  year    = 2013,
+  month   = mar,
+  doi     = {10.1016/j.websem.2013.01.002},
+  note    = {\url{https://doi.org/10.1016/j.websem.2013.01.002}}
+}
+
+@incollection{martinezprieto2012hdt,
+  author    = {Mart{\'i}nez-Prieto, Miguel A. and Arias Gallego, Mario and
+               Fern{\'a}ndez, Javier D.},
+  title     = {{Exchange and Consumption of Huge RDF Data}},
+  booktitle = {The Semantic Web: Research and Applications},
+  publisher = {Springer Berlin Heidelberg},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {437--452},
+  year      = 2012,
+  doi       = {10.1007/978-3-642-30284-8_36},
+  note      = {\url{https://doi.org/10.1007/978-3-642-30284-8_36}}
+}
+
+@inproceedings{bast2017qlever,
+  author    = {Bast, Hannah and Buchhold, Bj{\"o}rn},
+  title     = {{QLever: A Query Engine for Efficient SPARQL+Text Search}},
+  booktitle = {Proceedings of the 2017 ACM on Conference on Information and Knowledge Management},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  pages     = {647--656},
+  year      = 2017,
+  month     = nov,
+  isbn      = {9781450349185},
+  doi       = {10.1145/3132847.3132921},
+  note      = {\url{https://doi.org/10.1145/3132847.3132921}}
+}
+
+@inproceedings{bast2022qlever,
+  author    = {Bast, Hannah and Kalmbach, Johannes and Klumpp, Theresa and Kramer, Florian and
+               Schnelle, Niklas},
+  title     = {{Efficient and Effective SPARQL Autocompletion on Very Large Knowledge Graphs}},
+  booktitle = {Proceedings of the 31st ACM International Conference on Information \&
+               Knowledge Management},
+  publisher = {ACM},
+  pages     = {2893--2902},
+  year      = 2022,
+  month     = oct,
+  doi       = {10.1145/3511808.3557093},
+  note      = {\url{https://doi.org/10.1145/3511808.3557093}}
+}
+
+@misc{rdflib,
+  author       = {Krech, Daniel and Chuc, Edmond and Car, Nicholas and Nelson, Alex and
+                  Higgins, Graham and Sommer, Ashley},
+  title        = {{RDFLib}},
+  howpublished = {Zenodo},
+  year         = 2023,
+  doi          = {10.5281/zenodo.6845245},
+  note         = {\url{https://doi.org/10.5281/zenodo.6845245}}
+}
+
+@incollection{nenov2015rdfox,
+  author    = {Nenov, Yavor and Piro, Robert and Motik, Boris and Horrocks, Ian and Wu, Zhe and
+               Banerjee, Jay},
+  title     = {{RDFox: A Highly-Scalable RDF Store}},
+  booktitle = {The Semantic Web --- ISWC 2015},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {3--20},
+  year      = 2015,
+  isbn      = {978-3-319-25010-6},
+  doi       = {10.1007/978-3-319-25010-6_1},
+  note      = {\url{https://doi.org/10.1007/978-3-319-25010-6_1}}
+}
+
+@incollection{erling2009virtuoso,
+  author    = {Erling, Orri and Mikhailov, Ivan},
+  title     = {{Virtuoso: RDF Support in a Native RDBMS}},
+  booktitle = {Semantic Web Information Management},
+  publisher = {Springer Berlin Heidelberg},
+  pages     = {501--519},
+  year      = 2009,
+  month     = dec,
+  doi       = {10.1007/978-3-642-04329-1_21},
+  note      = {\url{https://doi.org/10.1007/978-3-642-04329-1_21}}
+}
+
+
+% ============================================================
+% Ambiente di esecuzione
+% ============================================================
+
+@article{dolstra2010nixos,
+  author  = {Dolstra, Eelco and L{\"o}h, Andres and Pierron, Nicolas},
+  title   = {{NixOS: A purely functional Linux distribution}},
+  journal = {Journal of Functional Programming},
+  volume  = 20,
+  number  = {5-6},
+  pages   = {577--615},
+  year    = 2010,
+  month   = oct,
+  doi     = {10.1017/S0956796810000195},
+  note    = {\url{https://doi.org/10.1017/S0956796810000195}}
+}
+
+
+% ============================================================
+% Alternative a RDF: i property graph
+% ============================================================
+
+@inproceedings{francis2018cypher,
+  author    = {Francis, Nadime and Green, Alastair and Guagliardo, Paolo and Libkin, Leonid and
+               Lindaaker, Tobias and Marsault, Victor and Plantikow, Stefan and Rydberg, Mats and
+               Selmer, Petra and Taylor, Andr{\'e}s},
+  title     = {{Cypher: An Evolving Query Language for Property Graphs}},
+  booktitle = {Proceedings of the 2018 International Conference on Management of Data},
+  publisher = {ACM},
+  pages     = {1433--1445},
+  year      = 2018,
+  month     = may,
+  doi       = {10.1145/3183713.3190657},
+  note      = {\url{https://doi.org/10.1145/3183713.3190657}}
+}
+
+@inproceedings{rodriguez2015gremlin,
+  author    = {Rodriguez, Marko A.},
+  title     = {{The Gremlin graph traversal machine and language}},
+  booktitle = {Proceedings of the 15th Symposium on Database Programming Languages},
+  publisher = {ACM},
+  pages     = {1--10},
+  year      = 2015,
+  month     = oct,
+  doi       = {10.1145/2815072.2815073},
+  note      = {\url{https://doi.org/10.1145/2815072.2815073}}
+}
