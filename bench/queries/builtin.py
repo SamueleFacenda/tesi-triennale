@@ -5,12 +5,11 @@ requested for the thesis. Every template uses the ``base:`` prefix bound to the
 dataset's ontology namespace and reads from the default graph (no ``FROM``).
 
 Predicate names come from the 3D ontologies (Heritage / Urban / 3DOntCore):
-``base:X/Y/Z`` + ``base:R/G/B`` on points, ``base:Constitutes`` (point -> object),
-``base:Has_Z_Lenght``. Two names differ per ontology and are
-substituted from the dataset: ``base:{max_x}`` (object coordinate-extent predicate —
-Has_X_Max on Heritage/Urban, Max_X on 3DOntCore) and ``base:{macro_entity}`` (root of the
-macro-entity taxonomy — Macro_Entities on the legacy ontologies, Macro_Entity on
-3DOntCore).
+``base:X/Y/Z`` + ``base:R/G/B`` on points, ``base:Constitutes`` (point -> object).
+Two names differ per ontology and are substituted from the dataset: ``base:{max_x}``
+(object coordinate-extent predicate — Has_X_Max on Heritage/Urban, Max_X on 3DOntCore) and
+``base:{macro_entity}`` (root of the macro-entity taxonomy — Macro_Entities on the legacy
+ontologies, Macro_Entity on 3DOntCore).
 """
 
 from __future__ import annotations
@@ -165,15 +164,19 @@ ORDER BY ?c ?depth ?sup
 """),
 ))
 
-# 8. average height of the objects.
+# 8. average height of the points: a flat aggregate over the whole cloud, one row out.
+# Deliberately on base:Z and not on the object Z-extent. That predicate holds ~100 values per
+# graph, so averaging it timed the HTTP round trip rather than the engine, and its name is not
+# portable (Has_Z_Lenght on Heritage/Urban, Z_Length on 3DOntCore). base:Z is spelled the same
+# in all three ontologies and carries one value per point.
 register(Query(
     name="avg_height",
     kind="scalar",
-    description="Average object height, from the Has_Z_Lenght scalar property.",
+    description="Average point elevation: AVG over the Z coordinate of the whole cloud.",
     template=_q("""
-SELECT (AVG(?h) AS ?avgHeight)
+SELECT (AVG(?z) AS ?avgZ)
 WHERE {{
-    ?o base:Has_Z_Lenght ?h .
+    ?p base:Z ?z .
 }}
 """),
 ))

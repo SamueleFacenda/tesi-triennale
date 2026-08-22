@@ -256,16 +256,19 @@ ORDER BY ?c ?depth ?sup
 \end{lstlisting}
 
 
-\subsubsection{Altezza media degli oggetti}
+\subsubsection{Altezza media dei punti}
 
-L'ultima query analizzata è simile alla precedente query scalare ma ritorna un solo valore aggregato.
-Essendo poi una media si va a valutare la capacità dei motori di parallelizzazione e aggregazione di risultati
-intermedi, poiché è possibile dividere il carico in sotto compiti e poi integrare i loro risultati in uno unico.
+L'ultima query analizzata calcola la media della coordinata Z di tutti i punti, ovvero la quota media della
+nuvola. Attraversa quindi la stessa quantità di dati della query \emph{Seleziona tutto} ma senza raggruppamenti
+intermedi e con un risultato di una sola riga, per cui il tempo misurato dipende quasi soltanto dalla
+velocità con cui il motore scorre un predicato numerico e ne accumula i valori.
+Una media si presta inoltre ad essere divisa in sotto compiti i cui risultati parziali vengono poi integrati
+in uno solo: il tempo riflette anche la capacità del motore di parallelizzare questo lavoro.
 
 \begin{lstlisting}[language=SPARQL]
-SELECT (AVG(?h) AS ?avgHeight)
+SELECT (AVG(?z) AS ?avgZ)
 WHERE {
-    ?o base:Has_Z_Lenght ?h .
+    ?p base:Z ?z .
 }
 \end{lstlisting}
 
