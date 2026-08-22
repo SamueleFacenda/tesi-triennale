@@ -172,11 +172,11 @@ un progetto persistente con un'interfaccia diretta alla nuvola di punti, che pu�
 grafo e SPARQL, interagendo con i punti usando mouse, tastiera e interrogazioni in linguaggio naturale. 
 \par Il visualizzatore permette di visualizzare fondamentalmente quattro categorie diverse di risultati alle interrogazioni:
 \begin{itemize}
-\item Query di selezione: vengono evidenziati i punti ritornati dalla query, come ad esempio quelli appartenenti a un dato
+\item Query di selezione (figura~\ref{fig:vis_select}): vengono evidenziati i punti ritornati dalla query, come ad esempio quelli appartenenti a un dato
 oggetto oppure tutti i punti di un certo materiale.
-\item Query scalari: i punti vengono colorati secondo una scala colorata lineare in base a un valore che viene ritornato dalla
+\item Query scalari (figura~\ref{fig:vis_scalar}): i punti vengono colorati secondo una scala colorata lineare in base a un valore che viene ritornato dalla
 query, come ad esempio la temperatura in una data acquisizione oppure una certa caratteristica del materiale dei punti.
-\item Query di classificazione: tutti i punti appartenenti a un certo oggetto vengono colorati allo stesso modo, univocamente.
+\item Query di classificazione (figure~\ref{fig:vis_semantic} e~\ref{fig:vis_instance}): tutti i punti appartenenti a un certo oggetto vengono colorati allo stesso modo, univocamente.
 Si può così visualizzare la nuvola completamente segmentata, semanticamente o per istanza, a qualunque punto desiderato della scala
 tassonomico o mereologica: un singolo punto può essere contemporaneamente parte di un capitello, della colonna a cui appartiene il capitello,
 della facciata a cui appartiene la colonna e l'edificio a cui appartiene la facciata; è disponibile quindi una segmentazione per
@@ -184,6 +184,39 @@ diversi livelli di dettaglio.
 \item Query tabellari: il risultato non è visualizzato graficamente attraverso la nuvola di punti ma in una tabella a lato, è il caso
 delle query che ritornano singoli valori numerici o comunque valori che non sono collegati a singoli punti della nuvola.
 \end{itemize}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/select_object.jpg}
+    \caption{Query di selezione: i punti restituiti sono evidenziati in rosso.}
+    \label{fig:vis_select}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/scalar_result.jpg}
+    \caption{Query scalare: il colore dei punti segue una scala lineare sul valore restituito.}
+    \label{fig:vis_scalar}
+  \end{subfigure}
+  \\[1.5ex]
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/semantic_segmentation.jpg}
+    \caption{Query di classificazione, un colore per classe tassonomica.}
+    \label{fig:vis_semantic}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/instance_segmentation.jpg}
+    \caption{Query di classificazione, un colore per istanza di oggetto.}
+    \label{fig:vis_instance}
+  \end{subfigure}
+  \caption{Le modalità di visualizzazione dei risultati nel visualizzatore 3Dont, tutte sulla nuvola del tempio di Nettuno descritta nella sezione~\ref{ssub:dataset_medio2}. Le query tabellari non compaiono qui: il loro risultato è mostrato in una tabella a lato e non sulla nuvola di punti.}
+  \label{fig:viewer}
+\end{figure}
 
 \subsection{Implementazione}
 
@@ -196,5 +229,3 @@ del framework) è il motore di query utilizzato e la sua configurazione. Nello s
 compresso su disco e i prefissi dell'ontologia codificati. Viene quindi usata la versione integrata di QLever, disponibile come libreria
 c++, che permette di ridurre al minimo l'utilizzo di risorse dato dall'IPC (Inter Process Communication) e dalla deserializzazione
 dei risultati, che invece sarebbe necessaria usando SPARQL tramite l'interfaccia HTTP.
-
-TODO FOTO

@@ -31,43 +31,68 @@ breve descrizione e un'immagine rappresentativa, per tutti è presentato il nume
 Questi due valori da soli sarebbero rappresentativi del dataset, in quanto le query non vanno ad analizzare dettagli ulteriori
 né particolari costruzioni, a parte dove indicato.
 
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[height=4.5cm]{images/ytu3d.jpg}
+    \caption{Piccolo: ytu3d.}
+    \label{fig:dataset_ytu3d}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.26\textwidth}
+    \centering
+    \includegraphics[height=4.5cm]{images/torre_modena.jpg}
+    \caption{Medio: Ghirlandina.}
+    \label{fig:dataset_ghirlandina}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.34\textwidth}
+    \centering
+    \includegraphics[height=4.5cm]{images/nettuno.jpg}
+    \caption{Medio 2: tempio di Nettuno.}
+    \label{fig:dataset_nettuno}
+  \end{subfigure}
+  \caption{Le nuvole dei tre dataset di cui è possibile mostrare il contenuto, rese con il colore acquisito per ogni punto. Il dataset Grande non compare perché i suoi dati non sono divulgabili.}
+  \label{fig:datasets}
+\end{figure}
+
 \subsubsection{Piccolo}
+\label{ssub:dataset_piccolo}
 
 Questa nuvola rappresenta una porzione del dataset ytu3d (https://github.com/3DOM-FBK/YTU3D), un'acquisizione 
 dell'ambiente urbano del Davutpasa Campus dell'Yildiz Technical University (YTU), Turchia.
-La nuvola è completamente segmentata con 45 classi diverse, garantendo una totale copertura dei punti.
+La nuvola è completamente segmentata con 45 classi diverse, garantendo una totale copertura dei punti (figura~\ref{fig:dataset_ytu3d}).
 
-Numero di punti: $1.065.725$
+\noindent Numero di punti: $1.065.725$\\
 Numero di triple: $11.725.772$
-
-TODO image
 \subsubsection{Medio}
+\label{ssub:dataset_medio}
 
 Questo dataset è stato creato a partire da un'acquisizione della parte superiore della torre Ghirlandina a Modena.
-Presenta una densità di punti maggiore del precedente e sfrutta le classi di 3Dont destinate ai beni culturali.
+Presenta una densità di punti maggiore del precedente e sfrutta le classi di 3Dont destinate ai beni culturali (figura~\ref{fig:dataset_ghirlandina}).
 
-Numero di punti: $3.715.673$
+\noindent Numero di punti: $3.715.673$\\
 Numero di triple: $38.886.807$
-
-TODO image chiedere matteo
 \subsubsection{Medio 2}
+\label{ssub:dataset_medio2}
 
 Il terzo dataset utilizzato deriva da un'acquisizione del tempio di Nettuno di Paestum, uno dei più grandi della
 Magna Grecia. Sempre in ambito beni culturali, questo dataset è più esteso del precedente e presenta un elevato
-grado di dettaglio nella classificazione delle componenti architettoniche.
+grado di dettaglio nella classificazione delle componenti architettoniche
+(figura~\ref{fig:dataset_nettuno}).
 
-Numero di punti: $2.785.178$
+\noindent Numero di punti: $2.785.178$\\
 Numero di triple: $47.239.850$
-
-TODO image
 \subsubsection{Grande}
+\label{ssub:dataset_grande}
 
 Questo dataset è l'ultimo preso in considerazione ed è considerevolmente più grande dei precedenti. Si tratta sempre di
 un sito archeologico, di cui maggiori dettagli non possono essere rivelati, acquisito con un'elevata densità di punti
 e con l'iterazione più recente dell'ontologia 3Dont. Per questo alcune delle query proposte saranno eseguibili soltanto
 su questo dataset.
 
-Numero di punti: $9.813.921$
+\noindent Numero di punti: $9.813.921$\\
 Numero di triple: $156.937.172$
 
 \subsection{Query}
