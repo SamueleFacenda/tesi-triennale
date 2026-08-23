@@ -8,6 +8,7 @@ dependencies = [
     "rich",
     "psutil",
     "requests",
+    "urllib3",   # imported directly to classify streamed read timeouts
     "rdflib",
     "sparqlwrapper",
 ]

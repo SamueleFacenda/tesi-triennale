@@ -9,6 +9,10 @@ reflect the engine's serialization rather than our parser.
 
 One engine (Virtuoso) truncates a single response at 2^20 rows, so the client can fetch a
 result in ``OFFSET``/``LIMIT`` pages — see :meth:`SparqlHttpClient._query_chunked`.
+
+``timeout`` is a wall-clock budget for the *whole* query, pages and body transfer included
+— not the read-inactivity timeout ``requests`` would give us. See
+:meth:`SparqlHttpClient._read_body`.
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ import time
 from dataclasses import dataclass
 
 import requests
+from urllib3.exceptions import ReadTimeoutError
 
 # result format key -> (Accept mime, parser kind)
 FORMATS = {
@@ -26,6 +31,10 @@ FORMATS = {
     "csv": ("text/csv", "csv"),
     "tsv": ("text/tab-separated-values", "tsv"),
 }
+
+
+# body is read in pieces so the deadline can be checked as it arrives
+_READ_CHUNK = 1 << 16
 
 
 class QueryError(Exception):
@@ -116,9 +125,9 @@ class SparqlHttpClient:
         Virtuoso's endpoint truncates a single response at 2^20 rows and still answers
         200, so a large result has to be paged (same fix as the 3dont viewer). The pages
         are summed into one :class:`QueryResult`: that total is what a client actually
-        pays to obtain the whole result, round-trips included. ``timeout`` stays the
-        budget for the *whole* result rather than per page, so a paged engine gets exactly
-        the budget every other engine gets.
+        pays to obtain the whole result, round-trips included. ``timeout`` is spent down
+        across pages rather than granted per page, so a paged engine gets exactly the
+        budget every other engine gets.
         """
         base = sparql.rstrip()
         offset = rows = nbytes = 0
@@ -155,23 +164,64 @@ class SparqlHttpClient:
         params = {"default-graph-uri": self.default_graph} if self.default_graph else None
         start = time.perf_counter()
         try:
+            # streamed so the body can be read against a deadline; see _read_body
             resp = self._session.post(
                 self.endpoint, data=sparql.encode("utf-8"), params=params,
-                headers=headers, timeout=timeout,
+                headers=headers, timeout=timeout, stream=True,
             )
         except requests.Timeout as e:  # subclass of RequestException — must come first
             raise QueryTimeout(f"timed out after {timeout:g}s") from e
         except requests.RequestException as e:
             raise QueryError(f"request failed: {e}") from e
 
-        if resp.status_code != 200:
-            snippet = resp.text[:500]
-            raise QueryError(f"HTTP {resp.status_code}: {snippet}")
+        try:
+            if resp.status_code != 200:
+                # first chunk only: an error body is short, and reading it unbounded
+                # would reintroduce the very stall the deadline is there to prevent
+                snippet = next(resp.iter_content(500), b"").decode("utf-8", "replace")
+                raise QueryError(f"HTTP {resp.status_code}: {snippet}")
+            body = self._read_body(resp, start, timeout)
+        finally:
+            # release the pooled connection: a half-read streamed response would leave
+            # the session handing the next query a dirty socket
+            resp.close()
 
-        body = resp.content
         rows, server_s = self._count(body)
         wall = time.perf_counter() - start
         return QueryResult(wall_s=wall, rows=rows, bytes=len(body), server_s=server_s)
+
+    @staticmethod
+    def _read_body(resp: requests.Response, start: float, timeout: float) -> bytes:
+        """Read the whole body, giving up once ``timeout`` seconds have elapsed.
+
+        ``requests``' own ``timeout`` bounds only the wait *between* two reads, so an
+        engine that keeps trickling bytes never trips it — Oxigraph streams its results
+        incrementally and once ran a single query for nine hours under a 600 s budget.
+        Checking the deadline per chunk makes ``timeout`` the budget for the whole
+        response: a query is not "in progress" for benchmark purposes just because rows
+        are still dripping out.
+        """
+        chunks: list[bytes] = []
+        nbytes = 0
+        try:
+            for chunk in resp.iter_content(_READ_CHUNK):
+                chunks.append(chunk)
+                nbytes += len(chunk)
+                if time.perf_counter() - start > timeout:
+                    raise QueryTimeout(
+                        f"timed out after {timeout:g}s ({nbytes} bytes received)"
+                    )
+        except requests.RequestException as e:
+            # a timeout hit while iterating a streamed body does not arrive as
+            # requests.Timeout: iter_content re-raises urllib3's ReadTimeoutError as a
+            # plain ConnectionError. Misclassifying it would make the runner retry a
+            # query it should abandon, re-paying the budget on every rep and resume.
+            if isinstance(e, requests.Timeout) or isinstance(
+                    e.args[0] if e.args else None, ReadTimeoutError):
+                raise QueryTimeout(
+                    f"timed out after {timeout:g}s ({nbytes} bytes received)") from e
+            raise QueryError(f"read failed after {nbytes} bytes: {e}") from e
+        return b"".join(chunks)
 
     def _count(self, body: bytes) -> tuple[int, float | None]:
         if self.kind in ("csv", "tsv"):

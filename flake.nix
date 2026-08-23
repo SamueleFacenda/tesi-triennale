@@ -60,6 +60,7 @@
           rich
           psutil
           requests
+          urllib3
           rdflib
           sparqlwrapper
           owlready2
