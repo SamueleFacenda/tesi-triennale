@@ -81,8 +81,9 @@ def _has_trailing_modifier(sparql: str) -> bool:
     """Whether the query already ends with its own LIMIT/OFFSET.
 
     A solution modifier can only follow the query's last ``}``, so looking there is both
-    sufficient and immune to a LIMIT nested in a subselect (``select_points_in_object``).
-    Such a query cannot be paged — a second LIMIT is a syntax error — so it is sent as-is.
+    sufficient and immune to a LIMIT nested in a subselect. Such a query cannot be paged —
+    a second LIMIT is a syntax error — so it is sent as-is (``_SPB_Q2``, whose LIMIT 50 is
+    part of the query).
     """
     tail = sparql[sparql.rfind("}") + 1:]
     return _TRAILING_MODIFIER.search(tail) is not None

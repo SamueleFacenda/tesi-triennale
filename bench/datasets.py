@@ -103,28 +103,61 @@ def _paths(base_dir, stem: str, fmts: dict[str, str]) -> dict[str, str]:
 _LEGACY_PARAMS = {"max_x": "Has_X_Max", "macro_entity": "Macro_Entities"}  # Heritage, Urban
 _CORE_PARAMS = {"max_x": "Max_X", "macro_entity": "Macro_Entity"}          # 3DOntCore
 
+# The one object whose points `select_points_in_object` asks for. Per dataset, not per
+# ontology, and pinned rather than chosen by the query: `ORDER BY ?obj LIMIT 1` orders IRIs,
+# which is implementation-defined, so every engine used to measure a different object (on
+# colosseo qLever read the 9.7M-point Building_number_1_ where the rest read 130 points).
+# Each IRI here is the smallest object IRI in codepoint order — what 8 of the 10 engines had
+# picked — so the row counts stay what they were: 35504 / 1941 / 2066 / 130. A dataset with
+# no entry (mini_heritage's truncated sample holds no Constitutes triples, santa_chiara is
+# not present locally) simply skips that query.
+_HERITAGE_DATA = "http://www.semanticweb.org/matteocodiglione/ontologies/2024/9/Heritage_Ontology/"
+_URBAN_DATA = "http://www.semanticweb.org/mcodi/ontologies/2024/3/Urban_Ontolog/"  # sic: no 'y'
+_POINTS_OBJECT = {
+    "nettuno": _HERITAGE_DATA + "Neptune_Temple_Paestum_predicted#Abaci_number_10_",
+    "torre_modena": _HERITAGE_DATA + "torre_modena#_Heritage_Ontology.Balconies_number_10_",
+    "ytu3d": _URBAN_DATA + "YTU3D#Car_number_1_",
+    "colosseo": "http://3DOntCore/colosseo_classified#_Building_number_102_",
+    "mini_urban": _URBAN_DATA + "YTU3D#High_Vegetation_Entity_number_1_",
+    "tiny": "http://3DOntCore#obj1",
+}
+
+
+def _params(onto: dict, dataset: str) -> dict:
+    """Query params for one dataset: its ontology's names plus its pinned object."""
+    obj = _POINTS_OBJECT.get(dataset)
+    return {**onto, **({"points_object": obj} if obj else {})}
+
 
 def _builtin() -> None:
     # Big source graphs in ~/downloads/ontos (referenced by path, never copied).
-    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"}), _LEGACY_PARAMS))
+    register(Dataset("nettuno", _HERITAGE, _paths(_ONTOS, "nettuno", {"nt": "nt", "rdfxml": "rdf"}),
+                     _params(_LEGACY_PARAMS, "nettuno")))
     register(Dataset("torre_modena", _HERITAGE,
-                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _LEGACY_PARAMS))
-    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"}), _LEGACY_PARAMS))
-    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}), _CORE_PARAMS))
+                     _paths(_ONTOS, "torre_modena", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}),
+                     _params(_LEGACY_PARAMS, "torre_modena")))
+    register(Dataset("ytu3d", _URBAN, _paths(_ONTOS, "ytu3d", {"nt": "nt", "rdfxml": "rdf"}),
+                     _params(_LEGACY_PARAMS, "ytu3d")))
+    register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}),
+                     _params(_CORE_PARAMS, "santa_chiara")))
     # the .nt is converted from the .ttl (see README): owlready2 has no Turtle parser
     register(Dataset("colosseo", _CORE,
-                     _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl", "nt": "nt"}), _CORE_PARAMS))
+                     _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl", "nt": "nt"}),
+                     _params(_CORE_PARAMS, "colosseo")))
 
     # Small real-shaped samples (head of the big files), generated locally under testdata/.
     # Fast complete test that still exercises per-engine format selection.
     register(Dataset("mini_heritage", _HERITAGE,
-                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _LEGACY_PARAMS))
+                     _paths(_TESTDATA, "mini_heritage", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}),
+                     _params(_LEGACY_PARAMS, "mini_heritage")))
     register(Dataset("mini_urban", _URBAN,
-                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}), _LEGACY_PARAMS))
+                     _paths(_TESTDATA, "mini_urban", {"nt": "nt", "ttl": "ttl", "rdfxml": "rdf"}),
+                     _params(_LEGACY_PARAMS, "mini_urban")))
 
     # Tiny synthetic fixture (committed) in all three formats — smoke tests.
     register(Dataset("tiny", _CORE,
-                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"}), _CORE_PARAMS))
+                     _paths(_FIXTURES, "tiny", {"ttl": "ttl", "nt": "nt", "rdfxml": "rdf"}),
+                     _params(_CORE_PARAMS, "tiny")))
 
 
 _builtin()

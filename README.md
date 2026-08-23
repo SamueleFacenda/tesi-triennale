@@ -222,6 +222,25 @@ opens the database read-write.
   dataset failed with `connection refused`. `stop()` now returns only once the port is
   actually free (SIGKILLing the leftover process group after a grace period), and `start()`
   refuses a fixed port held by someone else rather than measuring their server.
+- **qLever's result cache is switched off** (`--cache-max-size 1B
+  --cache-max-size-single-entry 1B` on `qlever start`). It is the only engine here that
+  memoizes whole query results, and the runner sends the identical text for the warmups and
+  every repetition, so the warmups paid for the computation and each measured rep was a
+  lookup: server-side **0-1 ms against 13-65 ms cold** for `avg_height`, which is why it read
+  0.043 s on ytu3d and on colosseo alike, 15x the data. `--cache-max-num-entries 0` does
+  *not* do it (QLever still keeps one entry, measured); a one-byte ceiling does. Its
+  `--timeout` is also pinned to the harness budget, since qlever-control otherwise defaults
+  the server to 30 s and an over-budget query would return an error rather than a timeout.
+- **`select_points_in_object` names its object outright** (`points_object` per dataset in
+  `bench/datasets.py`). Choosing it in-query with `ORDER BY ?obj LIMIT 1` ordered IRIs, which
+  is implementation-defined, so each engine measured a *different* object: on colosseo qLever
+  returned 9,686,001 rows where the other engines returned 130. Each pinned IRI is the
+  smallest in codepoint order, which is what 8 of the 10 engines had picked, so the row
+  counts are unchanged. A dataset with no object pinned skips the query (`applies_to`).
+- **Disk usage excludes hardlinked files** (`dir_size`): qLever hardlinks the source dataset
+  into its store as `input.nt`, which claims no blocks, so counting it reported the dataset
+  instead of the index (nettuno: 13.47 GB recorded, 0.47 GB of index). A real copy such as
+  rdflib's `graph.nt` has one link and still counts.
 - **Docker engines write root-owned files**; `--fresh` and re-load remove them via a
   throwaway `busybox` container. Docker RSS is read from `docker stats`.
 - **Loader output is logged** to `runs/<run>/storage/<engine>/<engine>.log` (native

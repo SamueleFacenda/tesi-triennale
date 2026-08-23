@@ -14,14 +14,23 @@ import psutil
 
 
 def dir_size(path: str | Path) -> int:
-    """Total size in bytes of everything under ``path`` (0 if missing)."""
+    """Disk actually claimed by a store, in bytes (0 if missing).
+
+    Hardlinked files are skipped. An engine that hardlinks the source dataset into its own
+    store dir instead of copying it (qLever's ``input.nt``) claims no extra blocks for it,
+    so counting it would report the dataset twice and drown the index: qLever's nettuno
+    store measured 13.47 GB that way, of which the index is 0.47 GB. A real copy (rdflib's
+    ``graph.nt``) has one link and still counts.
+    """
     total = 0
     for root, _dirs, files in os.walk(path):
         for name in files:
             try:
-                total += os.path.getsize(os.path.join(root, name))
+                st = os.stat(os.path.join(root, name))
             except OSError:
-                pass
+                continue
+            if st.st_nlink == 1:
+                total += st.st_size
     return total
 
 

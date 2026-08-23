@@ -113,7 +113,9 @@ PARSER_BUFFER_SIZE = {buffer_mb}M
 PORT = {self.port}
 ACCESS_TOKEN = bench_token
 MEMORY_FOR_QUERIES = {budget}G
-CACHE_MAX_SIZE = {max(1, budget // 3)}G
+CACHE_MAX_SIZE = 1B
+CACHE_MAX_SIZE_SINGLE_ENTRY = 1B
+TIMEOUT = {int(self.timeout_s)}s
 
 [runtime]
 SYSTEM = {system}
@@ -142,11 +144,24 @@ IMAGE = docker.io/adfreiburg/qlever:latest
         return super().is_loaded(dataset) and self._index_complete()
 
     def _start(self) -> None:
-        # qlever-control detaches the server. Pass --port explicitly (the Qleverfile's
-        # port may be stale on resume) and kill any leftover server on that port.
+        # qlever-control detaches the server. Everything that matters is passed on the
+        # command line rather than left to the Qleverfile, which is written by load() only
+        # and is therefore stale on resume (that is why --port is already explicit).
         try:
             res = run_sampled(
                 ["qlever", "start", "--port", str(self.port),
+                 # QLever is the only engine here that memoizes whole query results, and
+                 # the runner sends the identical text for the warmups and every rep — so
+                 # with a cache every measured rep was a lookup: server-side 0-1 ms against
+                 # 13-65 ms cold for `avg_height`, identical on ytu3d and on colosseo. A
+                 # one-byte ceiling is what actually turns that off: no result is ever small
+                 # enough to keep, so every rep recomputes like it does on every other
+                 # engine. (`--cache-max-num-entries 0` does *not* — QLever still holds one
+                 # entry, measured.) Fairness, not tuning.
+                 "--cache-max-size", "1B", "--cache-max-size-single-entry", "1B",
+                 # ...and its own default query timeout is 30 s, far below our budget: an
+                 # uncached query over it would come back an HTTP error, not a timeout.
+                 "--timeout", f"{int(self.timeout_s)}s",
                  "--kill-existing-with-same-port"],
                 cwd=self.storage_dir, log_path=self.log_path,
                 timeout=self._START_TIMEOUT_S,

@@ -153,17 +153,15 @@ WHERE {
 \subsubsection{Punti nell'oggetto}
 
 Questa query di tipo selezione permette di evidenziare tutti i punti appartenenti a un certo oggetto.
-Per non fare assuzioni sul dataset viene preso in considerazione il primo oggetto in ordine di apparizione,
-che rimane costante tra diversi motori ma rende la query possibilmente sbilanciata tra i vari dataset.
+L'oggetto viene fissato per ogni dataset, scegliendo il primo in ordine di IRI: quest'ordine non è definito
+dallo standard, quindi lasciare la scelta al motore farebbe misurare a ognuno un oggetto diverso. La query
+resta possibilmente sbilanciata tra i vari dataset.
 Query come questa possono essere eseguite dall'interfaccia di esplorazione del grafo ad albero
 
 \begin{lstlisting}[language=SPARQL]
 SELECT ?p
 WHERE {
-    {
-        SELECT ?obj WHERE { ?s base:Constitutes ?obj } ORDER BY ?obj LIMIT 1
-    }
-    ?p base:Constitutes ?obj .
+    ?p base:Constitutes <{points_object}> .
 }
 \end{lstlisting}
 
@@ -478,6 +476,10 @@ Sarebbe certamente possibile creare configurazioni che bilancino di più queste 
 \item QEndpoint presenta un bug nella versiona analizzata che rende impossibile condurre un caricamento di datasets sfruttando
 più processori, ne viene quindi usato uno soltanto, con un grande impatto facilelmente osservabile. Ne risulta appunto come il
 peggiore in quanto a prestazioni di caricamento.
+\item QLever è l'unico motore analizzato a conservare in cache il risultato completo di una query. Dato che
+ogni ripetizione invia esattamente lo stesso testo, le misurazioni sarebbero state letture dalla cache e non
+esecuzioni: la cache viene quindi disattivata, così i suoi tempi restano confrontabili con quelli dei motori
+che non ne hanno una.
 \item L'endpoint di Virtuoso tronca silenziosamente ogni risposta a $2^{20}$ (1.048.576) righe, senza segnalare in alcun modo
 che il risultato è incompleto. Le query rivolte a Virtuoso vengono quindi eseguite a pagine di un milione di righe, tramite
 \texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3dont; i tempi delle pagine vengono sommati

@@ -9,7 +9,8 @@ Predicate names come from the 3D ontologies (Heritage / Urban / 3DOntCore):
 Two names differ per ontology and are substituted from the dataset: ``base:{max_x}``
 (object coordinate-extent predicate — Has_X_Max on Heritage/Urban, Max_X on 3DOntCore) and
 ``base:{macro_entity}`` (root of the macro-entity taxonomy — Macro_Entities on the legacy
-ontologies, Macro_Entity on 3DOntCore).
+ontologies, Macro_Entity on 3DOntCore). ``{points_object}`` is per *dataset* rather than per
+ontology: the one object whose points ``select_points_in_object`` asks for.
 """
 
 from __future__ import annotations
@@ -65,8 +66,13 @@ WHERE {{
 """),
 ))
 
-# 3. select: all point ids belonging to one specific object (deterministically chosen,
-# so it differs per dataset without hand-configuring an object IRI).
+# 3. select: all point ids belonging to one specific object, named outright.
+# It used to pick the object itself with `{ SELECT ?obj ... ORDER BY ?obj LIMIT 1 }`, but
+# ordering IRIs is implementation-defined, so each engine picked a *different* object and
+# the query stopped comparing like with like: on colosseo qLever returned 9,686,001 rows
+# where everyone else returned 130. The object is therefore pinned per dataset
+# (`points_object`, see bench/datasets.py) to the one most engines had chosen, which keeps
+# the recorded row counts intact.
 register(Query(
     name="select_points_in_object",
     kind="select",
@@ -74,12 +80,10 @@ register(Query(
     template=_q("""
 SELECT ?p
 WHERE {{
-    {{
-        SELECT ?obj WHERE {{ ?s base:Constitutes ?obj }} ORDER BY ?obj LIMIT 1
-    }}
-    ?p base:Constitutes ?obj .
+    ?p base:Constitutes <{points_object}> .
 }}
 """),
+    applies_to=lambda ds: "points_object" in ds.query_params,
 ))
 
 # 4. instance segmentation — point -> object it constitutes.
