@@ -33,6 +33,9 @@
 \usepackage{longtable}
 \usepackage{stackengine}
 \usepackage{etoolbox}
+% \intextsep resta a 0pt per il resto del documento: raggrupparlo rompe wrapfig,
+% che applica il \parshape al paragrafo *successivo* alla fine dell'ambiente.
+% Senza effetti pratici qui: gli unici float dopo il primo logo occupano pagine intere.
 \BeforeBeginEnvironment{wrapfigure}{\setlength{\intextsep}{0pt}}
 % Hyperlink
 \usepackage{xurl}
@@ -64,6 +67,10 @@
 
   % Gruppo: successione dei capitoli senza interruzione di pagina.
   % Nota DISI: il numero massimo di facciate (indice + sommario + capitoli) e' 30.
+  % Il gruppo disattiva \clearpage: se ne conserva una copia utilizzabile per svuotare
+  % la coda dei float e per le interruzioni volute (bibliografia, allegati).
+  \let\realclearpage\clearpage
+  \let\realcleardoublepage\cleardoublepage
   \begingroup
   % Nessuna interruzione di pagina tra capitoli. Si usa \par (non vuoto) per uscire
   % dal modo orizzontale: titlesec recente rifiuta \chapter in horizontal mode.
@@ -87,8 +94,12 @@
   \input{etc/conclusions.tex}
 
   \endgroup
+  \global\let\clearpage\realclearpage
+  \global\let\cleardoublepage\realcleardoublepage
 
   % Bibliografia (ordinamento alfabetico per autore)
+  % \clearpage prima di \addcontentsline: altrimenti l'indice registra la pagina precedente.
+  \clearpage
   \addcontentsline{toc}{chapter}{Bibliografia}
   \bibliographystyle{plain}
   \bibliography{bibliography.bib}

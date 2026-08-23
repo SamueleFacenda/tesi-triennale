@@ -177,9 +177,10 @@ Turtle-only too and would need the same treatment before owlready2 can run it.
 - `thesis/generated/results.json` — the same grid, machine-readable.
 
 Cells with no measurement are labelled rather than dropped: `TO` timed out, `n.d.` the
-query does not apply to that dataset (`chained_segmentation` and `taxonomical_hierarchy`
-only exist on `colosseo` — see `APPLICABLE_ONLY` in `bench/thesis_export.py`), `n.e.` was
-never executed (excluded pair, failed load, or an interrupted run).
+query does not apply to that dataset (gated by `Query.applies_to` at run time, or by
+`APPLICABLE_ONLY` in `bench/thesis_export.py` at export time — currently empty, so every
+query in `QUERY_ORDER` is reported on every dataset), `n.e.` was never executed (excluded
+pair, failed load, or an interrupted run).
 
 Both directories must be **committed**: `nix build .#thesis` builds from the git tree, so
 untracked charts are invisible to it. To regenerate while a run is still in progress, copy

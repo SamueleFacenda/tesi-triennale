@@ -447,6 +447,10 @@ La versione utilizzata è la `7.2` con risultati in formato TSV.
 \IfFileExists{generated/results_figures.tex}{\input{generated/results_figures.tex}}
   {\textit{[figure non generate: eseguire \texttt{kbench thesis --run-dir runs/big}]}}
 
+% Le figure sono float alti quasi una pagina: senza svuotare qui la coda finirebbero
+% sparse dentro l'analisi che segue.
+\realclearpage
+
 \section{Analisi dei risultati}
 \label{sec:results_analysis}
 
@@ -479,6 +483,4 @@ che il risultato è incompleto. Le query rivolte a Virtuoso vengono quindi esegu
 \texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3dont; i tempi delle pagine vengono sommati
 in un'unica misurazione. I risultati di Virtuoso sulle query che producono molte righe includono perciò il costo delle richieste
 aggiuntive, che è quanto un client deve effettivamente pagare per ottenere il risultato completo.
-
-
 \end{itemize}

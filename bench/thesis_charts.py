@@ -27,20 +27,32 @@ from .thesis_export import (  # noqa: E402
     NOT_APPLICABLE,
     NOT_RUN,
     QUERY_LABEL,
+    QUERY_ORDER,
     TIMEOUT,
     Cell,
     ResultSet,
 )
 
-# Five hues from the validated categorical palette, reused twice: the second half of the
-# engines repeats the hues with a hatch, so identity never rests on colour alone (and
+# Five hues from the validated categorical palette, reused once per hatch tier: the engines
+# past the fifth repeat the hues with a hatch, so identity never rests on colour alone (and
 # survives a greyscale print).
 _HUES = ["#2a78d6", "#eb6834", "#1baf7a", "#4a3aa7", "#e34948"]
-_HATCH = "//////"
+_HATCHES = [None, "//////", "xxxxx"]
 
-# Eight distinct slots, one per query, in the palette's validated order.
+# Eight distinct slots, one per query, spread over the hue circle: no two greens and no
+# more than three of the eight in the warm band.
 _QUERY_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100",
-                 "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
+                 "#e87ba4", "#00a2b3", "#4a3aa7", "#8c564b"]
+
+# Colour slots are keyed by *name*, never by position in the run's engine/query list: those
+# lists are derived from what the database happens to contain (`ResultSet.__init__`), so a
+# query with no rows yet would otherwise shift the hue of every query after it, and two
+# exports of the same thesis would disagree.
+_ENGINE_SLOT = {name: i for i, name in enumerate([
+    "fuseki", "graphdb", "owlready2", "oxigraph", "qendpoint",
+    "qlever", "rdflib", "rdflib-bdb", "rdfox", "virtuoso", "stardog",
+])}
+_QUERY_SLOT = {name: i for i, name in enumerate(QUERY_ORDER)}
 
 _INK = "#0b0b0b"
 _MUTED = "#52514e"
@@ -75,14 +87,22 @@ def _tint(color: str, amount: float = 0.75) -> tuple:
     return tuple(c + (1 - c) * amount for c in matplotlib.colors.to_rgb(color))
 
 
+def _slot(name: str, slots: dict[str, int], fallback: list[str]) -> int:
+    """The name's fixed slot, or its position in `fallback` for a name we do not know."""
+    if name in slots:
+        return slots[name]
+    return len(slots) + (fallback.index(name) if name in fallback else 0)
+
+
 def engine_style(engine: str, engines: list[str]) -> dict:
-    i = engines.index(engine)
+    i = _slot(engine, _ENGINE_SLOT, engines)
     return {"color": _HUES[i % len(_HUES)],
-            "hatch": _HATCH if i >= len(_HUES) else None}
+            "hatch": _HATCHES[(i // len(_HUES)) % len(_HATCHES)]}
 
 
 def query_style(query: str, queries: list[str]) -> dict:
-    return {"color": _QUERY_COLORS[queries.index(query) % len(_QUERY_COLORS)], "hatch": None}
+    i = _slot(query, _QUERY_SLOT, queries)
+    return {"color": _QUERY_COLORS[i % len(_QUERY_COLORS)], "hatch": None}
 
 
 class _Bar:
@@ -131,9 +151,12 @@ def _draw(ax, group_labels: list[str], series: list[tuple[str, dict]],
                             va="bottom", fontsize=5.5, color=_MUTED)
                 continue
             timed_out = bar.marker == "TO"
+            # A timeout is shown by the washed-out fill, the saturated outline, the `TO`
+            # label and the dashed timeout line -- never by adding a hatch, which is what
+            # tells two engines sharing a hue apart.
             ax.bar(x, bar.value - floor, bottom=floor, width=slot * 0.88,
                    color=_tint(style["color"]) if timed_out else style["color"],
-                   hatch=_HATCH if timed_out else style["hatch"],
+                   hatch=style["hatch"],
                    edgecolor=style["color"] if timed_out else "white",
                    linewidth=0.4, alpha=1.0)
             if timed_out:
