@@ -4,6 +4,12 @@ Not packaged in this nixpkgs, so docker is the fallback (as allowed by the spec)
 Virtuoso has no implicit default-graph union, so data is loaded into ``BENCH_GRAPH``
 and queries are sent with a matching ``default-graph-uri``. Its endpoint also truncates a
 single response at 2^20 rows, so queries are paged (``chunk_rows``).
+
+Its tuning is an ini file, not env vars: the image turns ``VIRT_Parameters_*`` into
+``/database/virtuoso.ini`` only when it *generates* that file, which happens once, on the
+first boot into an empty db dir. A resumed run therefore serves with the ini written by
+its first load and silently ignores every setting added since — hence
+:meth:`VirtuosoEngine._patch_ini`, which rewrites the keys in place before each start.
 """
 
 from __future__ import annotations
@@ -25,9 +31,10 @@ _PASSWORD = "benchdba"
 _CHUNK_ROWS = 1_000_000
 
 # Virtuoso refuses ORDER BY combined with LIMIT/OFFSET when offset+limit exceeds
-# MaxSortedTopRows ("Sorted TOP clause specifies more than N rows to sort", default
-# 10000), which the paging above would trip on any ordered query. Raise the ceiling well
-# past the largest result the benchmark asks for; it is a guard, not an allocation.
+# MaxSortedTopRows ("Sorted TOP clause specifies more then N rows to sort", default
+# 10000), which the paging above trips on any ordered query — the LIMIT value alone is
+# checked, so `taxonomical_hierarchy` failed on it with a two-dozen-row answer. Raise the
+# ceiling well past the largest result the benchmark asks for: a guard, not an allocation.
 _MAX_SORTED_TOP_ROWS = 100_000_000
 
 
@@ -44,19 +51,55 @@ class VirtuosoEngine(DockerEngine):
     def _db_dir(self) -> Path:
         return self.storage_dir / "database"
 
+    def _ini_params(self) -> dict[str, str]:
+        """The ``[Parameters]`` settings this engine needs, whatever the db dir's age.
+
+        NumberOfBuffers / MaxDirtyBuffers are Virtuoso's key perf knobs; the defaults
+        (~10k buffers) are tuned for ~1 GB and cripple large datasets. One dict feeds both
+        ways of applying them (fresh dir: env; existing dir: `_patch_ini`), so the two
+        cannot drift apart.
+        """
+        return {
+            "DirsAllowed": "., /data, /database",
+            "NumberOfBuffers": str(self.tuning.virtuoso_buffers),
+            "MaxDirtyBuffers": str(self.tuning.virtuoso_dirty_buffers),
+            "MaxQueryMem": f"{max(2, self.tuning.budget_gb // 4)}G",
+            "ThreadsPerQuery": str(self.tuning.cores),
+            "MaxSortedTopRows": str(_MAX_SORTED_TOP_ROWS),
+        }
+
     def _base_env(self) -> list[str]:
-        # NumberOfBuffers / MaxDirtyBuffers are Virtuoso's key perf knobs; the defaults
-        # (~10k buffers) are tuned for ~1 GB and cripple large datasets.
-        return [
-            "-e", f"DBA_PASSWORD={_PASSWORD}",
-            "-e", "VIRT_Parameters_DirsAllowed=., /data, /database",
-            "-e", f"VIRT_Parameters_NumberOfBuffers={self.tuning.virtuoso_buffers}",
-            "-e", f"VIRT_Parameters_MaxDirtyBuffers={self.tuning.virtuoso_dirty_buffers}",
-            "-e", f"VIRT_Parameters_MaxQueryMem={max(2, self.tuning.budget_gb // 4)}G",
-            "-e", f"VIRT_Parameters_ThreadsPerQuery={self.tuning.cores}",
-            "-e", f"VIRT_Parameters_MaxSortedTopRows={_MAX_SORTED_TOP_ROWS}",
-            "-v", f"{self._db_dir}:/database",
-        ]
+        env = ["-e", f"DBA_PASSWORD={_PASSWORD}"]
+        for key, value in self._ini_params().items():
+            env += ["-e", f"VIRT_Parameters_{key}={value}"]
+        return env + ["-v", f"{self._db_dir}:/database"]
+
+    def _patch_ini(self) -> None:
+        """Force `_ini_params` into an existing ``virtuoso.ini``; no-op on a fresh dir.
+
+        The container writes the file as its own uid, so the host user can neither read nor
+        edit it — do it from a throwaway root container, the same way `_wipe` deletes
+        root-owned data. Each key is dropped wherever it sits and re-emitted right below
+        the ``[Parameters]`` header, so this is idempotent and runs before every start.
+        """
+        if not (self._db_dir / "virtuoso.ini").is_file():
+            return  # the image's entrypoint will generate it from _base_env()
+        params = self._ini_params()
+        adds = "".join(f'print "{k} = {v}"; ' for k, v in params.items())
+        prog = (
+            rf'/^[ \t]*\[Parameters\]/ {{ print; {adds}next }} '
+            rf'/^[ \t]*({"|".join(params)})[ \t]*=/ {{ next }} '
+            '{ print }'
+        )
+        # write back through `cat`, not `mv`: that keeps the file's inode, owner and mode
+        # (the server runs as the container's own uid, not root) and leaves no stray file
+        # in the db dir, whose size is a reported metric.
+        self._docker(
+            "run", "--rm", "-v", f"{self._db_dir}:/database", "busybox", "sh", "-c",
+            f"awk '{prog}' /database/virtuoso.ini > /tmp/virtuoso.ini "
+            "&& cat /tmp/virtuoso.ini > /database/virtuoso.ini",
+            timeout=120,
+        )
 
     def load(self, dataset: Dataset) -> LoadResult:
         import time
@@ -95,6 +138,7 @@ class VirtuosoEngine(DockerEngine):
         )
 
     def _start(self) -> None:
+        self._patch_ini()
         self._run_container(self._base_env())
         self._wait_container_log("Server online", deadline_s=180)
 

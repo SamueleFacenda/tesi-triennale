@@ -11,6 +11,7 @@ query gets the machine's full resources.
 
 from __future__ import annotations
 
+import os
 import shutil
 import signal
 import socket
@@ -27,7 +28,7 @@ import requests
 from ..datasets import Dataset, ResolvedInput
 from ..metrics import RssSampler, rss_of_tree
 from ..tuning import Tuning
-from .http_client import QueryResult, SparqlHttpClient
+from .http_client import QueryError, QueryResult, SparqlHttpClient
 
 _MARKER = ".loaded"
 
@@ -148,6 +149,18 @@ class AbstractEngine(ABC):
         """URL of the SPARQL query endpoint once started."""
 
     def start(self) -> str:
+        # Never serve on a port something else still holds: a previous dataset's server
+        # can outlive stop() (its launcher exits before the server it spawned does), and
+        # on a fixed port that dying server answers the health probe and then vanishes —
+        # which is how every qEndpoint query of one dataset came back "connection
+        # refused". Only a fixed port can be held by *our* own previous server (the others
+        # take a fresh free port per dataset), and only there is refusing better than
+        # trying: qLever brings its own "kill whatever holds this port" recovery.
+        if not self._wait_port_free() and self.fixed_port is not None:
+            raise EngineError(
+                f"{self.name}: port {self.port} is still held by another process; "
+                f"refusing to start (its server would be measured instead of ours)"
+            )
         self._start()
         url = self.endpoint_url()
         self._wait_healthy(url, self.health_deadline_s)
@@ -165,15 +178,24 @@ class AbstractEngine(ABC):
         if self._client is not None:
             self._client.close()
             self._client = None
+        groups = [g for g in (self._pgid(p) for p in self._procs) if g is not None]
         for proc in reversed(self._procs):
             self._terminate(proc)
         self._procs.clear()
         self._server_procs.clear()
+        self._release_port(groups)
 
     # ------------------------------------------------------------------ querying
     def query(self, sparql: str) -> QueryResult:
         if self._client is None:
             raise EngineError(f"{self.name}: engine not started")
+        dead = next((p for p in self._procs if p.poll() is not None), None)
+        if dead is not None:
+            # One intelligible cause beats a wall of identical connection-refused
+            # tracebacks, one per remaining rep. QueryError, not EngineError: that is what
+            # the runner records per measurement — anything else aborts the whole run.
+            raise QueryError(f"{self.name}: server exited (code {dead.returncode}); "
+                             f"see {self.log_path}")
         return self._client.query(sparql)
 
     def reset_rss_peak(self) -> None:
@@ -191,7 +213,6 @@ class AbstractEngine(ABC):
         return open(self.log_path, "ab", buffering=0)
 
     def _spawn(self, cmd: list[str], *, env: dict | None = None, cwd: str | Path | None = None) -> subprocess.Popen:
-        import os
         full_env = {**os.environ, **(env or {})}
         log = self._open_log()
         log.write(f"\n$ {' '.join(cmd)}\n".encode())
@@ -208,11 +229,18 @@ class AbstractEngine(ABC):
         return proc
 
     @staticmethod
+    def _pgid(proc: subprocess.Popen) -> int | None:
+        """Process group of a spawned server, while it is still around to ask."""
+        try:
+            return os.getpgid(proc.pid)
+        except OSError:
+            return None
+
+    @staticmethod
     def _terminate(proc: subprocess.Popen) -> None:
         if proc.poll() is not None:
             return
         try:
-            import os
             os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
         except (ProcessLookupError, PermissionError):
             proc.terminate()
@@ -220,10 +248,38 @@ class AbstractEngine(ABC):
             proc.wait(timeout=15)
         except subprocess.TimeoutExpired:
             try:
-                import os
                 os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
             except (ProcessLookupError, PermissionError):
                 proc.kill()
+
+    def _release_port(self, pgids: list[int], grace_s: float = 10.0,
+                      deadline_s: float = 60.0) -> None:
+        """Wait for the port to actually come free after terminating the server.
+
+        ``_terminate`` waits for the process *we* spawned, but a launcher that does not
+        ``exec`` its server (``qendpoint.sh``) is killed by the SIGTERM long before the JVM
+        it started has finished its shutdown hook — and that JVM is still listening. So
+        ``stop()`` used to return while the endpoint was still answering, and the next
+        dataset would health-check against a server about to disappear. Give the graceful
+        shutdown ``grace_s``, then SIGKILL what is left of the process groups (guarded by
+        the port still being open, so a recycled pgid is never signalled).
+        """
+        if not pgids:
+            return  # nothing of ours to outlive us (qLever detaches its own server)
+        start = time.perf_counter()
+        killed = False
+        while self._port_open():
+            elapsed = time.perf_counter() - start
+            if elapsed > deadline_s:
+                return  # start() refuses a busy port, so it surfaces there, named
+            if not killed and elapsed > grace_s:
+                killed = True
+                for pgid in pgids:
+                    try:
+                        os.killpg(pgid, signal.SIGKILL)
+                    except OSError:
+                        pass
+            time.sleep(0.2)
 
     def _wait_healthy(self, url: str, deadline_s: float = 120.0) -> None:
         """Poll until the endpoint answers a trivial ASK, or a process dies."""
@@ -250,12 +306,24 @@ class AbstractEngine(ABC):
             time.sleep(0.5)
         raise EngineError(f"{self.name}: endpoint {url} not healthy within {deadline_s}s")
 
+    def _port_open(self) -> bool:
+        """Whether something accepts connections on our port (ours or not)."""
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            return s.connect_ex(("127.0.0.1", self.port)) == 0
+
     def _wait_port(self, deadline_s: float = 120.0) -> None:
         end = time.perf_counter() + deadline_s
         while time.perf_counter() < end:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(1)
-                if s.connect_ex(("127.0.0.1", self.port)) == 0:
-                    return
+            if self._port_open():
+                return
             time.sleep(0.3)
         raise EngineError(f"{self.name}: port {self.port} not open within {deadline_s}s")
+
+    def _wait_port_free(self, deadline_s: float = 30.0) -> bool:
+        end = time.perf_counter() + deadline_s
+        while self._port_open():
+            if time.perf_counter() > end:
+                return False
+            time.sleep(0.2)
+        return True

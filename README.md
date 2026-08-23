@@ -207,6 +207,21 @@ opens the database read-write.
   same fix as the 3dont viewer) and the pages are summed into one measurement, so its
   timings for large results include the paging round-trips. The per-query timeout is the
   budget for the whole paged result, not per page.
+- **Virtuoso's tuning lives in `virtuoso.ini`, which the image writes only once** — on
+  the first boot into an empty `database/` dir, from the `VIRT_Parameters_*` env. A resumed
+  run therefore served with the ini from its first load and silently ignored every setting
+  added since: that is why `MaxSortedTopRows` never applied and the paged
+  `taxonomical_hierarchy` failed with `SR353` (the `LIMIT` *value* is checked against it,
+  not the result size, so even a 55-row answer fails at `LIMIT 1000000`).
+  `VirtuosoEngine._patch_ini` now rewrites those keys in place before every start, from a
+  throwaway root container.
+- **A server can outlive `stop()`.** A launcher that does not `exec` its server
+  (`qendpoint.sh`) is killed by the SIGTERM while the JVM it started is still running its
+  shutdown hook — and still listening. On qEndpoint's fixed port 1234 the next dataset's
+  health probe was then answered by that dying server, after which every query of that
+  dataset failed with `connection refused`. `stop()` now returns only once the port is
+  actually free (SIGKILLing the leftover process group after a grace period), and `start()`
+  refuses a fixed port held by someone else rather than measuring their server.
 - **Docker engines write root-owned files**; `--fresh` and re-load remove them via a
   throwaway `busybox` container. Docker RSS is read from `docker stats`.
 - **Loader output is logged** to `runs/<run>/storage/<engine>/<engine>.log` (native
