@@ -5,8 +5,7 @@
 RDF (Resource Description Framework)~\cite{w3c-rdf11} è la specifica definita da W3C per la rappresentazione di ontologie e grafi
 di conoscenze nell'ambito del web semantico, oggi in corso di revisione verso la versione 1.2~\cite{w3c-rdf12}. È uno standard essenziale con il potenziale per essere esteso,
 come ad esempio succede con OWL (Web Ontology Language)~\cite{w3c-owl2}, una sua potente estensione utilizzata per definire
-ontologie complete. Di base è stata creata per la condivisione di risorse web, ognuna identificata da un IRI univoco
-teoricamente accessibile in rete, ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
+ontologie complete. Di base RDF è stato creato per la condivisione di risorse web, ognuna identificata da un IRI univoco, ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
 software per l'interrogazione e la manipolazione di grafi RDF. Nella pratica, molti DBMS sono stati integrati o creati con
 il supporto per interrogazioni SPARQL (SPARQL Protocol and RDF Query Language)~\cite{w3c-sparql11}, il protocollo e linguaggio standardizzato
 sempre da W3C per interrogare basi di conoscenza nel web semantico.
@@ -17,7 +16,7 @@ rimane comunque alla base di uno dei più vasti e avanzati sistemi per la manipo
 grazie alla sua estensibilità by-design esso permette facilmente di valicare i domini della rete per essere utilizzato
 in ambienti fondamentalmente diversi rispetto all'originale idea del semantic web.
 Tramite la creazione di ontologie specifiche per dei dati domini è possibile rappresentare qualsiasi tipo di dato
-tramite modelli RDF, mantenendo la stessa espressività dell'originale e quindi la completezza.
+tramite modelli RDF, mantenendo la stessa espressività del formato di partenza e quindi la completezza.
 I vantaggi con questo approccio sono molteplici, in primis si andrebbe a creare una rappresentazione estensibile per il
 dominio preso in analisi, permettendo a chiunque abbia accesso all'ontologia di espandere le possibilità di rappresentazione
 del modello senza compromettere l'interoperabilità con altri sistemi non aggiornati. Questo non è invece possibile quasi mai
@@ -31,11 +30,12 @@ Per finire, si renderebbe possibile l'accesso e l'analisi dei dati così organiz
 espressività e una capacità di interrogazione avanzata. Calcoli e analisi complesse che richiederebbero l'implementazione di algoritmi
 ad-hoc possono essere completati con una sola query SPARQL, aumentando l'accessibilità e la facilità di fruizione dei dati.
 \par
-In questa tesi si andrà quindi ad analizzare la fattibilità tecnica di questo approccio, con una particolare focalizzazione sull'ambito
-dei big data, dati che se rappresentati come grafi di conoscenza superano le decine di milioni di nodi.
+In questa tesi si andrà quindi ad analizzare la fattibilità tecnica dell'utilizzo di RDF per la rappresentazione di dati 
+di dominio specifico, con una particolare focalizzazione sull'ambito dei big data, che se rappresentati come 
+grafi di conoscenza superano le decine di milioni di nodi.
 Queste grandi quantità di dati pongono appunto un problema all'ecosistema utilizzato. Se il problema della rappresentazione è per
 così dire ``risolto'' dalla grande espressività ed estensibilità by-design di RDF, quello delle prestazioni è di altra natura.
-Se vogliamo utilizzare RDF come modello di salvataggio per big data in modo generico dobbiamo fare i conti con dei pattern di accesso
+Se vogliamo utilizzare RDF come modello di persistenza per big data in modo generale dobbiamo fare i conti con dei pattern di accesso
 fondamentalmente diversi da quelli tipici del semantic web. Si andrà spesso ad analizzare l'interezza del modello oppure
 delle sottoporzioni per andare a condurre delle analisi su questi dati, o produrre delle rappresentazioni in formati alternativi
 (grafici, ad esempio) per cui è necessario accedere in lettura a grandi porzioni di dati. Stiamo quindi parlando di query di tipo OLAP~\cite{codd1998olap,chaudhuri1997olap}
@@ -52,7 +52,7 @@ all'interno di vari motori la cui prerogativa principale è che siano eseguibili
 poter confrontare le prestazioni dei vari motori nello stesso ambiente, ma anche perché se si volessero poi utilizzare come base
 per l'accesso ai modelli RDF è importante che possano essere integrati all'interno degli applicativi che li utilizzerebbero.
 
-\section{Lavori correlati}
+\section{Stato dell'Arte}
 \label{sec:prior_works}
 
 L'ambiente di ricerca e sviluppo che negli anni si è creato intorno a RDF e al semantic web è ricco e pieno di spunti.
@@ -98,7 +98,7 @@ dei motori SPARQL più popolari. Ma per questo esistono diversi benchmark, anali
 
 \subsection{Benchmark esistenti}
 
-Naturalemente esiste un gran numero di insiemi di datasets e query che possiamo usare per misurare le prestazioni dei vari
+Esiste un gran numero di insiemi di datasets e query che possiamo usare per misurare le prestazioni dei vari
 triple store qui considerati, ma nessuno sembrerebbe rispecchiare in modo preciso e complete il carico di lavoro che si andrebbe 
 ad incontrare se si utilizzasse RDF come formato generico di rappresentazione. Se pensiamo agli accessi che normalmente vengono
 fatti su un file, la maggior parte sono letture di grandi porzioni dello stesso. Questo cambierebbe forse avendo a supporto
@@ -264,10 +264,16 @@ delle query che ritornano singoli valori numerici o comunque valori che non sono
 
 La sfida principale nell'implementazione di 3Dont è sicuramente il raggiungimento di prestazioni compatibili con l'interattività
 di un'interfaccia grafica e di un applicativo destinato a un'utenza inesperta. 
+Il software deve integrare un triple store, con cui sarà possibili importare e interagire con diversi datasets (indicati come 
+diversi "progetti"). Qualunque interazione con l'interfaccia, ad esclusione dei cambiamenti di visuale, comporta un'interazione
+con il dato sottostante, dalla renderizzazione iniziale della nuvola all'ispezione di un singolo punto.
 Nuvole di punti di medie dimensione (meno di 5 milioni di punti) possono richiedere per la query iniziale, che domanda coordinate e 
-colori di ogni punto, diversi minuti di esecuzione, ma si può scendere a meno di una decina di secondi con qualche accorgimento.
+colori di ogni punto, diversi minuti di esecuzione, ma si può scendere a meno di una decina di secondi con i giusti strumenti.
 \par Il principale fattore determinante (oltre naturalmente all'hardware utilizzato, che però ovviamente non dipende dall'implementazione
-del framework) è il motore di query utilizzato e la sua configurazione. Nello specifico viene impiegato QLever~\cite{bast2017qlever,bast2022qlever} con vocabolario
-compresso su disco e i prefissi dell'ontologia codificati. Viene quindi usata la versione integrata di QLever, disponibile come libreria
-c++, che permette di ridurre al minimo l'utilizzo di risorse dato dall'IPC (Inter Process Communication) e dalla deserializzazione
-dei risultati, che invece sarebbe necessaria usando SPARQL tramite l'interfaccia HTTP.
+del framework) è il motore di query utilizzato e la sua configurazione. Nello specifico viene impiegato QLever~\cite{bast2017qlever,bast2022qlever} 
+con vocabolario compresso su disco e i prefissi dell'ontologia codificati. È stato scelto per la sua disponibilità sotto licenza
+open-source, la possibilità di integrarlo nativamente senza l'utilizzo di layer di virtualizzazione quali docker, ma soprattutto
+per la sua velocità, di cui si potrà avere un riscontro completo nel capitolo seguente.
+ Viene quindi usata la versione integrata di QLever, disponibile come libreria c++, che permette di ridurre al minimo l'utilizzo di 
+risorse dato dall'IPC (Inter Process Communication) e dalla deserializzazione dei risultati, 
+che invece sarebbe necessaria usando SPARQL tramite l'interfaccia HTTP.
