@@ -294,6 +294,7 @@ motori presi in considerazione qui.
 il governatore `performance` per la CPU usando il driver `intel pstate`.
 
 \subsection{Condizioni software}
+\label{ssec:cond_soft}
 
 Un problema che si ha analizzando le prestazioni di motori con architetture così diverse è la disomogeneità delle loro interfacce.
 Alcuni di questi vanno utilizzati come librerie (soprattutto per il linguaggio Python) mentre altri sono disponibili per essere
@@ -454,8 +455,8 @@ La versione utilizzata è la `7.2` con risultati in formato TSV.
 
 Dai risultati appena presentati si evince una serie di osservazioni:
 \begin{itemize}
-\item Motori come QLever e RDFox riescono a mantenere il tempo di esecuzione al di sotto dei 10 secondi in tutte le query analizzate.
-Lo si osserva nei grafici che mostrano i risultati dei singoli motori.
+\item Motori come QLever e RDFox riescono a mantenere il tempo di esecuzione nell'ordine della decina di secondi in tutte le query 
+analizzate, al contrario di altri che richiedono diversi minuti. Lo si osserva nei grafici che mostrano i risultati dei singoli motori.
 \item La complessità computazionale osservata empiricamente dell'esecuzione delle query in funzione delle dimensioni
 del datasets è lineare, lo si evince dai grafici che mettono in relazione le prestazioni del singolo motore sui vari datasets.
 \item Owlready2, nonostante non sia progettato per gestire in modo efficace carichi di lavoro di questo tipo, raggiunge prestazioni
@@ -463,7 +464,12 @@ comparabili a quelle di motori avanzati come Fuseki e GraphDB, al contrario di R
 alcuni casi non riesce nemmeno a rendere disponibile il dataset.
 \end{itemize}
 
-E alcune osservazioni sui risultati, espresse per chiarire dei risultati che possono generare confusione:
+È bene ricordare che i tempi osservati, come spiegato nella sezione \ref{ssec:cond_soft}, per alcuni motori non rappresentano
+le prestazioni massime reali, in quanto è stato aggiunto un livello di comunicazione HTTP per rendere i risultati comparabili.
+Delle prestazioni migliori possono essere ottenute in delle configurazioni ad-hoc con i motori che supportano interfacce alternative
+ad HTTP
+
+\par E alcune osservazioni, espresse per chiarire dei risultati che possono generare confusione:
 \begin{itemize}
 \item Rdflib nella versione base non ha a disposizione memoria sufficiente per caricare il dataset grande, mentre in quello
 medio tutte le query raggiungono il timeout prima di produrre alcun risultato.
