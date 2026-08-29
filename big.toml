@@ -34,5 +34,9 @@ queries = "all"
 # colosseo is 147M triples: rdflib-bdb would need ~94 GB of BerkeleyDB store — more disk
 # than is free — for queries that all time out anyway; it already times out on 2 of 8 at
 # ytu3d's 9.6M.
+# Plain rdflib is skipped there too: it parses the whole graph into memory, so the load is
+# OOM-killed (SIGKILL) every time. Excluding it costs nothing — a failed load already skips
+# that dataset's queries — but it stops each resume from re-paying the OOM to relearn it.
 [exclude]
 rdflib-bdb = ["colosseo"]
+rdflib = ["colosseo"]

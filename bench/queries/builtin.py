@@ -100,6 +100,18 @@ WHERE {{
 ))
 
 # 5. chained segmentation — most specific taxonomy class of each point's object.
+# Virtuoso variant: it answers the portable text with **0 rows** (HTTP 200, no warning) on
+# every real dataset. The trigger is narrow — it returns the right answer for `?obj ?x`
+# (104 rows on ytu3d) and only collapses once the million-row `?s` is projected alongside the
+# transitive path. Nothing else moves it: reordering the pattern, `+` instead of `*`, the
+# UNION-with-zero-length form OpenLink documents for `*`, OPTION (TRANSITIVE), FILTER EXISTS,
+# double negation, MINUS, an inverse path, every `sql:select-option` plan hint, parallelism
+# off, FROM vs GRAPH — all still 0. Wrapping the guard in a subselect *with ORDER BY* does
+# fix it (without the ORDER BY it is still 0), so the ordering is what forces Virtuoso to
+# materialise the transitive derived table before the big join.
+# The two texts are equivalent — checked row-by-row, not just by count, on the Urban
+# taxonomy and on the Heritage one with every class instantiated — and Virtuoso then returns
+# 1 065 720 on ytu3d, matching the other nine engines.
 # No `?s a base:Point` guard: Constitutes is declared Point -> Macro_Entity, so ?s is a point
 # by construction. The guard would also be unportable — the legacy ontologies call the class
 # Points, and the Urban graph never materialised it on its points at all (0 such triples).
@@ -119,6 +131,18 @@ WHERE {{
     }}
 }}
 """),
+    engine_templates={"virtuoso": _q("""
+SELECT DISTINCT ?s ?x
+WHERE {{
+    ?s base:Constitutes ?obj .
+    ?obj a ?x .
+    {{ SELECT DISTINCT ?x WHERE {{ ?x rdfs:subClassOf* base:{macro_entity} }} ORDER BY ?x }}
+    FILTER NOT EXISTS {{
+        ?sub rdfs:subClassOf ?x .
+        ?point rdf:type ?sub .
+    }}
+}}
+""")},
 ))
 
 # 6. max LOD — largest number of points constituting a single object.
@@ -141,6 +165,17 @@ WHERE {{
 ))
 
 # 7. taxonomical hierarchy — class -> ancestor chain up to the taxonomy root.
+# Virtuoso variant: a second, different path bug — chaining an arbitrary-length path onto the
+# output of the first (`?c rdfs:subClassOf* ?sup` then `?sup rdfs:subClassOf+ root`) cuts the
+# answer to 15 of 66 rows on ytu3d, and wrapping the ?sup2 path in OPTIONAL cuts it to 1. The
+# ORDER BY trick used for `chained_segmentation` does not help here.
+# The variant drops both guards, which are no-ops on this data rather than a change of
+# meaning: ?c is already under the root (the subselect says so) and the root has no
+# superclass in any of the three ontologies, so `?sup rdfs:subClassOf+ root` only ever
+# excludes the root itself — which `FILTER (?sup != root)` does directly — and the same
+# argument makes ?sup2's guard redundant. The OPTIONAL never matched nothing either, since
+# `rdfs:subClassOf*` always has its zero-length solution. Verified row-identical on both
+# taxonomies; Virtuoso then returns 66 on ytu3d.
 register(Query(
     name="taxonomical_hierarchy",
     kind="select",
@@ -166,6 +201,24 @@ WHERE {{
 GROUP BY ?c ?sup
 ORDER BY ?c ?depth ?sup
 """),
+    engine_templates={"virtuoso": _q("""
+SELECT ?c ?sup (COUNT(DISTINCT ?sup2) AS ?depth)
+WHERE {{
+  {{
+    SELECT DISTINCT ?c
+    WHERE {{
+      ?point base:Constitutes ?obj .
+      ?obj a ?c .
+      ?c rdfs:subClassOf* base:{macro_entity} .
+    }}
+  }}
+  ?c rdfs:subClassOf* ?sup .
+  FILTER (?sup != base:{macro_entity})
+  ?sup rdfs:subClassOf* ?sup2 .
+}}
+GROUP BY ?c ?sup
+ORDER BY ?c ?depth ?sup
+""")},
 ))
 
 # 8. average height of the points: a flat aggregate over the whole cloud, one row out.

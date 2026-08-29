@@ -9,6 +9,11 @@ Add a query by decorating a module-level ``Query`` with :func:`register` in
 ``builtin.py`` (or at runtime). ``applies_to`` lets a query opt out of datasets whose
 ontology lacks the predicates it needs (e.g. the LDBC-SPB query only runs on an SPB
 dataset).
+
+``engine_templates`` holds a per-engine variant of the template, for the rare engine that
+answers the portable text *wrongly*. It is a last resort — a variant means that engine is no
+longer running the same query as the others, which is why each one carries a comment saying
+what it works around and what proves the two texts are equivalent.
 """
 
 from __future__ import annotations
@@ -28,9 +33,12 @@ class Query:
     kind: Kind = "select"
     description: str = ""
     applies_to: Callable[[Dataset], bool] = field(default=lambda ds: True, compare=False)
+    # engine name -> template that engine gets instead of `template` (see module docstring)
+    engine_templates: dict[str, str] = field(default_factory=dict, compare=False)
 
-    def render(self, ds: Dataset) -> str:
-        return self.template.format(namespace=ds.namespace, **ds.query_params).strip() + "\n"
+    def render(self, ds: Dataset, engine: str | None = None) -> str:
+        template = self.engine_templates.get(engine, self.template) if engine else self.template
+        return template.format(namespace=ds.namespace, **ds.query_params).strip() + "\n"
 
 
 _REGISTRY: dict[str, Query] = {}

@@ -223,7 +223,7 @@ class BenchRunner:
             return
 
         ds = datasets_mod.get(dataset_name)
-        sparql = query.render(ds)
+        sparql = query.render(ds, engine_name)
         self.reporter.query_start(engine_name, dataset_name, query.name, plan.repetitions)
 
         # warmup (always re-run: the server was just started, cache is cold)
