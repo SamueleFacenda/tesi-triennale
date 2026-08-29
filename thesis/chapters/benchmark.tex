@@ -1,19 +1,19 @@
 \chapter{Benchmark}
 \label{cha:benchmark}
 
-Come precedemente accennato, per poter concretamente valutare la possibilità di usare RDF come formato di supporto per
-l'immagazzinazione e l'interrogazione di big data è necessario fare una valutazione dello stato delle prestazione delle
+Come precedentemente accennato, per poter concretamente valutare la possibilità di usare RDF come formato di supporto per
+l'immagazzinamento e l'interrogazione di Big Data è necessario fare una valutazione dello stato delle prestazione delle
 attuali soluzioni software. In questo capitolo verranno esposti i dati utilizzati nella valutazione, le interrogazioni (query)
 che verranno eseguite sui dati e i software presi in considerazione.
 \par
-Le seguenti metrice sono state prese in considerazione:
+Le seguenti metriche sono state prese in considerazione:
 
-\begin{itemize} % TODO grassetto
-\item Tempo di caricamento: tempo impiegato per caricare un dataset la prima volta.
-\item Spazio utilizzato: spazio utilizzato dal motore per persistere il grafo su disco.
-\item Tempo di esecuzione delle query: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
+\begin{itemize}
+\item \textbf{Tempo di caricamento}: tempo impiegato per caricare un dataset la prima volta.
+\item \textbf{Spazio utilizzato}: spazio utilizzato dal motore per persistere il grafo su disco.
+\item \textbf{Tempo di esecuzione delle query}: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
 viene inviata alla fine della ricezione del risultato.
-\item Memoria utilizzata: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi del motore a intervalli
+\item \textbf{Memoria utilizzata}: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi del motore a intervalli
 regolari (ogni 0.05 secondi).
 \end{itemize}
 
@@ -21,7 +21,7 @@ regolari (ogni 0.05 secondi).
 \label{sec:data_query}
 
 Sono state scelte quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, e con densità di punti diverse,
-mentre le query sono otto , tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3Dont, ponendo particolare
+mentre le query sono otto , tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3DOnt, ponendo particolare
 attenzione all'avere rappresentate diverse dimensioni di risultato e all'essere omogenee tra le diverse ontologie.
 
 \subsection{Dati}
@@ -70,7 +70,7 @@ Numero di triple: $11.725.772$
 \label{ssub:dataset_medio}
 
 Questo dataset è stato creato a partire da un'acquisizione~\cite{farella2020ghirlandina} della parte superiore della torre Ghirlandina a Modena.
-Presenta una densità di punti maggiore del precedente e sfrutta le classi di 3Dont destinate ai beni culturali (figura~\ref{fig:dataset_ghirlandina}).
+Presenta una densità di punti maggiore del precedente e sfrutta le classi di 3DOnt destinate ai beni culturali (figura~\ref{fig:dataset_ghirlandina}).
 
 \noindent Numero di punti: $3.715.673$\\
 Numero di triple: $38.886.807$
@@ -89,7 +89,7 @@ Numero di triple: $47.239.850$
 
 Questo dataset è l'ultimo preso in considerazione ed è considerevolmente più grande dei precedenti. Si tratta sempre di
 un sito archeologico, di cui maggiori dettagli non possono essere rivelati, acquisito con un'elevata densità di punti
-e con l'iterazione più recente dell'ontologia 3Dont. Per questo alcune delle query proposte saranno eseguibili soltanto
+e con l'iterazione più recente dell'ontologia 3DOnt. Per questo alcune delle query proposte saranno eseguibili soltanto
 su questo dataset.
 
 \noindent Numero di punti: $9.813.921$\\
@@ -99,7 +99,7 @@ Numero di triple: $156.937.172$
 
 Al fine di valutare le prestazioni dei vari motori sono state individuate otto interrogazioni da eseguire su ognuno
 dei dataset. Segue una breve sezione con la query vera e proprio, parametrizzata con gli attributi specifici di ogni
-database (indicati con la notazione `{attributo}`), e una descrizione del suo utilizzo all'interno del framework 3Dont.
+database (indicati con la notazione \texttt{\{attributo\}}), e una descrizione del suo utilizzo all'interno del framework 3DOnt.
 I seguenti prefissi sono utilizzati in ogni query: 
 \begin{lstlisting}[language=SPARQL]
 PREFIX base:<{namespace}>
@@ -109,7 +109,7 @@ PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
 
 \subsubsection{Seleziona tutto}
 
-Questa query viene eseguita quado un progetto viene aperto, richiedendo per ogni punto le sue coordinate e il suo colore al
+Questa query viene eseguita quando un progetto viene aperto, richiedendo per ogni punto le sue coordinate e il suo colore al
 fine di visualizzarlo.
 Alcuni dataset possono essere creati soltanto da acquisizioni LiDAR, ne consegue che non è assicurato che tutti i punti
 abbiano un colore definito (viene applicato il colore bianco come valore di default).
@@ -170,7 +170,7 @@ WHERE {
 Questa è la prima query di tipo segmentazione che viene eseguita e per ogni punto ritorna uno o più identificatori
 di oggetti a cui appartiene. È poi necessario applicare un algoritmo per scegliere quale identificatore usare
 in fase di visualizzazione, è il caso della scelta del valore di LOD. 
-Il numero di risulati può essere molto maggiore rispetto al numero di punti nel grafo, rendendo questa query molto importante
+Il numero di risultati può essere molto maggiore rispetto al numero di punti nel grafo, rendendo questa query molto importante
 ai fini della nostra valutazione.
 
 \begin{lstlisting}[language=SPARQL]
@@ -202,7 +202,7 @@ WHERE {
 
 \subsubsection{LOD massimo}
 
-Questa query viene utilizzata per individuare la profondità massima nell'albero mereologico dell'ongologia, definendo come
+Questa query viene utilizzata per individuare la profondità massima nell'albero mereologico dell'ontologia, definendo come
 classe a maggiore dettaglio una classe con un numero minore di elementi (figura~\ref{fig:mereologia}). Siccome ogni punto appartiene sia all'oggetto più specifico
 che a tutti i suoi antenati nell'albero mereologico (come spiegato prima, un punto è sia parte ad esempio di una colonna 
 che dell'edificio di cui la colonna è parte) è sufficiente contare il numero di oggetti di cui un punto è parte per ottenere la
@@ -225,7 +225,7 @@ WHERE {
 
 \subsubsection{Gerarchia tassonomica}
 
-Questa query, una delle più complesse utilizzate nel normale funzionamento del framework 3Dont, permette di ottenere
+Questa query, una delle più complesse utilizzate nel normale funzionamento del framework 3DOnt, permette di ottenere
 l'intero albero tassonomico dell'ontologia popolata (figura~\ref{fig:tassonomia}). Ritorna una tabella con in ogni riga una classe tassonomica,
 il suo genitore e la sua profondità nell'albero, di modo che un semplice algoritmo possa ricostruire la struttura
 data la sua serializzazione in lista.
@@ -289,9 +289,8 @@ frequenza di picco del turbo, per cui viene raramente mantenuta per più di qual
 4800 MHz, oltre che un totale di 56.00 GiB di memoria swap, quasi mai utilizzato se non per qualche processo di sistema.
 Va menzionato che la macchina dispone anche di un GPU NVIDIA GeForce RTX 4060 Max-Q, la quale però non viene sfruttata da nessuno dei
 motori presi in considerazione qui.
-% TODO codeblock
-\par Attraverso l'interfaccia ACPI messa a disposizione dal kernel linux è stato configurato un profilo piattaforma `performance` e
-il governatore `performance` per la CPU usando il driver `intel pstate`.
+\par Attraverso l'interfaccia ACPI messa a disposizione dal kernel linux è stato configurato un profilo piattaforma \texttt{performance} e
+il governatore \texttt{performance} per la CPU usando il driver \texttt{intel pstate}.
 
 \subsection{Condizioni software}
 \label{ssec:cond_soft}
@@ -350,7 +349,7 @@ descrizione resta senza marchio.
 Fuseki è un server SPARQL basato su Apache Jena~\cite{carroll2004jena}, una delle soluzioni più popolari. È scritto
 in Java ed espone la propria interfaccia di inferenza, a cui è possibile collegare ragionatori OWL esterni come
 Pellet~\cite{sirin2007pellet}. È stato scelto per la sua popolarità mentre è stata usata 
-la versione `5.1.0` e il formato dei risultati utilizzato è TSV.
+la versione \texttt{5.1.0} e il formato dei risultati utilizzato è TSV.
 
 \subsection{Graphdb}
 
@@ -358,13 +357,13 @@ GraphDB, discendente diretto di OWLIM~\cite{bishop2011owlim}, è uno dei triple 
 aziendale, rinomato per le sue elevate prestazioni e per la quantità di features disponibili, come l'integrazione con
 un vasto numero di piattaforme usate nello sviluppo di applicazioni basate sui dati (ad esempio Apache Kafka o
 ElasticSearch)~\cite{ontotext-graphdb}.
-La versione utilizzata è la `10.7.0` mentre il formato dei risultati scelto è CSV.
+La versione utilizzata è la \texttt{10.7.0} mentre il formato dei risultati scelto è CSV.
 
 \subsection{Owlready2}
 
 Owlready2~\cite{lamy2017owlready} è una libreria Python per la programmazione di ontologie che integra un layer di
 persistenza basato su SQLite con supporto per query SPARQL. È un motore essenzialmente differente rispetto a quelli fino ad adesso
-citati, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comprarabili a
+citati, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comparabili a
 prodotti molto più avanzati, soprattutto se usato come interfaccia diretta, visto che si va a ridurre la latenza
 data dal protocollo SPARQL su HTTP.
 La versione utilizzata è la '0.47', con risultati in formato TSV.
@@ -379,30 +378,30 @@ Come l'appena citato Owlready2, anche Oxigraph~\cite{tanon-oxigraph} a sua volta
 dentro altri software. Scritta in Rust, è integrabile anche con Python e RDFLib~\cite{rdflib}, una delle librerie più usate
 nel settore. Si basa su RocksDB~\cite{dong2021rocksdb} come backend di persistenza e volendo può essere usata direttamente
 come server SPARQL HTTP.
-La versione utilizzata è la `0.5.0` e il formato dei risultati scelto è TSV.
+La versione utilizzata è la \texttt{0.5.0} e il formato dei risultati scelto è TSV.
 
-\subsection{Qendpoint}
+\subsection{QEndpoint}
 
 \begin{wrapfigure}{r}{2.8cm}
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/qendpoint.pdf}
 \end{wrapfigure}
-Qendpoint~\cite{willerval2024qendpoint} è un triple store con supporto GeoSPARQL~\cite{ogc-geosparql11} (come GraphDB
+QEndpoint~\cite{willerval2024qendpoint} è un triple store con supporto GeoSPARQL~\cite{ogc-geosparql11} (come GraphDB
 d'altronde) basato sul formato file HDT (Header, Dictionary, Triples)~\cite{fernandez2013hdt,martinezprieto2012hdt}. 
 Questo si pone come alternativa efficiente ai più comuni RDF-XML e Turtle, integrando un indice direttamente al suo interno e rendendone
-l'accesso molto veloce. Qendpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
+l'accesso molto veloce. QEndpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
 di un nuovo indice da capo), attraverso un buffer di modifica che viene integrato periodicamente nel file sottostante.
 Questo permetterebbe di accedere molto velocemente a larghe porzioni del datasets, fattore per noi essenziale, grazie alla compressione
 data dall'indicizzazione e alla struttura interna di HDT. 
-La versione utilizzata è la `2.5.2`, con risultati in formato TSV.
+La versione utilizzata è la \texttt{2.5.2}, con risultati in formato TSV.
 
 \subsection{QLever}
 
 QLever~\cite{bast2017qlever,bast2022qlever} è un motore open-source molto recente che mira a supportare l'esecuzioni di
 query SPARQL su datasets di grandi dimensioni
-utilizzando hardware non professionale e con un consumo di risurse ridotto. Il codice, scritto in C++, contiene un vasto numero
+utilizzando hardware non professionale e con un consumo di risorse ridotto. Il codice, scritto in C++, contiene un vasto numero
 di ottimizzazioni avanzata a diversi livelli e supporta anch'esso l'integrazione come libreria.
-La versione utilizzata è la `0.5.42` mentre il formato dei risultati scelto è TSV.
+La versione utilizzata è la \texttt{0.5.42} mentre il formato dei risultati scelto è TSV.
 
 \subsection{RDFLib}
 
@@ -415,7 +414,7 @@ la persistenza di un grafo in memoria, oltre che un vasto numero di altri motori
 Considerata un punto di riferimento per lo standard RDF è stata scelta per la sua popolarità e per poter comparare le prestazioni
 di un software open-source integrabile da chiunque con motori proprietari e concessi su licenza (come GraphDB e RDFox).
 Vengono riportate le prestazione per il suo utilizzo senza configurazione e con la persistenza data da Berkeley DB attiva (rdflib-bdb).
-É stata utilizzata la versione `7.1.4` con risultati in formato CSV.
+É stata utilizzata la versione \texttt{7.1.4} con risultati in formato CSV.
 
 \subsection{RDFox}
 
@@ -425,7 +424,7 @@ Vengono riportate le prestazione per il suo utilizzo senza configurazione e con 
 \end{wrapfigure}
 RDFox~\cite{nenov2015rdfox} è un motore per grafi semantici che opera interamente all'interno della memoria RAM. È quindi molto interessante
 da comparare e potenzialmente permette di ridurre la latenza di risposta alle query a costo di un maggiore consumo di memoria.
-Sviluppato dall'Università di Oxford è disponibile solamente su licenza, la versione utilizzata è la `7.6` con risultati
+Sviluppato dall'Università di Oxford è disponibile solamente su licenza, la versione utilizzata è la \texttt{7.6} con risultati
 in formato CSV.
 
 \subsection{Virtuoso}
@@ -435,14 +434,15 @@ open-source. Virtuoso è un motore
 ibrido con supporto per un vasto numero di tipi di database, dai classici database relazionali SQL a formati non strutturati
 come RDF. Riesce inoltre a garantire delle prestazioni molto elevate, oltre a una versione disponibile su licenza con supporto
 e funzionalità aggiuntive.
-La versione utilizzata è la `7.2` con risultati in formato TSV.
+La versione utilizzata è la \texttt{7.2} con risultati in formato TSV.
 
 \section{Risultati}
 \label{sec:results}
 
-%TODO nota con reference all'appendice
+Di seguito sono riportate le figure che riassumono le misurazioni; le tabelle complete, con tutti i valori
+aggregati per ogni combinazione di motore, dataset e query, si trovano nell'appendice~\ref{cha:attachment}.
 
-% Figure generate da `kbench thesis --run-dir runs/big`. Tabelle complete nell'allegato.
+% Figure generate da `kbench thesis --run-dir runs/big`. Tabelle complete nell'appendice.
 \IfFileExists{generated/results_figures.tex}{\input{generated/results_figures.tex}}
   {\textit{[figure non generate: eseguire \texttt{kbench thesis --run-dir runs/big}]}}
 
@@ -458,7 +458,7 @@ Dai risultati appena presentati si evince una serie di osservazioni:
 \item Motori come QLever e RDFox riescono a mantenere il tempo di esecuzione nell'ordine della decina di secondi in tutte le query 
 analizzate, al contrario di altri che richiedono diversi minuti. Lo si osserva nei grafici che mostrano i risultati dei singoli motori.
 \item Owlready2, nonostante non sia progettato per gestire in modo efficace carichi di lavoro di questo tipo, raggiunge prestazioni
-comparabili a quelle di motori avanzati come Fuseki e GraphDB, al contrario di Rdflib (con e senza persistenza) che in
+comparabili a quelle di motori avanzati come Fuseki e GraphDB, al contrario di RDFLib (con e senza persistenza) che in
 alcuni casi non riesce nemmeno a rendere disponibile il dataset.
 \end{itemize}
 
@@ -469,16 +469,16 @@ ad HTTP
 
 \par E alcune osservazioni, espresse per chiarire dei risultati che possono generare confusione:
 \begin{itemize}
-\item Rdflib nella versione base non ha a disposizione memoria sufficiente per caricare il dataset grande, mentre in quello
+\item RDFLib nella versione base non ha a disposizione memoria sufficiente per caricare il dataset grande, mentre in quello
 medio tutte le query raggiungono il timeout prima di produrre alcun risultato.
-\item Rdflib con la persistenza data da Berkeley DB non viene analizzata sul dataset grande a causa delle esagerate dimensioni
+\item RDFLib con la persistenza data da Berkeley DB non viene analizzata sul dataset grande a causa delle esagerate dimensioni
 che andrebbe ad occupare su disco e per il fatto che presumibilmente produrrebbe soltanto risultati timeout. Data inoltre la sua scarsa
 rilevanza ai fini di questa tesi questa combinazione viene esclusa dall'analisi.
 \item Gli ultimi tre grafi sono riportati per completezza ma non rappresentano il fulcro dell'analisi qui condotta; i motori infatti
 sono stati configurati per ottenere le massime prestazioni in termini di velocità e gestione di dataset di grandi dimensioni.
 Sarebbe certamente possibile creare configurazioni che bilancino di più queste metriche.
-\item QEndpoint presenta un bug nella versiona analizzata che rende impossibile condurre un caricamento di datasets sfruttando
-più processori, ne viene quindi usato uno soltanto, con un grande impatto facilelmente osservabile. Ne risulta appunto come il
+\item QEndpoint presenta un bug nella versione analizzata che rende impossibile condurre un caricamento di datasets sfruttando
+più processori, ne viene quindi usato uno soltanto, con un grande impatto facilmente osservabile. Ne risulta appunto come il
 peggiore in quanto a prestazioni di caricamento.
 \item QLever è l'unico motore analizzato a conservare in cache il risultato completo di una query. Dato che
 ogni ripetizione invia esattamente lo stesso testo, le misurazioni sarebbero state letture dalla cache e non
@@ -486,7 +486,7 @@ esecuzioni: la cache viene quindi disattivata, così i suoi tempi restano confro
 che non ne hanno una.
 \item L'endpoint di Virtuoso tronca silenziosamente ogni risposta a $2^{20}$ (1.048.576) righe, senza segnalare in alcun modo
 che il risultato è incompleto. Le query rivolte a Virtuoso vengono quindi eseguite a pagine di un milione di righe, tramite
-\texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3dont; i tempi delle pagine vengono sommati
+\texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3DOnt; i tempi delle pagine vengono sommati
 in un'unica misurazione. I risultati di Virtuoso sulle query che producono molte righe includono perciò il costo delle richieste
 aggiuntive, che è quanto un client deve effettivamente pagare per ottenere il risultato completo.
 \end{itemize}

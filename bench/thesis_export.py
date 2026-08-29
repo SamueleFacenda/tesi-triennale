@@ -17,17 +17,18 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import BenchConfig
+from .datasets import canonical
 from .report import load_rows, summarize
 from .store import BASELINE, BenchStore
 
 # Datasets in the order the thesis presents them (by size) and the names it gives them,
 # see thesis/chapters/benchmark.tex "Dati".
-DATASET_ORDER = ["ytu3d", "torre_modena", "nettuno", "colosseo"]
+DATASET_ORDER = ["ytu3d", "torre_modena", "nettuno", "grande"]
 DATASET_LABEL = {
     "ytu3d": "Piccolo",
     "torre_modena": "Medio",
     "nettuno": "Medio 2",
-    "colosseo": "Grande",
+    "grande": "Grande",
 }
 
 # Queries in registry order, labelled as in benchmark.tex "Query".
@@ -152,6 +153,11 @@ class ResultSet:
             loads = load_rows(store)
         finally:
             store.close()
+
+        # A run recorded before a dataset was renamed still holds the old key. Map it here,
+        # the single point every dataset name enters from, so nothing downstream sees it.
+        for row in (*summary, *loads):
+            row["dataset"] = canonical(row["dataset"])
 
         self.engines = _ordered(
             {r["engine"] for r in summary} | set(self.config.engines),

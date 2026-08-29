@@ -207,7 +207,7 @@ def _dataset_table(rs: ResultSet, dataset: str) -> str:
         "\\toprule\n", _COLUMNS, "\\midrule\n\\endfirsthead\n",
         f"\\multicolumn{{8}}{{l}}{{\\small\\itshape segue: dataset {label}}}\\\\\n",
         "\\toprule\n", _COLUMNS, "\\midrule\n\\endhead\n",
-        "\\midrule\n\\multicolumn{8}{r}{\\small\\itshape continua}\\\\\n\\endfoot\n",
+        "\\endfoot\n",
         "\\bottomrule\n\\endlastfoot\n",
     ]
 

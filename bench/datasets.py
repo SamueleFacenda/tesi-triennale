@@ -103,24 +103,38 @@ def _paths(base_dir, stem: str, fmts: dict[str, str]) -> dict[str, str]:
 _LEGACY_PARAMS = {"max_x": "Has_X_Max", "macro_entity": "Macro_Entities"}  # Heritage, Urban
 _CORE_PARAMS = {"max_x": "Max_X", "macro_entity": "Macro_Entity"}          # 3DOntCore
 
-# The one object whose points `select_points_in_object` asks for. Per dataset, not per
-# ontology, and pinned rather than chosen by the query: `ORDER BY ?obj LIMIT 1` orders IRIs,
-# which is implementation-defined, so every engine used to measure a different object (on
-# colosseo qLever read the 9.7M-point Building_number_1_ where the rest read 130 points).
-# Each IRI here is the smallest object IRI in codepoint order — what 8 of the 10 engines had
-# picked — so the row counts stay what they were: 35504 / 1941 / 2066 / 130. A dataset with
-# no entry (mini_heritage's truncated sample holds no Constitutes triples, santa_chiara is
-# not present locally) simply skips that query.
+# The one object whose points `select_points_in_object` asks for: pinned per dataset,
+# because picking it in-query with `ORDER BY ?obj LIMIT 1` let each engine measure a
+# different object (see docs/notes.md). Each IRI is the smallest in codepoint order.
+# A dataset with no entry simply skips that query.
 _HERITAGE_DATA = "http://www.semanticweb.org/matteocodiglione/ontologies/2024/9/Heritage_Ontology/"
 _URBAN_DATA = "http://www.semanticweb.org/mcodi/ontologies/2024/3/Urban_Ontolog/"  # sic: no 'y'
 _POINTS_OBJECT = {
     "nettuno": _HERITAGE_DATA + "Neptune_Temple_Paestum_predicted#Abaci_number_10_",
     "torre_modena": _HERITAGE_DATA + "torre_modena#_Heritage_Ontology.Balconies_number_10_",
     "ytu3d": _URBAN_DATA + "YTU3D#Car_number_1_",
-    "colosseo": "http://3DOntCore/colosseo_classified#_Building_number_102_",
     "mini_urban": _URBAN_DATA + "YTU3D#High_Vegetation_Entity_number_1_",
     "tiny": "http://3DOntCore#obj1",
 }
+
+# `grande`'s pinned IRI embeds the real site name, which is not disclosable, so it is read
+# from the environment (see .env) instead of being committed. Unset -> the query is skipped.
+if _obj := os.environ.get("KBENCH_GRANDE_POINTS_OBJECT", "").strip():
+    _POINTS_OBJECT["grande"] = _obj
+
+# Datasets renamed after a run was recorded: old key -> new key, as "old=new,old=new".
+# Lets `kbench thesis` read a run whose database still holds the previous name.
+DATASET_ALIASES = {
+    old.strip(): new.strip()
+    for old, _, new in (p.partition("=") for p in
+                        os.environ.get("KBENCH_DATASET_ALIASES", "").split(","))
+    if old.strip() and new.strip()
+}
+
+
+def canonical(name: str) -> str:
+    """Map a dataset key recorded by an older run onto its current name."""
+    return DATASET_ALIASES.get(name, name)
 
 
 def _params(onto: dict, dataset: str) -> dict:
@@ -140,10 +154,10 @@ def _builtin() -> None:
                      _params(_LEGACY_PARAMS, "ytu3d")))
     register(Dataset("santa_chiara", _CORE, _paths(_ONTOS, "santa_chiara", {"ttl": "ttl"}),
                      _params(_CORE_PARAMS, "santa_chiara")))
-    # the .nt is converted from the .ttl (see README): owlready2 has no Turtle parser
-    register(Dataset("colosseo", _CORE,
-                     _paths(_ONTOS, "colosseo_3DGraph", {"ttl": "ttl", "nt": "nt"}),
-                     _params(_CORE_PARAMS, "colosseo")))
+    # the .nt is converted from the .ttl (see docs/datasets.md): owlready2 has no Turtle parser
+    register(Dataset("grande", _CORE,
+                     _paths(_ONTOS, "grande_3DGraph", {"ttl": "ttl", "nt": "nt"}),
+                     _params(_CORE_PARAMS, "grande")))
 
     # Small real-shaped samples (head of the big files), generated locally under testdata/.
     # Fast complete test that still exercises per-engine format selection.

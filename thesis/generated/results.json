@@ -464,7 +464,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -481,7 +481,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -498,7 +498,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -515,7 +515,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -532,7 +532,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -549,7 +549,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -566,7 +566,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -583,7 +583,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -600,7 +600,7 @@
     },
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -1076,7 +1076,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -1093,7 +1093,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -1110,7 +1110,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -1127,7 +1127,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -1144,7 +1144,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -1161,7 +1161,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -1178,7 +1178,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -1195,7 +1195,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -1212,7 +1212,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -1688,7 +1688,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -1705,7 +1705,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -1722,7 +1722,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -1739,7 +1739,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -1756,7 +1756,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -1773,7 +1773,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -1790,7 +1790,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -1807,7 +1807,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -1824,7 +1824,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -2300,7 +2300,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -2317,7 +2317,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -2334,7 +2334,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -2351,7 +2351,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -2368,7 +2368,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "timeout",
       "reason": null,
@@ -2385,7 +2385,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -2402,7 +2402,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "timeout",
       "reason": null,
@@ -2419,7 +2419,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -2436,7 +2436,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -2912,7 +2912,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -2929,7 +2929,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -2946,7 +2946,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -2963,7 +2963,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -2980,7 +2980,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -2997,7 +2997,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -3014,7 +3014,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -3031,7 +3031,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -3048,7 +3048,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -3524,7 +3524,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -3541,7 +3541,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -3558,7 +3558,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -3575,7 +3575,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -3592,7 +3592,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -3609,7 +3609,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -3626,7 +3626,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -3643,7 +3643,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -3660,7 +3660,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -4136,7 +4136,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "not_run",
       "reason": "excluded",
@@ -4153,7 +4153,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "not_run",
       "reason": "excluded",
@@ -4170,7 +4170,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "not_run",
       "reason": "excluded",
@@ -4187,7 +4187,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "not_run",
       "reason": "excluded",
@@ -4204,7 +4204,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "not_run",
       "reason": "excluded",
@@ -4221,7 +4221,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "not_run",
       "reason": "excluded",
@@ -4238,7 +4238,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "not_run",
       "reason": "excluded",
@@ -4255,7 +4255,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "not_run",
       "reason": "excluded",
@@ -4272,7 +4272,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "not_run",
       "reason": "excluded",
@@ -4748,7 +4748,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "not_run",
       "reason": "excluded",
@@ -4765,7 +4765,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "not_run",
       "reason": "excluded",
@@ -4782,7 +4782,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "not_run",
       "reason": "excluded",
@@ -4799,7 +4799,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "not_run",
       "reason": "excluded",
@@ -4816,7 +4816,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "not_run",
       "reason": "excluded",
@@ -4833,7 +4833,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "not_run",
       "reason": "excluded",
@@ -4850,7 +4850,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "not_run",
       "reason": "excluded",
@@ -4867,7 +4867,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "not_run",
       "reason": "excluded",
@@ -4884,7 +4884,7 @@
     },
     {
       "engine": "rdflib-bdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "not_run",
       "reason": "excluded",
@@ -5360,7 +5360,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -5377,7 +5377,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -5394,7 +5394,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -5411,7 +5411,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -5428,7 +5428,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -5445,7 +5445,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -5462,7 +5462,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -5479,7 +5479,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -5496,7 +5496,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -5972,7 +5972,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_all",
       "state": "ok",
       "reason": null,
@@ -5989,7 +5989,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "scalar_max_x",
       "state": "ok",
       "reason": null,
@@ -6006,7 +6006,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "select_points_in_object",
       "state": "ok",
       "reason": null,
@@ -6023,7 +6023,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "instance_segmentation",
       "state": "ok",
       "reason": null,
@@ -6040,7 +6040,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "chained_segmentation",
       "state": "ok",
       "reason": null,
@@ -6057,7 +6057,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "max_lod",
       "state": "ok",
       "reason": null,
@@ -6074,7 +6074,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "taxonomical_hierarchy",
       "state": "ok",
       "reason": null,
@@ -6091,7 +6091,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "avg_height",
       "state": "ok",
       "reason": null,
@@ -6108,7 +6108,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "query": "__baseline__",
       "state": "ok",
       "reason": null,
@@ -6127,7 +6127,7 @@
   "loads": [
     {
       "engine": "fuseki",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 530.4852730950006,
@@ -6167,7 +6167,7 @@
     },
     {
       "engine": "graphdb",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 1022.5473774370039,
@@ -6207,7 +6207,7 @@
     },
     {
       "engine": "owlready2",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "nt",
       "ok": true,
       "load_time_s": 606.777558613001,
@@ -6247,7 +6247,7 @@
     },
     {
       "engine": "oxigraph",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 229.15258161999736,
@@ -6287,7 +6287,7 @@
     },
     {
       "engine": "qendpoint",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 2516.922730499,
@@ -6327,7 +6327,7 @@
     },
     {
       "engine": "qlever",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 326.92160019299627,
@@ -6367,7 +6367,7 @@
     },
     {
       "engine": "rdflib",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": false,
       "load_time_s": null,
@@ -6437,7 +6437,7 @@
     },
     {
       "engine": "rdfox",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 45.8392934089934,
@@ -6477,7 +6477,7 @@
     },
     {
       "engine": "virtuoso",
-      "dataset": "colosseo",
+      "dataset": "grande",
       "fmt": "ttl",
       "ok": true,
       "load_time_s": 227.40449847200216,

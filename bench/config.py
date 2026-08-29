@@ -27,9 +27,8 @@ class BenchConfig:
     result_format: str | None = None
     engines: list[str] = field(default_factory=list)
     datasets: list[str] = field(default_factory=list)
-    # engine -> datasets it must not be run on, for pairs that are known to be
-    # unaffordable rather than merely slow (e.g. rdflib-bdb on the 147M-triple colosseo:
-    # ~94 GB of store for queries that all time out). Everything else still runs.
+    # engine -> datasets it must not be run on, for pairs known to be unaffordable rather
+    # than merely slow (see docs/configuration.md). Everything else still runs.
     exclude: dict[str, list[str]] = field(default_factory=dict)
     # list of query names, or the literal "all"
     queries: list[str] | str = "all"
@@ -51,7 +50,15 @@ class BenchConfig:
             return [q.name for q in queries_mod.all_queries()]
         return list(self.queries)
 
+    def _resolve_aliases(self) -> None:
+        """Map dataset keys recorded by an older run onto their current names, so a config
+        snapshot written before a rename still loads (see datasets.DATASET_ALIASES)."""
+        self.datasets = [datasets_mod.canonical(d) for d in self.datasets]
+        self.exclude = {e: [datasets_mod.canonical(d) for d in skipped]
+                        for e, skipped in self.exclude.items()}
+
     def validate(self) -> None:
+        self._resolve_aliases()
         if not self.engines:
             raise ValueError("config: 'engines' must list at least one engine")
         if not self.datasets:

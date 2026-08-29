@@ -14,7 +14,7 @@
 \usepackage{titlesec}
 \singlespacing
 \setcounter{secnumdepth}{3}
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{2}
 % Letter
 \usepackage[utf8]{inputenc}
 % Language
@@ -52,6 +52,10 @@
   \pagenumbering{gobble}
   \input{etc/cover}
   \clearpage
+  % Facciata bianca dopo la copertina (twoside+openany non ne inserisce una da solo).
+  \thispagestyle{empty}
+  \null
+  \clearpage
 
   % Ringraziamenti (opzionale, escluso dal conteggio delle facciate)
   \input{etc/acknowledgements}
@@ -68,7 +72,7 @@
   % Gruppo: successione dei capitoli senza interruzione di pagina.
   % Nota DISI: il numero massimo di facciate (indice + sommario + capitoli) e' 30.
   % Il gruppo disattiva \clearpage: se ne conserva una copia utilizzabile per svuotare
-  % la coda dei float e per le interruzioni volute (bibliografia, allegati).
+  % la coda dei float e per le interruzioni volute (bibliografia, appendici).
   \let\realclearpage\clearpage
   \let\realcleardoublepage\cleardoublepage
   \begingroup
@@ -104,8 +108,8 @@
   \bibliographystyle{plain}
   \bibliography{bibliography.bib}
 
-  % Allegati (opzionale)
-  \titleformat{\chapter} {\normalfont\Huge\bfseries}{Allegato \thechapter}{1em}{}
+  % Appendici (opzionale)
+  \titleformat{\chapter} {\normalfont\Huge\bfseries}{Appendice \thechapter}{1em}{}
   \appendix
   \input{attachments/attachment.tex}
 \end{document}

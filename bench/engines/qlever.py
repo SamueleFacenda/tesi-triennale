@@ -150,14 +150,10 @@ IMAGE = docker.io/adfreiburg/qlever:latest
         try:
             res = run_sampled(
                 ["qlever", "start", "--port", str(self.port),
-                 # QLever is the only engine here that memoizes whole query results, and
-                 # the runner sends the identical text for the warmups and every rep — so
-                 # with a cache every measured rep was a lookup: server-side 0-1 ms against
-                 # 13-65 ms cold for `avg_height`, identical on ytu3d and on colosseo. A
-                 # one-byte ceiling is what actually turns that off: no result is ever small
-                 # enough to keep, so every rep recomputes like it does on every other
-                 # engine. (`--cache-max-num-entries 0` does *not* — QLever still holds one
-                 # entry, measured.) Fairness, not tuning.
+                 # QLever is the only engine here that memoizes whole query results, so
+                 # every measured rep would be a cache lookup rather than an execution.
+                 # A one-byte ceiling is what actually turns that off; --cache-max-num-entries
+                 # 0 does not (see docs/notes.md). Fairness, not tuning.
                  "--cache-max-size", "1B", "--cache-max-size-single-entry", "1B",
                  # ...and its own default query timeout is 30 s, far below our budget: an
                  # uncached query over it would come back an HTTP error, not a timeout.

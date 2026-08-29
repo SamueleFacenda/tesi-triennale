@@ -149,13 +149,10 @@ class AbstractEngine(ABC):
         """URL of the SPARQL query endpoint once started."""
 
     def start(self) -> str:
-        # Never serve on a port something else still holds: a previous dataset's server
-        # can outlive stop() (its launcher exits before the server it spawned does), and
-        # on a fixed port that dying server answers the health probe and then vanishes —
-        # which is how every qEndpoint query of one dataset came back "connection
-        # refused". Only a fixed port can be held by *our* own previous server (the others
-        # take a fresh free port per dataset), and only there is refusing better than
-        # trying: qLever brings its own "kill whatever holds this port" recovery.
+        # Never serve on a port something else still holds: a previous dataset's server can
+        # outlive stop() and answer the health probe before vanishing (see docs/notes.md).
+        # Only a fixed port can be held by our own previous server, and only there is
+        # refusing better than trying — qLever has its own kill-whatever-holds-this-port.
         if not self._wait_port_free() and self.fixed_port is not None:
             raise EngineError(
                 f"{self.name}: port {self.port} is still held by another process; "

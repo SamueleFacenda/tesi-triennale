@@ -1,7 +1,7 @@
 \chapter{Introduzione}
 \label{cha:introduction}
 
-Il presente lavoro ha origine dalle difficoltà riscontrate nello sviluppo del visualizzatore 3dont \ref{subsec:visualizer},
+Il presente lavoro ha origine dalle difficoltà riscontrate nello sviluppo del visualizzatore 3DOnt \ref{subsec:visualizer},
 che ha richiesto un'attenta ricerca tra il vasto numero di triple store esistenti per far fronte a un carico di lavoro
 non comune, approfondito successivamente.
 Questa tipologia di interazioni con il triple store può essere più generalmente descritta come un'analisi di Big Data e in questa tesi
@@ -15,11 +15,11 @@ delle potenzialità considerevoli rispetto ai formati di rappresentazione nativi
 \par Si noti che si è parlato di Big Data nonostante il volume di dati analizzato sia nell'ordine delle decine di milioni
 di unità (triple), elevato ma assolutamente ordinario. Ciò potrebbe sembrare andar contro alla definizione intuitiva di Big
 Data, ma in realtà per le caratteristiche qui analizzate questa formulazione è più che lecita. Prendiamo ad esempio la
-popolare definizione delle tre V(TODO cite) (Volume, Velocità e Varietà), la terza è sicuramente una caratteristica dei
-dati qui trattati: considerando il caso di 3Dont \ref{sec:3dont} trattiamo contemporaneamente informazioni geospaziali sotto
+popolare definizione delle tre V~\cite{laney2001threev} (Volume, Velocità e Varietà), la terza è sicuramente una caratteristica dei
+dati qui trattati: considerando il caso di 3DOnt \ref{sec:3dont} trattiamo contemporaneamente informazioni geospaziali sotto
 forma di nuvola di punti, informazioni sui materiali e la loro lavorazione, sulla struttura e topologia di un edificio, 
 informazioni sensoristiche variabili nel tempo e non solo. 
-Il fatto che i Big Data non siano definiti soltanto dal loro volume è consolidato nella comunità scientifica (TODO cite Kitchin, R. (2013), "Big data and human geography", Dialogues in Human Geography, 3(3), pp. 262–267),
+Il fatto che i Big Data non siano definiti soltanto dal loro volume è consolidato nella comunità scientifica~\cite{kitchin2013bigdata},
 anche se l'aggettivo "Big" non contribuisce certo a renderlo intuitivo.
 
 \par
@@ -42,7 +42,7 @@ I vantaggi con questo approccio sono molteplici, in primis si andrebbe a creare 
 dominio preso in analisi, permettendo a chiunque abbia accesso all'ontologia di espandere le possibilità di rappresentazione
 del modello senza compromettere l'interoperabilità con altri sistemi non aggiornati. Questo non è invece possibile quasi mai
 con le rappresentazioni native solitamente utilizzate per i loro domini, focalizzate più sulle prestazioni che sull'estensibilità
-(si veda il capitolo relativo a 3Dont).
+(si veda il capitolo relativo a 3DOnt).
 Inoltre, con questo approccio, si può andare a sfruttare la potenza dei sistemi di ragionamento sui modelli utilizzati,
 andando a definire regole per espandere la conoscenza nelle nostre rappresentazioni e potenzialmente anche ottenere un guadagno
 dal punto di vista della memoria di massa utilizzata, se il motore che stiamo andando ad utilizzare supporta il ragionamento ``virtuale''
@@ -52,11 +52,11 @@ espressività e una capacità di interrogazione avanzata. Calcoli e analisi comp
 ad-hoc possono essere completati con una sola query SPARQL, aumentando l'accessibilità e la facilità di fruizione dei dati.
 \par
 In questa tesi si andrà quindi ad analizzare la fattibilità tecnica dell'utilizzo di RDF per la rappresentazione di dati 
-di dominio specifico, con una particolare focalizzazione sull'ambito dei big data, che se rappresentati come 
+di dominio specifico, con una particolare focalizzazione sull'ambito dei Big Data, che se rappresentati come 
 grafi di conoscenza superano le decine di milioni di triple.
 Queste grandi quantità di dati pongono appunto un problema all'ecosistema utilizzato. Se il problema della rappresentazione è per
 così dire ``risolto'' dalla grande espressività ed estensibilità by-design di RDF, quello delle prestazioni è di altra natura.
-Se vogliamo utilizzare RDF come modello di persistenza per big data in modo generale dobbiamo fare i conti con dei pattern di accesso
+Se vogliamo utilizzare RDF come modello di persistenza per Big Data in modo generale dobbiamo fare i conti con dei pattern di accesso
 fondamentalmente diversi da quelli tipici del semantic web. Si andrà spesso ad analizzare l'interezza del modello oppure
 delle sottoporzioni per andare a condurre delle analisi su questi dati, o produrre delle rappresentazioni in formati alternativi
 (grafici, ad esempio) per cui è necessario accedere in lettura a grandi porzioni di dati. Stiamo quindi parlando di query di tipo OLAP~\cite{codd1998olap,chaudhuri1997olap}
@@ -66,8 +66,8 @@ ottimizzati per query che contengono scansioni su grandi porzioni del modello qu
 collegamento dei nodi~\cite{ali2022survey}.
 Questa è appunto la sfida più grande all'utilizzo diffuso dell'approccio proposto, e in questa tesi si andranno quindi soprattutto
 ad analizzare le prestazioni di un certo numero di motori di query SPARQL nell'esecuzione di carichi di lavoro specifici,
-con lo scopo di valutarne la predisposizione all'utilizzo con big data di dominio diverso dal web semantico.
-Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3Dont~\cite{codiglione2024urban,codiglione2024heritage},
+con lo scopo di valutarne la predisposizione all'utilizzo con Big Data di dominio diverso dal web semantico.
+Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3DOnt~\cite{codiglione2024urban,codiglione2024heritage},
 approfondito nel capitolo dedicato,
 all'interno di vari motori la cui prerogativa principale è che siano eseguibili localmente. Questo è importante soprattutto per
 poter confrontare le prestazioni dei vari motori nello stesso ambiente, ma anche perché se si volessero poi utilizzare come base
@@ -89,11 +89,11 @@ Un progetto molto interessante è Linked Building Data~\cite{bassier2022lbd}, ch
 lo sviluppo dei cantieri. Parte da una rappresentazione RDF dei dati BIM e usa l'ontologia V4Design~\cite{bassier2020v4design}
 come base di costruzione semantica. Integra inoltre GEOSPARQL~\cite{ogc-geosparql11} per la correlazione di dati geospaziali
 insieme all'ontologia FOG~\cite{bonduel2019fog} per la rappresentazione dei punti.
-Il punto chiave del progetto poi è il collegamento con la sensoristica esistente, è un problema comune (perlaltro affrontato 
-anche da 3Dont) quello dell'integrazione di dati da sorgenti così disparate, mantendendo una coesione spaziotemporale:
+Il punto chiave del progetto poi è il collegamento con la sensoristica esistente, è un problema comune (peraltro affrontato 
+anche da 3DOnt) quello dell'integrazione di dati da sorgenti così disparate, mantenendo una coesione spaziotemporale:
 basti pensare al gran numero di formati proprietari usati dai sensori sul mercato, le diverse proiezioni geografiche e
 temporali (ad esempio i sensori GNSS spesso usano il tempo GPS, leggermente ma significativamente scostato da quello UTC).
-Un aspetto interessante sicuramente il fatto che vengano usate molte ongologie già esistenti per la definizione dei dati,
+Un aspetto interessante sicuramente il fatto che vengano usate molte ontologie già esistenti per la definizione dei dati,
 rendendo ancora più semplice l'interoperabilità, anche se GEOSPARQL limita l'utilizzo ai soli triple store che lo supportano,
 come GraphDB e Virtuoso.
 
@@ -154,7 +154,7 @@ richiede complesse capacità di indicizzazione del testo e accede solo a ridotte
 di dati storici urbani.
 
 
-\section{3Dont}
+\section{3DOnt}
 \label{sec:3dont}
 
 \subsection{Ambito}
@@ -174,7 +174,7 @@ di dettaglio in modo molto efficace.
 
 \subsection{Il framework}
 
-3Dont~\cite{codiglione2024urban,codiglione2024heritage} è un framework basato su RDF che permette di modellare nuvole di punti
+3DOnt~\cite{codiglione2024urban,codiglione2024heritage} è un framework basato su RDF che permette di modellare nuvole di punti
 attraverso un'ontologia definita ma estensibile.
 In fase di creazione del grafo classifica i punti e gli oggetti della nuvola in base all'ambito scelto (urbano o beni culturali)
 secondo una struttura gerarchica, per poi eseguire una fase di ragionamento che materializza delle informazioni aggiuntive come la
@@ -199,24 +199,24 @@ di interagire con i dati e supportare il proprio lavoro in autonomia.
     \caption{Risoluzione tassonomica: le classi, con \texttt{rdfs:subClassOf}.}
     \label{fig:tassonomia}
   \end{subfigure}
-  \caption{Le due risoluzioni con cui 3Dont controlla la segmentazione, indipendenti l'una dall'altra. La prima scegle quanto scendere nell'annidamento parte-tutto degli oggetti che un punto costituisce, la seconda quanto generalizzare la classe così ottenuta. Che siano davvero indipendenti si legge confrontando i due pannelli: \texttt{Capital}, \texttt{Column} e \texttt{Facade}, che a sinistra sono livelli successivi, a destra sono classi sorelle sotto \texttt{base:Architectural\_Element}. Le classi intermedie come \texttt{base:Immovable\_Object} si raggiungono soltanto generalizzando lungo il secondo asse.}
+  \caption{Le due risoluzioni con cui 3DOnt controlla la segmentazione, indipendenti l'una dall'altra. La prima sceglie quanto scendere nell'annidamento parte-tutto degli oggetti che un punto costituisce, la seconda quanto generalizzare la classe così ottenuta. Che siano davvero indipendenti si legge confrontando i due pannelli: \texttt{Capital}, \texttt{Column} e \texttt{Facade}, che a sinistra sono livelli successivi, a destra sono classi sorelle sotto \texttt{base:Architectural\_Element}. Le classi intermedie come \texttt{base:Immovable\_Object} si raggiungono soltanto generalizzando lungo il secondo asse.}
   \label{fig:gerarchie}
 \end{figure}
 
 \subsection{Vantaggi}
 
 Come spiegato nell'introduzione, uno dei vantaggi principali di RDF rispetto ai corrispondenti formati nativi è l'estensibilità.
-3Dont specifica un'ontologia base con un vasto numero di elementi già definiti per i vari ambiti a cui si rivolge (classificazione
+3DOnt specifica un'ontologia base con un vasto numero di elementi già definiti per i vari ambiti a cui si rivolge (classificazione
 delle superfici erbose e della massa verde, componenti architettonici, arredo urbano etc.) ma non mira ad essere completa, un utente
 potrebbe senza sforzo aggiungere nuove classi, ad esempio nuovi materiali con nuove caratteristiche, senza compromettere l'integrazione
 con la strumentazione esistente.
 \par Un secondo vantaggio lo troviamo nell'espressività che di base il framework riesce a dare. Se partiamo da formati come LAS che
-permettono di avere solo un numero limitato di caratteristiche per ogni punto, con 3Dont il potenziale è infinito; non dobbiamo
+permettono di avere solo un numero limitato di caratteristiche per ogni punto, con 3DOnt il potenziale è infinito; non dobbiamo
 preoccuparci di problemi come l'assegnazione di più etichette di classificazione a un singolo punto ma invece possiamo integrare i
 dati con informazioni aggiuntive come le relazioni tra i punti, tra macro entità (insiemi di punti), o informazioni spaziotemporali.
 \par Nessuna di queste ultime caratteristiche è supportata nei formati di nuvole di punti classiche e l'utilizzo di un solo formato
 di supporto per questa vasta gamma di informazioni è senza dubbio un ulteriore vantaggio del framework.
-\par Ma uno dei punti di forza maggiore di 3Dont è la possibilità di interrogare i dati con un linguaggio potente come SPARQL,
+\par Ma uno dei punti di forza maggiore di 3DOnt è la possibilità di interrogare i dati con un linguaggio potente come SPARQL,
 in questo modo possiamo accedere in modo casuale alle nuvole di punti, esprimere potenti filtri e condurre analisi numeriche
 senza bisogno di iterare sull'interezza dei punti.
 
@@ -278,13 +278,13 @@ delle query che ritornano singoli valori numerici o comunque valori che non sono
     \caption{Query di classificazione, un colore per istanza di oggetto.}
     \label{fig:vis_instance}
   \end{subfigure}
-  \caption{Le modalità di visualizzazione dei risultati nel visualizzatore 3Dont, tutte sulla nuvola del tempio di Nettuno descritta nella sezione~\ref{ssub:dataset_medio2}. Le query tabellari non compaiono qui: il loro risultato è mostrato in una tabella a lato e non sulla nuvola di punti.}
+  \caption{Le modalità di visualizzazione dei risultati nel visualizzatore 3DOnt, tutte sulla nuvola del tempio di Nettuno descritta nella sezione~\ref{ssub:dataset_medio2}. Le query tabellari non compaiono qui: il loro risultato è mostrato in una tabella a lato e non sulla nuvola di punti.}
   \label{fig:viewer}
 \end{figure}
 
 \subsection{Implementazione}
 
-La sfida principale nell'implementazione di 3Dont è sicuramente il raggiungimento di prestazioni compatibili con l'interattività
+La sfida principale nell'implementazione di 3DOnt è sicuramente il raggiungimento di prestazioni compatibili con l'interattività
 di un'interfaccia grafica e di un applicativo destinato a un'utenza inesperta. 
 Il software deve integrare un triple store, con cui sarà possibili importare e interagire con diversi datasets (indicati come 
 diversi "progetti"). Qualunque interazione con l'interfaccia, ad esclusione dei cambiamenti di visuale, comporta un'interazione

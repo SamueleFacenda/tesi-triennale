@@ -4,9 +4,9 @@
 I risultati delle esecuzioni si mostrano chiari e confortanti, motori come QLever e RDFox riescono ad avere
 prestazioni elevate anche su questi carichi di lavoro, non è quindi preclusa la possibilità che Big Data di diverso tipo
 vengano rappresentati attraverso RDF e poi analizzati su calcolatori non professionali, che siano quindi alla portata di tutti.
-\par Va di certo fatto presente come questo non sia interalmente possibile né semplice al giorno d'oggi. La costruzione
-del visualizzatore per il framework 3Dont ha richiesto molta ricerca in ambito di triple store, parametri di configurazione
-e tecnologie di integrazione. Motori come QLever mettono a disposizione delle interfaccie native sotto forma di libreria,
+\par Va di certo fatto presente come questo non sia interamente possibile né semplice al giorno d'oggi. La costruzione
+del visualizzatore per il framework 3DOnt ha richiesto molta ricerca in ambito di triple store, parametri di configurazione
+e tecnologie di integrazione. Motori come QLever mettono a disposizione delle interfacce native sotto forma di libreria,
 ma nonostante questo non hanno ancora raggiunto livelli di usabilità ottimali, basti pensare che ad esempio anche nella sua 
 forma integrata la libreria di QLever restituisce dalle query SPARQL soltanto dati serializzati, che vanno quindi deserializzati comunque. 
 L'interfaccia HTTP di SPARQL rimane quindi molto pratica per la prototipazione ma limitante per il raggiungimento di
@@ -14,7 +14,7 @@ livelli di esperienza utente desiderabili, e richiede l'esecuzione del triple st
 in molti casi, soprattutto con soluzioni commerciali, è disponibile solo attraverso un container OCI, un ulteriore strato
 di complessità e latenza che non rende di certo invitante l'integrazione.
 \par Un'altra nota d'obbligo va fatta a proposito delle prestazioni in confronto alle rappresentazioni native per un certo tipo di dato.
-Basandosi sull'esempio di 3Dont, è logico supporre che le prestazioni ottenute analizzando un dataset usando RDF e SPARQL siano di
+Basandosi sull'esempio di 3DOnt, è logico supporre che le prestazioni ottenute analizzando un dataset usando RDF e SPARQL siano di
 diversi ordini di grandezze peggiori rispetto a quelle che verrebbero ottenute utilizzando un software ad-hoc oppure un database relazionale; 
 ciò non toglie che siano potenzialmente comunque accettabili, soprattutto se consideriamo i vantaggi e la flessibilità dati da questa
 soluzione, che rende eseguibili operazioni tecnicamente impossibili senza di essa.
@@ -45,11 +45,11 @@ Attualmente infatti lo standard de-facto usato dai modelli IA agentici per inter
 framework Model Context Protocol (MCP)~\cite{mcp-spec}. Questo framework permette di definire un connettore tra un software esterno e un modello
 IA agentico, ogni software diverso richiede la scrittura di un proprio componente. Usando un solo componente per interfacciarsi
 con un grafo RDF o con un endpoint SPARQL sarebbe quindi possibile andare ad interagire con un vasto numero di formati di dato
-differenti. Un agente IA è perfettamente in grado di comprendere un'ontologia autonomamente e l'espressività e idiomacità
+differenti. Un agente IA è perfettamente in grado di comprendere un'ontologia autonomamente e l'espressività e idiomaticità
 del framework RDF si sposa sorprendentemente bene con le capacità dei moderni LLM, come mostra la traduzione da linguaggio
-naturale a SPARQL già sperimentata in 3Dont~\cite{codiglione2025nl2sparql}.
+naturale a SPARQL già sperimentata in 3DOnt~\cite{codiglione2025nl2sparql}.
 \par Per condurre una reale valutazione delle potenzialità di questo metodo sarebbe necessario istruire un agente in 
 modo minimo sull'ontologia che verrà utilizzata per poi richiederne l'analisi e l'esecuzione di un dato compito, per poi
 confrontare i risultati con uno stesso agente IA che però è andato ad usare un'interfaccia MCP diretta per i dati analizzati.
-Se i risultati fossero soddisfacienti si aprirebbero le porte all'automatizzazione delle operazioni su un gran numero
+Se i risultati fossero soddisfacenti si aprirebbero le porte all'automatizzazione delle operazioni su un gran numero
 di dati disparati.
