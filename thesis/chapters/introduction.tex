@@ -1,6 +1,27 @@
 \chapter{Introduzione}
 \label{cha:introduction}
 
+Il presente lavoro ha origine dalle difficoltà riscontrate nello sviluppo del visualizzatore 3dont \ref{subsec:visualizer},
+che ha richiesto un'attenta ricerca tra il vasto numero di triple store esistenti per far fronte a un carico di lavoro
+non comune, approfondito successivamente.
+Questa tipologia di interazioni con il triple store può essere più generalmente descritta come un'analisi di Big Data e in questa tesi
+si troverà un'evoluzione strutturata della ricerca sommaria inizialmente condotta, andando a plasmare un 
+benchmark riproducibile attorno al carico di lavoro richiesto ed analizzando le prestazioni di otto triple store 
+nella sua esecuzione.
+Questi risultati permettono dunque di discutere dei vantaggi dell'utilizzo di un grafo di conoscenza come metodo di
+rappresentazione di Big Data, metodo le cui prestazioni sono storicamente lo svantaggio maggiore, ma può presentare
+delle potenzialità considerevoli rispetto ai formati di rappresentazione nativi.
+
+\par Si noti che si è parlato di Big Data nonostante il volume di dati analizzato sia nell'ordine delle decine di milioni
+di unità (triple), elevato ma assolutamente ordinario. Ciò potrebbe sembrare andar contro alla definizione intuitiva di Big
+Data, ma in realtà per le caratteristiche qui analizzate questa formulazione è più che lecita. Prendiamo ad esempio la
+popolare definizione delle tre V(TODO cite) (Volume, Velocità e Varietà), la terza è sicuramente una caratteristica dei
+dati qui trattati: considerando il caso di 3Dont \ref{sec:3dont} trattiamo contemporaneamente informazioni geospaziali sotto
+forma di nuvola di punti, informazioni sui materiali e la loro lavorazione, sulla struttura e topologia di un edificio, 
+informazioni sensoristiche variabili nel tempo e non solo. 
+Il fatto che i Big Data non siano definiti soltanto dal loro volume è consolidato nella comunità scientifica (TODO cite Kitchin, R. (2013), "Big data and human geography", Dialogues in Human Geography, 3(3), pp. 262–267),
+anche se l'aggettivo "Big" non contribuisce certo a renderlo intuitivo.
+
 \par
 RDF (Resource Description Framework)~\cite{w3c-rdf11} è la specifica definita da W3C per la rappresentazione di ontologie e grafi
 di conoscenze nell'ambito del web semantico, oggi in corso di revisione verso la versione 1.2~\cite{w3c-rdf12}. È uno standard essenziale con il potenziale per essere esteso,
@@ -207,6 +228,7 @@ senza bisogno di iterare sull'interezza dei punti.
 \end{figure}
 
 \subsection{Visualizzatore}
+\label{subsec:visualizer}
 
 Il framework mette disposizione, oltre allo strumento di creazione dei grafi popolati dai punti, un visualizzatore per questi grafi.
 Caricando l'ontologia popolata in uno dei vari formati disponibili per rdf (turtle, n-triples, rdf-xml etc.) permette di creare
