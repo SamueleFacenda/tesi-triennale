@@ -17,7 +17,7 @@ Behaviour worth knowing about before trusting a number, and the measurements beh
 - **Virtuoso truncates a single response at 2^20 = 1048576 rows** — with HTTP 200 and no
   warning, so a truncated answer is indistinguishable from a complete one. Its queries are
   therefore fetched in `OFFSET`/`LIMIT` pages of 1M rows (`VirtuosoEngine.chunk_rows`,
-  same fix as the 3dont viewer) and the pages are summed into one measurement, so its
+  same fix as the 3DOnt viewer) and the pages are summed into one measurement, so its
   timings for large results include the paging round-trips. The per-query timeout is the
   budget for the whole paged result, not per page.
 - **Virtuoso's tuning lives in `virtuoso.ini`, which the image writes only once** — on

@@ -8,7 +8,7 @@ an HTTP SPARQL endpoint, so the client-side path — send, execute, receive, par
 identical and comparable across engines that are otherwise a native binary, a container, or
 an in-process library.
 
-It is the benchmarking companion to the [3DOnt](../3dont) viewer: the query set and the
+It is the benchmarking companion to the [3DOnt](https://3dom.fbk.eu/projects/3DOnt) viewer: the query set and the
 per-dataset ontology namespaces come from there. The results are written up in
 [`thesis/`](thesis/).
 
@@ -54,7 +54,7 @@ of non-disclosable datasets) go in a gitignored `.env`, loaded automatically by 
 
 ## The data
 
-Datasets are point clouds published as RDF by [3DOnt](../3dont) — one graph per site,
+Datasets are point clouds published as RDF by [3DOnt](https://3dom.fbk.eu/projects/3DOnt) — one graph per site,
 11M to 157M triples, queried the way the viewer queries them.
 
 <table>
@@ -103,6 +103,6 @@ bench/
   thesis_tables.py  generated LaTeX (figure floats + appendix tables)
   tui.py          rich progress + plain fallback
 docs/             the pages linked above
-nix/              custom derivations (qendpoint, qlever-control) copied from 3dont
+nix/              custom derivations (qendpoint, qlever-control) copied from 3DOnt
 thesis/           the LaTeX thesis; `generated/` and `images/plots/` come from a run
 ```
