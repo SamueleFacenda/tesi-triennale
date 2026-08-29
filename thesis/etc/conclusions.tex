@@ -13,8 +13,13 @@ L'interfaccia HTTP di SPARQL rimane quindi molto pratica per la prototipazione m
 livelli di esperienza utente desiderabili, e richiede l'esecuzione del triple store in un processo dedicato. Processo che
 in molti casi, soprattutto con soluzioni commerciali, è disponibile solo attraverso un container OCI, un ulteriore strato
 di complessità e latenza che non rende di certo invitante l'integrazione.
-\par Fanno ben sperare però i progressi e l'indirizzamento dello sviluppo di molti motori degli ultimi anni. I progetti più recenti
-analizzati sono Oxigraph, QEndpoint e QLever, che insieme mostrano un interesse a raggiungere buone prestazioni in query di tipo
+\par Un'altra nota d'obbligo va fatta a proposito delle prestazioni in confronto alle rappresentazioni native per un certo tipo di dato.
+Basandosi sull'esempio di 3Dont, è logico supporre che le prestazioni ottenute analizzando un dataset usando RDF e SPARQL siano di
+diversi ordini di grandezze peggiori rispetto a quelle che verrebbero ottenute utilizzando un software ad-hoc oppure un database relazionale; 
+ciò non toglie che siano potenzialmente comunque accettabili, soprattutto se consideriamo i vantaggi e la flessibilità dati da questa
+soluzione, che rende eseguibili operazioni tecnicamente impossibili senza di essa.
+\par Fanno ben sperare però i progressi e l'indirizzamento dello sviluppo di molti motori degli ultimi anni. Tra i progetti più recenti
+analizzati ci sono QEndpoint e QLever, che insieme mostrano un interesse a raggiungere buone prestazioni in query di tipo
 OLAP e con grandi scansioni dei dati, oltre che alla facilità di integrazione come librerie preconfezionate.
 
 \section{Sviluppi Futuri}

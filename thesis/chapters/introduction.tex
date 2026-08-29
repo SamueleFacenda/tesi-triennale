@@ -46,14 +46,14 @@ con le rappresentazioni native solitamente utilizzate per i loro domini, focaliz
 Inoltre, con questo approccio, si può andare a sfruttare la potenza dei sistemi di ragionamento sui modelli utilizzati,
 andando a definire regole per espandere la conoscenza nelle nostre rappresentazioni e potenzialmente anche ottenere un guadagno
 dal punto di vista della memoria di massa utilizzata, se il motore che stiamo andando ad utilizzare supporta il ragionamento ``virtuale''
-a tempo di interrogazione (come nel caso di graphdb~\cite{bishop2011owlim} o owlready2~\cite{lamy2017owlready}, analizzati nel capitolo~\ref{cha:benchmark}).
+a tempo di interrogazione (come nel caso di graphdb~\cite{bishop2011owlim} o owlready2~\cite{lamy2017owlready}, approfonditi nel capitolo~\ref{cha:benchmark}).
 Per finire, si renderebbe possibile l'accesso e l'analisi dei dati così organizzati attraverso le query SPARQL, le quali garantiscono
 espressività e una capacità di interrogazione avanzata. Calcoli e analisi complesse che richiederebbero l'implementazione di algoritmi
 ad-hoc possono essere completati con una sola query SPARQL, aumentando l'accessibilità e la facilità di fruizione dei dati.
 \par
 In questa tesi si andrà quindi ad analizzare la fattibilità tecnica dell'utilizzo di RDF per la rappresentazione di dati 
 di dominio specifico, con una particolare focalizzazione sull'ambito dei big data, che se rappresentati come 
-grafi di conoscenza superano le decine di milioni di nodi.
+grafi di conoscenza superano le decine di milioni di triple.
 Queste grandi quantità di dati pongono appunto un problema all'ecosistema utilizzato. Se il problema della rappresentazione è per
 così dire ``risolto'' dalla grande espressività ed estensibilità by-design di RDF, quello delle prestazioni è di altra natura.
 Se vogliamo utilizzare RDF come modello di persistenza per big data in modo generale dobbiamo fare i conti con dei pattern di accesso
@@ -223,7 +223,7 @@ senza bisogno di iterare sull'interezza dei punti.
 \begin{figure}[htb]
   \centering
   \input{images/tikz/punto_rdf.tex}
-  \caption{Le triple che descrivono un singolo punto: una per coordinata, una per canale di colore e una per ogni oggetto che il punto costituisce, da cui si risale alla classe dell'oggetto. Il costo in triple per punto è quello che porta la nuvola più piccola qui analizzata da $1.065.725$ punti a $11.725.772$ triple (sezione~\ref{ssub:dataset_piccolo}); l'estensione dell'ontologia consiste nell'aggiungere archi a questo grafo, senza toccare quelli esistenti.}
+  \caption{Le triple che descrivono un singolo punto: una per coordinata, una per canale di colore e una per ogni oggetto che il punto costituisce, da cui si risale alla classe dell'oggetto. Il costo in triple per punto è quello che porta la nuvola più piccola qui analizzata da $1.065.725$ punti a $11.725.772$ triple (sezione~\ref{ssub:dataset_piccolo}); l'estensione dell'ontologia consiste nell'aggiungere triple a questo grafo, senza toccare quelli esistenti.}
   \label{fig:punto_rdf}
 \end{figure}
 
