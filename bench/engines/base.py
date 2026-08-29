@@ -255,11 +255,11 @@ class AbstractEngine(ABC):
 
         ``_terminate`` waits for the process *we* spawned, but a launcher that does not
         ``exec`` its server (``qendpoint.sh``) is killed by the SIGTERM long before the JVM
-        it started has finished its shutdown hook — and that JVM is still listening. So
-        ``stop()`` used to return while the endpoint was still answering, and the next
-        dataset would health-check against a server about to disappear. Give the graceful
-        shutdown ``grace_s``, then SIGKILL what is left of the process groups (guarded by
-        the port still being open, so a recycled pgid is never signalled).
+        it started has finished its shutdown hook — and that JVM is still listening. Without
+        this wait ``stop()`` returns while the endpoint still answers, and the next dataset
+        health-checks against a server about to disappear. Give the graceful shutdown
+        ``grace_s``, then SIGKILL what is left of the process groups (guarded by the port
+        still being open, so a recycled pgid is never signalled).
         """
         if not pgids:
             return  # nothing of ours to outlive us (qLever detaches its own server)
@@ -308,14 +308,6 @@ class AbstractEngine(ABC):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(1)
             return s.connect_ex(("127.0.0.1", self.port)) == 0
-
-    def _wait_port(self, deadline_s: float = 120.0) -> None:
-        end = time.perf_counter() + deadline_s
-        while time.perf_counter() < end:
-            if self._port_open():
-                return
-            time.sleep(0.3)
-        raise EngineError(f"{self.name}: port {self.port} not open within {deadline_s}s")
 
     def _wait_port_free(self, deadline_s: float = 30.0) -> bool:
         end = time.perf_counter() + deadline_s

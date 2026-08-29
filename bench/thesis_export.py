@@ -16,6 +16,8 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import datasets as datasets_mod
+from . import queries as queries_mod
 from .config import BenchConfig
 from .datasets import canonical
 from .report import load_rows, summarize
@@ -67,14 +69,6 @@ ENGINE_LABEL = {
     "stardog": "Stardog",
     "virtuoso": "Virtuoso",
 }
-
-# Queries to gate at presentation time, rendered as `n.d.` on the datasets they are not in.
-# Needed for a query that runs everywhere but returns an empty result on some ontology,
-# whose timing would otherwise be compared against a real one.
-# Empty: the two taxonomy queries used to sit here, but their empty results on Heritage and
-# Urban came from a hardcoded root class name, not from a missing hierarchy — the root is
-# parameterised per dataset in datasets.py now. Query.applies_to gates at the runner level.
-APPLICABLE_ONLY: dict[str, set[str]] = {}
 
 # Cell states.
 OK = "ok"
@@ -198,8 +192,14 @@ class ResultSet:
         return dataset in self.config.exclude.get(engine, [])
 
     def applicable(self, query: str, dataset: str) -> bool:
-        allowed = APPLICABLE_ONLY.get(query)
-        return allowed is None or dataset in allowed
+        """Whether this pair was ever meant to run, asked of the same ``Query.applies_to``
+        the runner gates on — so a cell the runner deliberately skipped reads as `n.d.`
+        and not as `n.e.`. A name the registry no longer knows counts as applicable: the
+        run did consider it."""
+        try:
+            return queries_mod.get(query).applies_to(datasets_mod.get(dataset))
+        except KeyError:
+            return True
 
     def cell(self, engine: str, dataset: str, query: str) -> Cell:
         return self._cells[(engine, dataset, query)]
@@ -216,9 +216,6 @@ class ResultSet:
 
     def datasets_for(self, query: str) -> list[str]:
         return [d for d in self.datasets if self.applicable(query, d)]
-
-    def queries_for(self, dataset: str) -> list[str]:
-        return [q for q in self.queries if self.applicable(q, dataset)]
 
     def has_data(self, engine: str) -> bool:
         return any(self.cell(engine, d, q).plottable

@@ -2,10 +2,10 @@
 
 Layout of a run directory (``<output_dir>/<run_name>/``)::
 
-    config.toml                     frozen config snapshot
+    config.json                     frozen config snapshot
     bench.db                        this database (results + progress)
     storage/<engine>/<dataset>/     each engine's persisted DB for a dataset
-    <engine>.log                    server / loader logs
+    storage/<engine>/<engine>.log   server / loader logs
 
 Every write commits immediately, so the process is safe to Ctrl-C and resume: the runner
 skips any (engine, dataset, query, rep) that already has a successful measured row, and
@@ -63,17 +63,6 @@ class BenchStore:
         self.db = sqlite3.connect(self.run_dir / "bench.db")
         self.db.row_factory = sqlite3.Row
         self.db.executescript(_SCHEMA)
-        # migrate older DBs that predate the format column
-        cols = {r[1] for r in self.db.execute("PRAGMA table_info(load_result)")}
-        if "format" not in cols:
-            self.db.execute("ALTER TABLE load_result ADD COLUMN format TEXT")
-        # migrate DBs written before timeouts had their own status. Match 'Read timed out'
-        # specifically: a *connect* timeout means the server never came up, which is a
-        # retryable startup problem and must not become terminal.
-        self.db.execute(
-            "UPDATE measurement SET status='timeout' "
-            "WHERE status='error' AND error LIKE '%Read timed out%'"
-        )
         self.db.commit()
 
     # ------------------------------------------------------------------ storage dirs

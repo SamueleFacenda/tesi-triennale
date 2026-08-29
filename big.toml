@@ -1,9 +1,8 @@
-# Example benchmark configuration.
+# The thesis run: ten engines over the four full graphs. Days of wall clock, hundreds of
+# GB of engine stores. It is resumable, so Ctrl-C and `kbench resume --run-dir runs/big`.
 #
-# Run with:  kbench run --config bench.toml
-# List available engines / queries / datasets:  kbench list-engines | list-queries
-#
-# Start small (native engines, a small dataset) and opt into the big files explicitly.
+# Run with:  kbench run --config big.toml
+# Full reference: docs/configuration.md
 
 run_name = "big"
 repetitions = 8    # measured runs per (engine, dataset, query)
@@ -12,20 +11,17 @@ timeout_s = 600    # per-query timeout
 output_dir = "runs"
 
 # Memory budget per engine (one engine runs at a time, so each may claim it all).
-# Default: 75% of system RAM. Override explicitly with memory_gb.
+# Fraction of system RAM; the harness reserves ~25% on top for native/off-heap use.
+# Defaults to 0.5 when unset. Override with an absolute memory_gb instead.
 mem_fraction = 0.75
 # memory_gb = 32
 
-# Native, self-hostable engines (build first / cheapest to run).
-# Docker engines available too: "virtuoso", "graphdb", "rdfox", "stardog"
+# The ten engines of the thesis run, native and docker alike. stardog is absent: no licence.
 engines = ["oxigraph", "fuseki", "qendpoint", "qlever", "virtuoso", "graphdb", "rdfox", "rdflib", "rdflib-bdb", "owlready2"]
 
-
-# Datasets to load — one logical graph each; every engine auto-picks a serialization it
-# supports (see `kbench list-datasets`). Big files are opt-in; the mini_* samples give a
-# fast, real-shaped complete test.
-# datasets = ["mini_heritage", "mini_urban"]
-datasets = ["ytu3d", "torre_modena", "nettuno", "grande"]   # the big ones
+# The four full graphs, smallest first. One logical graph each, every engine auto-picks a
+# serialization it supports. Referenced by path from ~/downloads/ontos, never copied here.
+datasets = ["ytu3d", "torre_modena", "nettuno", "grande"]
 
 # Query names, or the literal "all".
 queries = "all"

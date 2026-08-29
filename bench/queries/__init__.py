@@ -6,9 +6,9 @@ so templates deliberately carry no ``FROM`` clause — this keeps a single query
 valid across every engine.
 
 Add a query by decorating a module-level ``Query`` with :func:`register` in
-``builtin.py`` (or at runtime). ``applies_to`` lets a query opt out of datasets whose
-ontology lacks the predicates it needs (e.g. the LDBC-SPB query only runs on an SPB
-dataset).
+``builtin.py`` (or at runtime). ``applies_to`` lets a query opt out of datasets that lack
+what it needs (e.g. ``select_points_in_object`` only runs where the dataset pins the object
+to ask about).
 
 ``engine_templates`` holds a per-engine variant of the template, for the rare engine that
 answers the portable text *wrongly*. It is a last resort — a variant means that engine is no

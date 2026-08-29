@@ -1,6 +1,7 @@
 # Engines
 
-The engines the harness can drive, how each is packaged, and how to add one.
+The eleven engines the harness can drive, how each is packaged, and how to add one. Ten of
+them are in the thesis run; the eleventh, stardog, needs a licence.
 
 | Engine    | Packaging            | Notes |
 |-----------|----------------------|-------|
@@ -12,7 +13,8 @@ The engines the harness can drive, how each is packaged, and how to add one.
 | graphdb   | docker (Free)        | no license needed |
 | rdfox     | docker + license     | set `$RDFOX_LICENSE` |
 | stardog   | docker + license     | set `$STARDOG_LICENSE` |
-| rdflib    | native (embedded)    | in-process lib wrapped in a tiny HTTP server; parsed graph persisted as N-Triples |
+| rdflib    | native (embedded)    | in-process lib wrapped in a tiny HTTP server; parsed graph persisted as N-Triples, re-parsed into memory at every start |
+| rdflib-bdb | native (embedded)   | same lib on its BerkeleyDB store: bounded memory and instant startup, slower per query; needs the cursor patch in `nix/py/` |
 | owlready2 | native (embedded)    | in-process lib wrapped in HTTP; SQLite "world" persistence; reads RDF/XML & N-Triples (not Turtle); needs real OWL data — its SPARQL is a subset and errors on some queries |
 
 Docker engines are launched through the system `docker`/`podman`; they report themselves

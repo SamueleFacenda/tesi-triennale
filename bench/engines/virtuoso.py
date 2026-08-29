@@ -7,9 +7,9 @@ single response at 2^20 rows, so queries are paged (``chunk_rows``).
 
 Its tuning is an ini file, not env vars: the image turns ``VIRT_Parameters_*`` into
 ``/database/virtuoso.ini`` only when it *generates* that file, which happens once, on the
-first boot into an empty db dir. A resumed run therefore serves with the ini written by
-its first load and silently ignores every setting added since — hence
-:meth:`VirtuosoEngine._patch_ini`, which rewrites the keys in place before each start.
+first boot into an empty db dir. Env alone would therefore leave a resumed run serving with
+the ini its very first load wrote — hence :meth:`VirtuosoEngine._patch_ini`, which rewrites
+the keys in place before each start.
 """
 
 from __future__ import annotations
@@ -26,15 +26,16 @@ from .registry import register_engine
 _PASSWORD = "benchdba"
 
 # Virtuoso's endpoint silently truncates one response at 2^20 = 1048576 rows (HTTP 200,
-# no warning), so every result above that was simply cut off. Fetch it in pages instead,
-# with the round number just below the cap that the 3dont viewer already uses.
+# no warning), so anything larger has to be fetched in pages. The page size is the round
+# number just below that cap, the one the 3DOnt viewer already uses.
 _CHUNK_ROWS = 1_000_000
 
 # Virtuoso refuses ORDER BY combined with LIMIT/OFFSET when offset+limit exceeds
 # MaxSortedTopRows ("Sorted TOP clause specifies more then N rows to sort", default
-# 10000), which the paging above trips on any ordered query — the LIMIT value alone is
-# checked, so `taxonomical_hierarchy` failed on it with a two-dozen-row answer. Raise the
-# ceiling well past the largest result the benchmark asks for: a guard, not an allocation.
+# 10000), which the paging above trips on any ordered query: the LIMIT *value* is what is
+# checked, not the number of rows that come back, so even a two-dozen-row answer hits it.
+# Raise the ceiling well past the largest result the benchmark asks for: a guard, not an
+# allocation.
 _MAX_SORTED_TOP_ROWS = 100_000_000
 
 

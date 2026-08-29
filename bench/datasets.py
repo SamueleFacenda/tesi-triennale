@@ -76,7 +76,7 @@ class Dataset:
         return min(os.path.getsize(p) for p in have.values())
 
 
-# Base ontology namespaces (confirmed by inspecting the files and the 3dont projects).
+# Base ontology namespaces (confirmed by inspecting the files and the 3DOnt projects).
 _HERITAGE = "http://www.semanticweb.org/matteocodiglione/ontologies/2024/9/Heritage_Ontology#"
 _URBAN = "http://www.semanticweb.org/mcodi/ontologies/2024/3/Urban_Ontology#"
 _CORE = "http://3DOntCore#"

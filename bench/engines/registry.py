@@ -1,4 +1,4 @@
-"""Engine registry — mirrors 3dont's ``StorageFactory.register`` decorator pattern."""
+"""Engine registry — mirrors 3DOnt's ``StorageFactory.register`` decorator pattern."""
 
 from __future__ import annotations
 

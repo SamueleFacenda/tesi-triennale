@@ -27,7 +27,7 @@
           };
         };
 
-        # Custom derivations copied from the sibling 3dont project.
+        # Custom derivations copied from the sibling 3DOnt project.
         requests-sse = pkgs.python3.pkgs.callPackage ./nix/py/requests-sse.nix { };
         qlever-control = pkgs.python3.pkgs.callPackage ./nix/py/qlever-control.nix {
           inherit requests-sse;
@@ -87,14 +87,13 @@
             pkgs.docker-client   # talk to a system / rootless docker daemon
             pkgs.curl
             tex                  # latexmk + curated TeX Live for the thesis
-            cspell-it            # spellcheck + Italian dict (replaces the template's npm cspell)
+            cspell-it            # spellcheck for the thesis, with the Italian dictionary
           ];
 
-          # qEndpoint (Spring Boot) tuning, mirrors 3dont's dev shell.
+          # qEndpoint (Spring Boot) tuning, mirrors 3DOnt's dev shell.
           JAVA_OPTIONS = "-Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration -Dspring.devtools.restart.enabled=false";
 
           shellHook = ''
-            export BENCH_DEV=1
             echo "bench dev shell: python + oxigraph/jena/fuseki/qendpoint/qlever + docker-client + latexmk/cspell"
           '';
         };

@@ -82,8 +82,8 @@ def _has_trailing_modifier(sparql: str) -> bool:
 
     A solution modifier can only follow the query's last ``}``, so looking there is both
     sufficient and immune to a LIMIT nested in a subselect. Such a query cannot be paged —
-    a second LIMIT is a syntax error — so it is sent as-is (``_SPB_Q2``, whose LIMIT 50 is
-    part of the query).
+    appending a second LIMIT is a syntax error — so it is sent in one request whatever
+    ``chunk_rows`` says.
     """
     tail = sparql[sparql.rfind("}") + 1:]
     return _TRAILING_MODIFIER.search(tail) is not None
@@ -124,7 +124,7 @@ class SparqlHttpClient:
         """Fetch the result one page at a time, stopping at the first short page.
 
         Virtuoso's endpoint truncates a single response at 2^20 rows and still answers
-        200, so a large result has to be paged (same fix as the 3dont viewer). The pages
+        200, so a large result has to be paged (same fix as the 3DOnt viewer). The pages
         are summed into one :class:`QueryResult`: that total is what a client actually
         pays to obtain the whole result, round-trips included. ``timeout`` is spent down
         across pages rather than granted per page, so a paged engine gets exactly the

@@ -1,9 +1,8 @@
-# Example benchmark configuration.
+# Every engine that runs without a licence, still on the mini_* samples: a complete
+# rehearsal of the big run in minutes.
 #
-# Run with:  kbench run --config bench.toml
-# List available engines / queries / datasets:  kbench list-engines | list-queries
-#
-# Start small (native engines, a small dataset) and opt into the big files explicitly.
+# Run with:  kbench run --config small.toml
+# Full reference: docs/configuration.md
 
 run_name = "small"
 repetitions = 10   # measured runs per (engine, dataset, query)
@@ -12,19 +11,19 @@ timeout_s = 600    # per-query timeout
 output_dir = "runs"
 
 # Memory budget per engine (one engine runs at a time, so each may claim it all).
-# Default: 75% of system RAM. Override explicitly with memory_gb.
+# Fraction of system RAM; the harness reserves ~25% on top for native/off-heap use.
+# Defaults to 0.5 when unset. Override with an absolute memory_gb instead.
 mem_fraction = 0.75
 # memory_gb = 32
 
-# Native, self-hostable engines (build first / cheapest to run).
-# Docker engines available too: "virtuoso", "graphdb", "rdfox", "stardog"
+# The thesis run's engines, without rdflib-bdb. rdfox needs $RDFOX_LICENSE and reports
+# itself unavailable without it; an engine whose prerequisites are missing is skipped
+# cleanly instead of failing the run.
 engines = ["oxigraph", "fuseki", "qendpoint", "qlever", "virtuoso", "graphdb", "rdfox", "rdflib", "owlready2"]
 
-# Datasets to load — one logical graph each; every engine auto-picks a serialization it
-# supports (see `kbench list-datasets`). Big files are opt-in; the mini_* samples give a
-# fast, real-shaped complete test.
+# The mini_* samples: a head of the big graphs, same shape, seconds instead of days.
+# Every engine auto-picks a serialization it supports (see `kbench list-datasets`).
 datasets = ["mini_heritage", "mini_urban"]
-# datasets = ["torre_modena", "ytu3d", "nettuno"]   # the big ones
 
 # Query names, or the literal "all".
 queries = "all"

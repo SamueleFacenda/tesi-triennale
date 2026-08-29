@@ -1,6 +1,6 @@
 """Built-in benchmark queries.
 
-Ported from ``threedont/app/queries.py`` (the 3dont viewer) plus the extra queries
+Ported from ``threedont/app/queries.py`` (the 3DOnt viewer) plus the extra queries
 requested for the thesis. Every template uses the ``base:`` prefix bound to the
 dataset's ontology namespace and reads from the default graph (no ``FROM``).
 
@@ -68,8 +68,8 @@ WHERE {{
 
 # 3. select: all point ids belonging to one specific object, named outright. The object is
 # pinned per dataset (`points_object`, see bench/datasets.py) rather than chosen in-query:
-# ordering IRIs is implementation-defined, so each engine picked a different one and the
-# query stopped comparing like with like (see docs/notes.md).
+# ordering IRIs is implementation-defined, so an in-query choice lets each engine measure a
+# different object (see docs/notes.md).
 register(Query(
     name="select_points_in_object",
     kind="select",
@@ -199,8 +199,8 @@ ORDER BY ?c ?depth ?sup
 ))
 
 # 8. average height of the points: a flat aggregate over the whole cloud, one row out.
-# Deliberately on base:Z and not on the object Z-extent. That predicate holds ~100 values per
-# graph, so averaging it timed the HTTP round trip rather than the engine, and its name is not
+# Deliberately on base:Z and not on the object Z-extent: that predicate holds ~100 values per
+# graph, too few to time the engine rather than the HTTP round trip, and its name is not
 # portable (Has_Z_Lenght on Heritage/Urban, Z_Length on 3DOntCore). base:Z is spelled the same
 # in all three ontologies and carries one value per point.
 register(Query(
@@ -215,41 +215,3 @@ WHERE {{
 """),
 ))
 
-
-# 9. LDBC Semantic Publishing Benchmark — advanced query 2.
-# Targets the SPB / BBC creative-work ontology, NOT the 3D ontologies, so it only runs
-# on a dataset whose namespace is SPB-shaped. Included for extensibility; skipped on the
-# 3dont datasets. Register an SPB dataset (namespace containing "creativework"/"bbc")
-# to activate it.
-_SPB_Q2 = """
-PREFIX cwork: <http://www.bbc.co.uk/ontologies/creativework/>
-PREFIX bbc:   <http://www.bbc.co.uk/ontologies/bbc/>
-PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
-
-SELECT ?creativeWork ?title ?dateModified ?about ?mentions
-WHERE {{
-    ?creativeWork a cwork:CreativeWork ;
-                  cwork:title ?title ;
-                  cwork:dateModified ?dateModified ;
-                  cwork:about ?about .
-    OPTIONAL {{ ?creativeWork cwork:mentions ?mentions . }}
-    ?creativeWork cwork:liveCoverage "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
-}}
-ORDER BY DESC(?dateModified)
-LIMIT 50
-"""
-
-
-def _is_spb(ds) -> bool:
-    ns = ds.namespace.lower()
-    return "creativework" in ns or "bbc.co.uk" in ns or "spb" in ns
-
-
-register(Query(
-    name="ldbc_spb_q2",
-    kind="select",
-    description="LDBC Semantic Publishing Benchmark advanced query 2 (SPB datasets only).",
-    template=_SPB_Q2,
-    applies_to=_is_spb,
-))

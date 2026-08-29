@@ -21,39 +21,39 @@ Behaviour worth knowing about before trusting a number, and the measurements beh
   timings for large results include the paging round-trips. The per-query timeout is the
   budget for the whole paged result, not per page.
 - **Virtuoso's tuning lives in `virtuoso.ini`, which the image writes only once** — on
-  the first boot into an empty `database/` dir, from the `VIRT_Parameters_*` env. A resumed
-  run therefore served with the ini from its first load and silently ignored every setting
-  added since: that is why `MaxSortedTopRows` never applied and the paged
-  `taxonomical_hierarchy` failed with `SR353` (the `LIMIT` *value* is checked against it,
-  not the result size, so even a 55-row answer fails at `LIMIT 1000000`).
-  `VirtuosoEngine._patch_ini` now rewrites those keys in place before every start, from a
-  throwaway root container.
+  the first boot into an empty `database/` dir, from the `VIRT_Parameters_*` env. Passing
+  the env alone would leave a resumed run serving with the ini its first load wrote,
+  silently ignoring every setting added since, so `VirtuosoEngine._patch_ini` rewrites
+  those keys in place before every start, from a throwaway root container. One of them has
+  to be there for the paged queries to work at all: `MaxSortedTopRows` is checked against
+  the `LIMIT` *value*, not against the number of rows that come back, so an ordered query
+  fails with `SR353` at `LIMIT 1000000` even when its answer is 55 rows.
 - **A server can outlive `stop()`.** A launcher that does not `exec` its server
   (`qendpoint.sh`) is killed by the SIGTERM while the JVM it started is still running its
   shutdown hook — and still listening. On qEndpoint's fixed port 1234 the next dataset's
-  health probe was then answered by that dying server, after which every query of that
-  dataset failed with `connection refused`. `stop()` now returns only once the port is
+  health probe is then answered by that dying server, and every query of that dataset
+  fails with `connection refused` once it goes. So `stop()` returns only when the port is
   actually free (SIGKILLing the leftover process group after a grace period), and `start()`
-  refuses a fixed port held by someone else rather than measuring their server.
+  refuses a fixed port held by someone else instead of measuring their server.
 - **qLever's result cache is switched off** (`--cache-max-size 1B
   --cache-max-size-single-entry 1B` on `qlever start`). It is the only engine here that
   memoizes whole query results, and the runner sends the identical text for the warmups and
-  every repetition, so the warmups paid for the computation and each measured rep was a
-  lookup: server-side **0-1 ms against 13-65 ms cold** for `avg_height`, which is why it read
-  0.043 s on ytu3d and on grande alike, 15x the data. `--cache-max-num-entries 0` does
-  *not* do it (QLever still keeps one entry, measured); a one-byte ceiling does. Its
-  `--timeout` is also pinned to the harness budget, since qlever-control otherwise defaults
-  the server to 30 s and an over-budget query would return an error rather than a timeout.
+  every repetition, so with the cache on the warmups pay for the computation and every
+  measured rep is a lookup: server-side **0-1 ms against 13-65 ms cold** for `avg_height`,
+  flat across datasets 15x apart in size. `--cache-max-num-entries 0` does *not* switch it
+  off (QLever still keeps one entry, measured); a one-byte ceiling does. Its `--timeout` is
+  also pinned to the harness budget, since qlever-control otherwise defaults the server to
+  30 s and an over-budget query would return an error rather than a timeout.
 - **`select_points_in_object` names its object outright** (`points_object` per dataset in
-  `bench/datasets.py`). Choosing it in-query with `ORDER BY ?obj LIMIT 1` ordered IRIs, which
-  is implementation-defined, so each engine measured a *different* object: on grande qLever
-  returned 9,686,001 rows where the other engines returned 130. Each pinned IRI is the
-  smallest in codepoint order, which is what 8 of the 10 engines had picked, so the row
-  counts are unchanged. A dataset with no object pinned skips the query (`applies_to`).
+  `bench/datasets.py`). Choosing it in-query with `ORDER BY ?obj LIMIT 1` would order IRIs,
+  which is implementation-defined, so each engine measures a *different* object: on grande
+  qLever returns 9,686,001 rows where the other engines return 130. Each pinned IRI is the
+  smallest in codepoint order, which is what 8 of the 10 engines pick on their own. A
+  dataset with no object pinned skips the query (`applies_to`).
 - **Disk usage excludes hardlinked files** (`dir_size`): qLever hardlinks the source dataset
-  into its store as `input.nt`, which claims no blocks, so counting it reported the dataset
-  instead of the index (nettuno: 13.47 GB recorded, 0.47 GB of index). A real copy such as
-  rdflib's `graph.nt` has one link and still counts.
+  into its store as `input.nt`, which claims no blocks, so counting it would measure the
+  dataset instead of the index (nettuno: 13.47 GB against 0.47 GB of actual index). A real
+  copy such as rdflib's `graph.nt` has one link and still counts.
 - **Docker engines write root-owned files**; `--fresh` and re-load remove them via a
   throwaway `busybox` container. Docker RSS is read from `docker stats`.
 - **Loader output is logged** to `runs/<run>/storage/<engine>/<engine>.log` (native

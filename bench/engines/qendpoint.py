@@ -10,7 +10,7 @@ from .base import AbstractEngine, EngineError, LoadResult
 from .registry import register_engine
 
 
-# Spring Boot flags qEndpoint needs (mirrors 3dont's dev shell); kept alongside -Xmx.
+# Spring Boot flags qEndpoint needs (mirrors 3DOnt's dev shell); kept alongside -Xmx.
 _SPRING = ("-Dspring.autoconfigure.exclude="
            "org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration "
            "-Dspring.devtools.restart.enabled=false")
@@ -22,7 +22,7 @@ class QendpointEngine(AbstractEngine):
     fixed_port = 1234  # qEndpoint's Spring server hardcodes this port
 
     def _hdt_options(self) -> str:
-        # HDT build tuning (from 3dont): all six permutations for fast queries, on-disk
+        # HDT build tuning (from 3DOnt): all six permutations for fast queries, on-disk
         # cat-tree loader for datasets larger than RAM, parallel compression.
         workers = self.tuning.load_workers
         return ";".join([

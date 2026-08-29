@@ -2,11 +2,12 @@
 
 **A resumable benchmark harness for RDF knowledge stores.**
 
-kbench runs the same SPARQL queries across ten triple stores and four datasets over a
-uniform HTTP interface, and writes machine-readable results. Every engine is normalised to
-an HTTP SPARQL endpoint, so the client-side path — send, execute, receive, parse — is
-identical and comparable across engines that are otherwise a native binary, a container, or
-an in-process library.
+kbench runs the same SPARQL queries across eleven triple stores and four datasets over a
+uniform HTTP interface, and writes machine-readable results. Ten of the eleven are in the
+thesis run; the eleventh, stardog, needs a licence. Every engine is normalised to an HTTP
+SPARQL endpoint, so the client-side path (send, execute, receive, parse) is identical and
+comparable across engines that are otherwise a native binary, a container, or an in-process
+library.
 
 It is the benchmarking companion to the [3DOnt](https://3dom.fbk.eu/projects/3DOnt) viewer: the query set and the
 per-dataset ontology namespaces come from there. The results are written up in
@@ -97,6 +98,7 @@ bench/
   metrics.py      timing, RSS sampler, disk usage
   store.py        SQLite persistence (resumable)
   runner.py       sequential orchestration
+  tuning.py       one memory budget per engine, derived from system RAM
   report.py       CSV / JSON / parquet export
   thesis_export.py  full result grid (missing cells explained) for the thesis
   thesis_charts.py  matplotlib PNG charts
