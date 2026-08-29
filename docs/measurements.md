@@ -16,6 +16,12 @@ Every engine is normalised to an **HTTP SPARQL endpoint**, so the client-side qu
 Runs are strictly **sequential** (one engine up, one query at a time) so each query gets
 the machine's full resources with no cross-query interference.
 
+![Bulk load time per engine and dataset](../thesis/images/plots/load_time.png)
+
+*Load time, one of the four metrics: bulk-ingest wall clock per engine and dataset, log
+axis. `n.e.` marks a pair that was never run — the two RDFLib variants are excluded on the
+largest dataset, one because its load is OOM-killed, the other for the store size.*
+
 ## Result format
 
 The SPARQL **result serialization** strongly affects latency, so each engine is queried
