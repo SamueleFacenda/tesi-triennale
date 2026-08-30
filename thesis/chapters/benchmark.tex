@@ -315,9 +315,9 @@ di paginazione e swapping. La figura~\ref{fig:pipeline} riassume il percorso com
   \caption{Come viene misurata una coppia motore/dataset. I motori disponibili come container OCI e quelli usati come libreria, avviati in un sottoprocesso che li espone via HTTP, convergono sullo stesso endpoint locale: il punto di misura è quindi lo stesso per tutti. Il ciclo in basso viene ripetuto per ogni query.}
   \label{fig:pipeline}
 \end{figure}
-\par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione 7.1.4 basato sulla
-build di NixOS unstable al commit e2587caef70cea85dd97d7daab492899902dbf5d (il sistema è stato compilato senza ottimizzazioni
-per il processore specifico ma con una configurazione generica per linux x86-64). Il software eseguito invece è ottenibile in
+\par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione \texttt{7.1.4} basato sulla
+build di NixOS unstable al commit \texttt{dbeacf1b40207b74fede8a8f97a7d6bcf8beee67} (il sistema è stato compilato senza ottimizzazioni
+per il processore specifico ma con una configurazione generica per \texttt{linux x86-64}). Il software eseguito invece è ottenibile in
 modo completamente riproducibile attraverso il gestore di pacchetti nix~\cite{dolstra2010nixos} dalla repository
 \url{https://github.com/SamueleFacenda/tesi-triennale}, di seguito verranno comunque riportate le versioni dei singoli motori
 utilizzate~\ref{sec:engines}
