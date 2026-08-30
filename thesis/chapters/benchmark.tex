@@ -439,7 +439,7 @@ La versione utilizzata è la \texttt{7.2} con risultati in formato TSV.
 \section{Risultati}
 \label{sec:results}
 
-Di seguito sono riportate le figure che riassumono le misurazioni; le tabelle complete, con tutti i valori
+Di seguito sono riportati i grafici che riassumono le misurazioni; le tabelle complete, con tutti i valori
 aggregati per ogni combinazione di motore, dataset e query, si trovano nell'appendice~\ref{cha:attachment}.
 
 % Figure generate da `kbench thesis --run-dir runs/big`. Tabelle complete nell'appendice.
@@ -489,4 +489,9 @@ che il risultato è incompleto. Le query rivolte a Virtuoso vengono quindi esegu
 \texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3DOnt; i tempi delle pagine vengono sommati
 in un'unica misurazione. I risultati di Virtuoso sulle query che producono molte righe includono perciò il costo delle richieste
 aggiuntive, che è quanto un client deve effettivamente pagare per ottenere il risultato completo.
+\item Sempre Virtuoso interpreta in modo differente dallo standard SPARQL l'operatore Property Path \texttt{path*} (zero o più 
+ripetizioni dell'elemento), usato nelle query di segmentazione e gerarchia tassonomica. Dove possibile è stata eseguita una 
+query che usa operatori SPARQL alternativi per ottenere lo stesso risultato, con uguali risultati nel dataset 
+piccolo~\ref{ssub:dataset_piccolo}, ma che non sempre in tutti i datasets si è rivelata efficace. Le prestazioni di Virtuoso
+su queste query sono quindi da considerare solo dopo aver valutato la correttezza dei suoi risultati, disponibili nell'appendice~\ref{cha:attachment}.
 \end{itemize}
