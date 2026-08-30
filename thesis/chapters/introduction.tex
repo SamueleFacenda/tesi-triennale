@@ -9,12 +9,12 @@ si troverà un'evoluzione strutturata della ricerca sommaria inizialmente condot
 benchmark riproducibile attorno al carico di lavoro richiesto ed analizzando le prestazioni di nove triple store 
 nella sua esecuzione.
 Questi risultati permettono dunque di discutere dei vantaggi dell'utilizzo di un grafo di conoscenza come metodo di
-rappresentazione di Big Data, metodo le cui prestazioni sono storicamente lo svantaggio maggiore, ma può presentare
+rappresentazione di Big Data, metodo le cui prestazioni sono storicamente lo svantaggio maggiore, ma che può presentare
 delle potenzialità considerevoli rispetto ai formati di rappresentazione nativi.
 
 \par Si noti che si è parlato di Big Data nonostante il volume di dati analizzato sia nell'ordine delle decine di milioni
 di unità (triple), elevato ma assolutamente ordinario. Ciò potrebbe sembrare andar contro alla definizione intuitiva di Big
-Data, ma in realtà per le caratteristiche qui analizzate questa formulazione è più che lecita. Prendiamo ad esempio la
+Data, ma in realtà, per le caratteristiche qui analizzate, questa formulazione è più che lecita. Prendiamo ad esempio la
 popolare definizione delle tre V~\cite{laney2001threev} (Volume, Velocità e Varietà), la terza è sicuramente una caratteristica dei
 dati qui trattati: considerando il caso di 3DOnt \ref{sec:3dont} trattiamo contemporaneamente informazioni geospaziali sotto
 forma di nuvola di punti, informazioni sui materiali e la loro lavorazione, sulla struttura e topologia di un edificio, 
@@ -22,12 +22,12 @@ informazioni sensoristiche variabili nel tempo e non solo.
 Il fatto che i Big Data non siano definiti soltanto dal loro volume è consolidato nella comunità scientifica~\cite{kitchin2013bigdata},
 anche se l'aggettivo "Big" non contribuisce certo a renderlo intuitivo.
 
-\par
-RDF (Resource Description Framework)~\cite{w3c-rdf11} è la specifica definita da W3C per la rappresentazione di ontologie e grafi
+\par Per comprendere il problema analizzato partiamo da  RDF (Resource Description Framework)~\cite{w3c-rdf11},
+la specifica definita da W3C per la rappresentazione di ontologie e grafi
 di conoscenze nell'ambito del web semantico, oggi in corso di revisione verso la versione 1.2~\cite{w3c-rdf12}. 
 È uno standard essenziale con il potenziale per essere esteso, come ad esempio succede con OWL (Web Ontology Language)~\cite{w3c-owl2}, 
 un potente linguaggio utilizzato per definire ontologie. Di base RDF è stato creato per la condivisione di risorse web, 
-ognuna identificata da un IRI univoco, ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
+ognuna identificata da un IRI univoco, e ha dato il via alla creazione di un esteso ecosistema di applicativi e librerie
 software per l'interrogazione e la manipolazione di grafi RDF. Nella pratica, molti DBMS sono stati integrati o creati con
 il supporto per interrogazioni SPARQL (SPARQL Protocol and RDF Query Language)~\cite{w3c-sparql11}, il protocollo e linguaggio standardizzato
 sempre da W3C per interrogare basi di conoscenza nel web semantico.
@@ -35,7 +35,7 @@ sempre da W3C per interrogare basi di conoscenza nel web semantico.
 Anche se il semantic web non ha raggiunto l'adozione e l'impatto sperato al momento della creazione di questi
 standard~\cite{bernerslee2001semantic},
 rimane comunque alla base di uno dei più vasti e avanzati sistemi per la manipolazione di basi di conoscenza. Inoltre,
-grazie alla sua estensibilità by-design esso permette facilmente di valicare i domini della rete per essere utilizzato
+grazie alla sua estensibilità by-design, esso permette facilmente di valicare i domini della rete per essere utilizzato
 in ambienti fondamentalmente diversi rispetto all'originale idea del semantic web.
 Tramite la creazione di ontologie specifiche per dei dati domini è possibile rappresentare qualsiasi tipo di dato
 tramite modelli RDF, mantenendo la stessa espressività del formato di partenza e quindi la completezza.
@@ -43,7 +43,7 @@ I vantaggi con questo approccio sono molteplici, in primis si andrebbe a creare 
 dominio preso in analisi, permettendo a chiunque abbia accesso all'ontologia di espandere le possibilità di rappresentazione
 del modello senza compromettere l'interoperabilità con altri sistemi non aggiornati. Questo non è invece possibile quasi mai
 con le rappresentazioni native solitamente utilizzate per i loro domini, focalizzate più sulle prestazioni che sull'estensibilità
-(si veda il capitolo relativo a 3DOnt).
+(si veda il capitolo relativo a 3DOnt~\ref{sec:3dont}).
 Inoltre, con questo approccio, si può andare a sfruttare la potenza dei sistemi di ragionamento sui modelli utilizzati,
 andando a definire regole per espandere la conoscenza nelle nostre rappresentazioni e potenzialmente anche ottenere un guadagno
 dal punto di vista della memoria di massa utilizzata, se il motore che stiamo andando ad utilizzare supporta il ragionamento ``virtuale''
@@ -54,8 +54,8 @@ ad-hoc possono essere completati con una sola query SPARQL, aumentando l'accessi
 \par
 In questa tesi si andrà quindi ad analizzare la fattibilità tecnica dell'utilizzo di RDF per la rappresentazione di dati 
 di dominio specifico, con una particolare focalizzazione sull'ambito dei Big Data, che se rappresentati come 
-grafi di conoscenza superano le decine di milioni di triple.
-Queste grandi quantità di dati pongono appunto un problema all'ecosistema utilizzato. Se il problema della rappresentazione è per
+grafi di conoscenza possono superare le decine di milioni di triple.
+Queste grandi quantità di dati pongono appunto una sfida all'ecosistema utilizzato. Se il problema della rappresentazione è per
 così dire ``risolto'' dalla grande espressività ed estensibilità by-design di RDF, quello delle prestazioni è di altra natura.
 Se vogliamo utilizzare RDF come modello di persistenza per Big Data in modo generale dobbiamo fare i conti con dei pattern di accesso
 fondamentalmente diversi da quelli tipici del semantic web. Si andrà spesso ad analizzare l'interezza del modello oppure
@@ -70,7 +70,7 @@ ad analizzare le prestazioni di un certo numero di motori di query SPARQL nell'e
 con lo scopo di valutarne la predisposizione all'utilizzo con Big Data di dominio diverso dal web semantico.
 Nello specifico si andranno ad impiegare datasets e query utilizzate dal framework 3DOnt~\cite{codiglione2024urban,codiglione2024heritage},
 approfondito nel capitolo dedicato,
-all'interno di vari motori la cui prerogativa principale è che siano eseguibili localmente. Questo è importante soprattutto per
+all'interno di vari motori la cui prerogativa principale è che siano eseguibili localmente. Questo è essenziale soprattutto per
 poter confrontare le prestazioni dei vari motori nello stesso ambiente, ma anche perché se si volessero poi utilizzare come base
 per l'accesso ai modelli RDF è importante che possano essere integrati all'interno degli applicativi che li utilizzerebbero.
 
@@ -115,17 +115,17 @@ e in questi casi raggiungono anche delle prestazioni ottime.
 
 \par Questi progetti rendono l'idea di come sia possibile effettivamente usare RDF per un approccio più aperto alla condivisione
 dei dati, ma non si pongono il problema delle prestazione. La quantità di dati utilizzata raramente riesce
-a raggiungere il milione di triple quando convertita in RDF pertanto non pone nessun particolare problema alla maggior parte
+a raggiungere il milione di triple quando convertita in RDF pertanto non pone nessuna particolare sfida alla maggior parte
 dei motori SPARQL più popolari. Ma per questo esistono diversi benchmark, analizzati nella prossima sezione.
 
 \subsection{Benchmark esistenti}
 
 Esiste un gran numero di insiemi di datasets e query che possiamo usare per misurare le prestazioni dei vari
 triple store qui considerati, ma nessuno sembrerebbe rispecchiare in modo preciso e complete il carico di lavoro che si andrebbe 
-ad incontrare se si utilizzasse RDF come formato generico di rappresentazione. Se pensiamo agli accessi che normalmente vengono
-fatti su un file, la maggior parte sono letture di grandi porzioni dello stesso. Questo cambierebbe forse avendo a supporto
-le query SPARQL ma dall'esperienza di 3DOnt il grande collo di bottiglia sono appunto le dimensioni degli enormi risultati e 
-il poco vantaggio dato dall'indicizzazione classica nelle grandi scansioni. 
+ad incontrare se si utilizzasse RDF come formato generico di rappresentazione ed analisi di Big Data. Se pensiamo agli accessi 
+che normalmente vengono fatti su un file, la maggior parte sono letture di grandi porzioni dello stesso. 
+Questo cambierebbe forse avendo a supporto le query SPARQL ma dall'esperienza di 3DOnt il grande collo di bottiglia sono appunto 
+le dimensioni degli enormi risultati e il poco vantaggio dato dall'indicizzazione classica nelle grandi scansioni. 
 
 \par Il confronto tra triple store passa di solito per un piccolo insieme di benchmark sintetici: LUBM~\cite{guo2005lubm},
 il Berlin SPARQL Benchmark~\cite{bizer2009bsbm}, SP\textsuperscript{2}Bench~\cite{schmidt2009sp2bench} e
@@ -145,10 +145,10 @@ altri benchmark, si vanno a rendere chiare le differenze di scopo nelle implemen
 \par LDBC Semantic Publishing Benchmark~\cite{kotsev2016spb} invece si mostra interessante su due delle query definite. La quarta infatti permette
 di limitare le dimensioni del risultato, scegliendo un valore di limite sufficientemente elevato si possono analizzare appunto
 le prestazioni dei triple store in più scansioni complete dei dati. Stesso discorso per la seconda query nella categoria avanzata,
-simile a quella appena citata ma non ha nessun limite nella dimensione dei risultati.
+simile a quella appena citata ma senza nessun limite nella dimensione dei risultati.
 Il benchmark in realtà è molto più complesso di così e andrebbe a simulare il lavoro su una base dati condivisa con operazioni di
 modifica e aggregazione concorrenti. Il nostro caso d'uso invece richiede soltanto un accesso sequenziale da parte di un solo utente,
-per cui le tecnologie implementate per aumentare il parallelismo dei triple store non forniscono alcun guadagno.
+per cui le tecnologie implementate per aumentare il parallelismo dei triple store non forniscono alcun vantaggio.
 \par Va citato inoltre Smart City RDF Benchmark~\cite{bellini2018smartcity}, che usa dati geospaziali proveniente dai sensori
 della città di Firenze, che però
 richiede complesse capacità di indicizzazione del testo e accede solo a ridotte porzioni temporali per ogni query, trattandosi
@@ -208,7 +208,7 @@ di interagire con i dati e supportare il proprio lavoro in autonomia.
 
 Come spiegato nell'introduzione, uno dei vantaggi principali di RDF rispetto ai corrispondenti formati nativi è l'estensibilità.
 3DOnt specifica un'ontologia base con un vasto numero di elementi già definiti per i vari ambiti a cui si rivolge (classificazione
-delle superfici erbose e della massa verde, componenti architettonici, arredo urbano etc.) ma non mira ad essere completa, un utente
+delle superfici erbose e della massa verde, componenti architettonici, arredo urbano etc.) ma non mira ad essere completa: un utente
 potrebbe senza sforzo aggiungere nuove classi, ad esempio nuovi materiali con nuove caratteristiche, senza compromettere l'integrazione
 con la strumentazione esistente.
 \par Un secondo vantaggio lo troviamo nell'espressività che di base il framework riesce a dare. Se partiamo da formati come LAS che
@@ -232,7 +232,7 @@ senza bisogno di iterare sull'interezza dei punti.
 \label{subsec:visualizer}
 
 Il framework mette disposizione, oltre allo strumento di creazione dei grafi popolati dai punti, un visualizzatore per questi grafi.
-Caricando l'ontologia popolata in uno dei vari formati disponibili per rdf (turtle, n-triples, rdf-xml etc.) permette di creare
+Caricando l'ontologia popolata in uno dei vari formati disponibili per rdf (turtle, n-triples, rdf-xml etc.), permette di creare
 un progetto persistente con un'interfaccia diretta alla nuvola di punti, che può essere esplorata astraendo sopra alle nozioni di
 grafo e SPARQL, interagendo con i punti usando mouse, tastiera e interrogazioni in linguaggio naturale. 
 \par Il visualizzatore permette di visualizzare fondamentalmente quattro categorie diverse di risultati alle interrogazioni:

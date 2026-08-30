@@ -4,7 +4,7 @@
 Come precedentemente accennato, per poter concretamente valutare la possibilità di usare RDF come formato di supporto per
 l'immagazzinamento e l'interrogazione di Big Data è necessario fare una valutazione dello stato delle prestazione delle
 attuali soluzioni software. In questo capitolo verranno esposti i dati utilizzati nella valutazione, le interrogazioni (query)
-che verranno eseguite sui dati e i software presi in considerazione.
+che verranno eseguite sui dati e i software analizzati.
 \par
 Le seguenti metriche sono state prese in considerazione:
 
@@ -13,15 +13,15 @@ Le seguenti metriche sono state prese in considerazione:
 \item \textbf{Spazio utilizzato}: spazio utilizzato dal motore per persistere il grafo su disco.
 \item \textbf{Tempo di esecuzione delle query}: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
 viene inviata alla fine della ricezione del risultato.
-\item \textbf{Memoria utilizzata}: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi del motore a intervalli
-regolari (ogni 0.05 secondi).
+\item \textbf{Picco di memoria utilizzata}: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi 
+del motore a intervalli regolari (ogni 0.05 secondi).
 \end{itemize}
 
 \section{Dati e query}
 \label{sec:data_query}
 
-Sono state scelte quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, e con densità di punti diverse,
-mentre le query sono otto , tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3DOnt, ponendo particolare
+Sono state scelte quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, con densità di punti diverse,
+mentre le query sono otto, tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3DOnt, ponendo particolare
 attenzione all'avere rappresentate diverse dimensioni di risultato e all'essere omogenee tra le diverse ontologie.
 
 \subsection{Dati}
@@ -89,8 +89,7 @@ Numero di triple: $47.239.850$
 
 Questo dataset è l'ultimo preso in considerazione ed è considerevolmente più grande dei precedenti. Si tratta sempre di
 un sito archeologico, di cui maggiori dettagli non possono essere rivelati, acquisito con un'elevata densità di punti
-e con l'iterazione più recente dell'ontologia 3DOnt. Per questo alcune delle query proposte saranno eseguibili soltanto
-su questo dataset.
+e con l'iterazione più recente dell'ontologia 3DOnt.
 
 \noindent Numero di punti: $9.813.921$\\
 Numero di triple: $156.937.172$
@@ -229,7 +228,7 @@ Questa query, una delle più complesse utilizzate nel normale funzionamento del 
 l'intero albero tassonomico dell'ontologia popolata (figura~\ref{fig:tassonomia}). Ritorna una tabella con in ogni riga una classe tassonomica,
 il suo genitore e la sua profondità nell'albero, di modo che un semplice algoritmo possa ricostruire la struttura
 data la sua serializzazione in lista.
-Il numero di righe del risultato difficilmente supera il centinaio, rendendo la query piuttosto efficiente.
+Il numero di righe del risultato difficilmente supera il centinaio, rendendo la sua trasmissione piuttosto efficiente.
 
 \begin{lstlisting}[language=SPARQL]
 SELECT ?c ?sup (COUNT(DISTINCT ?sup2) AS ?depth)
@@ -281,7 +280,7 @@ L'ambiente di esecuzione è stato mantenuto il più possibile uguale durante le 
 
 \subsection{Hardware}
 
-Il calcolatore utilizzato disponeva di un processore intel di 13° generazione con 14 cores totali, 20 threads virtuali. Di questi,
+Il calcolatore utilizzato disponeva di un processore Intel Core di 13° generazione con 14 cores totali, 20 threads virtuali. Di questi,
 6 cores sono capaci di raggiungere una frequenza di clock di 5.4 GHz e 8 una frequenza di 4.1 GHz. È da notare come questa sia la 
 frequenza di picco del turbo, per cui viene raramente mantenuta per più di qualche secondo durante l'esecuzione delle query 
 (che invece possono durare diversi minuti).
@@ -304,7 +303,7 @@ del processo. Per ovviare a questa distinzione è stato aggiunta un'interfaccia 
 attraverso HTTP che introduce una serializzazione e comunicazione con un server HTTP locale avviato appositamente, oltre alla misurazione
 della latenza base di ogni motore tramite una semplice query vuota, che viene poi sottratta al risultato finale.
 \par Ad ogni modo, è difficile poter avere risultati affidabili e riproducibili soltanto con queste accortezze, i motori sono scatole
-chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione di routine anche durante le nostre richieste. Per ridurre
+chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione di routine anche durante le nostre richieste. Per quindi ridurre
 al minimo la varianza ogni query viene eseguita otto volte e viene poi scelto il tempo mediano come rappresentativo.
 Inoltre, per evitare la latenza data dalla lettura su disco iniziale del dataset, prima delle query che vengono effettivamente
 misurate ne vengono eseguite altre due identiche per caricare i file nella RAM cache diminuendo la casualità data dagli algoritmi 
@@ -320,10 +319,10 @@ di paginazione e swapping. La figura~\ref{fig:pipeline} riassume il percorso com
 build di NixOS unstable al commit e2587caef70cea85dd97d7daab492899902dbf5d (il sistema è stato compilato senza ottimizzazioni
 per il processore specifico ma con una configurazione generica per linux x86-64). Il software eseguito invece è ottenibile in
 modo completamente riproducibile attraverso il gestore di pacchetti nix~\cite{dolstra2010nixos} dalla repository
-\url{https://github.com/SamueleFacenda/tesi-triennale}, di seguito verranno riportate le versioni dei singoli motori
+\url{https://github.com/SamueleFacenda/tesi-triennale}, di seguito verranno comunque riportate le versioni dei singoli motori
 utilizzate~\ref{sec:engines}
 \par Infine, è stato predisposto un limite al tempo di esecuzione delle singole query, pari a 10 minuti, in primis perché un risultato
-di questo tipo non sarebbe interessante ai fini dell'analisi qui condotta, ma soprattutto per ridurre il tempo di esecuzione totale
+maggiore non sarebbe interessante ai fini dell'analisi qui condotta, ma soprattutto per ridurre il tempo di esecuzione totale
 del benchmark (già intorno alle 40 ore), che verrebbe monopolizzato da un numero ridotto di query poco performanti
 su pochi motori.
 
@@ -366,7 +365,7 @@ persistenza basato su SQLite con supporto per query SPARQL. È un motore essenzi
 citati, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comparabili a
 prodotti molto più avanzati, soprattutto se usato come interfaccia diretta, visto che si va a ridurre la latenza
 data dal protocollo SPARQL su HTTP.
-La versione utilizzata è la '0.47', con risultati in formato TSV.
+La versione utilizzata è la \texttt{0.47}, con risultati in formato TSV.
 
 \subsection{Oxigraph}
 
@@ -390,7 +389,7 @@ QEndpoint~\cite{willerval2024qendpoint} è un triple store con supporto GeoSPARQ
 d'altronde) basato sul formato file HDT (Header, Dictionary, Triples)~\cite{fernandez2013hdt,martinezprieto2012hdt}. 
 Questo si pone come alternativa efficiente ai più comuni RDF-XML e Turtle, integrando un indice direttamente al suo interno e rendendone
 l'accesso molto veloce. QEndpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
-di un nuovo indice da capo), attraverso un buffer di modifica che viene integrato periodicamente nel file sottostante.
+di un nuovo indice da capo), attraverso un buffer di scrittura che viene integrato periodicamente nel file sottostante.
 Questo permetterebbe di accedere molto velocemente a larghe porzioni del datasets, fattore per noi essenziale, grazie alla compressione
 data dall'indicizzazione e alla struttura interna di HDT. 
 La versione utilizzata è la \texttt{2.5.2}, con risultati in formato TSV.
