@@ -46,16 +46,35 @@
 % Code blocks
 \usepackage{listings}
 
+% Versione di stampa: la build la attiva creando etc/printlayout.tex
+% (nix build .#thesis-print). Assente => versione per la lettura a schermo.
+\newif\ifprintlayout
+\IfFileExists{etc/printlayout.tex}{\printlayouttrue}{}
+
+\ifprintlayout
+  % Logo in bianco e nero, adatto alla stampa.
+  \newcommand{\unitnlogo}{images/logo/marchio_unitrento_bw.jpg}
+  % La \cleardoublepage di book lascia la facciata bianca allo stile corrente
+  % (plain), che vi stampa comunque il numero di pagina: la si ridefinisce
+  % perche' la facciata sia davvero vuota.
+  \renewcommand{\cleardoublepage}{%
+    \clearpage
+    \ifodd\value{page}\else\null\thispagestyle{empty}\newpage\fi}
+\else
+  \newcommand{\unitnlogo}{images/logo/marchio_unitrento.pdf}
+  % Nessuna facciata bianca nella versione a schermo: \cleardoublepage si
+  % comporta come \clearpage ovunque, compreso quello interno a \mainmatter.
+  \let\cleardoublepage\clearpage
+\fi
+
 % Document
 \begin{document}
   % Copertina (nessuna numerazione)
   \pagenumbering{gobble}
   \input{etc/cover}
-  \clearpage
-  % Facciata bianca dopo la copertina (twoside+openany non ne inserisce una da solo).
-  \thispagestyle{empty}
-  \null
-  \clearpage
+  % Nella versione di stampa lascia bianco il retro della copertina, cosi' i
+  % ringraziamenti si aprono su pagina dispari; a schermo e' un semplice \clearpage.
+  \cleardoublepage
 
   % Ringraziamenti (opzionale, escluso dal conteggio delle facciate)
   \input{etc/acknowledgements}
@@ -67,7 +86,8 @@
 
   % Indice
   \tableofcontents
-  \clearpage
+  % Facciata bianca in stampa: il corpo del testo inizia su pagina dispari.
+  \cleardoublepage
 
   % Gruppo: successione dei capitoli senza interruzione di pagina.
   % Nota DISI: il numero massimo di facciate (indice + sommario + capitoli) e' 30.

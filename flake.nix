@@ -48,8 +48,11 @@
             babel-italian;
         };
 
-        # The thesis PDF, built reproducibly with latexmk.
+        # The thesis PDF, built reproducibly with latexmk. Two variants: `thesis`
+        # per la lettura a schermo (logo a colori, nessuna facciata bianca) e
+        # `thesis-print` per la stampa fronte/retro (logo b/n, facciate bianche).
         thesis = pkgs.callPackage ./nix/thesis.nix { inherit tex; };
+        thesis-print = pkgs.callPackage ./nix/thesis.nix { inherit tex; printLayout = true; };
 
         # cspell + Italian dictionary (nixpkgs cspell bundles en/latex but not it-it).
         cspell-it = pkgs.callPackage ./nix/cspell-it.nix { };
@@ -80,7 +83,7 @@
         ];
       in
       {
-        packages = { inherit qendpoint qlever-control requests-sse thesis; };
+        packages = { inherit qendpoint qlever-control requests-sse thesis thesis-print; };
 
         devShells.default = pkgs.mkShell {
           packages = [ pythonEnv ] ++ nativeEngines ++ [

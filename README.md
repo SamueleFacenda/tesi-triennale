@@ -46,7 +46,12 @@ Build the thesis PDF:
 
 ```bash
 nix build .#thesis               # -> result/facenda_thesis.pdf
+nix build .#thesis-print         # -> result/facenda_thesis_print.pdf
 ```
+
+The first is the reading copy: colour logo, no filler pages. The second is the one to hand
+to a print shop: black-and-white logo, and blank versos so ringraziamenti, indice and body
+each open on a right-hand page when printed double-sided.
 
 Some engines need credentials or licence files, and some datasets are large local files
 that are never copied into the repo — see [docs/engines.md](docs/engines.md) and

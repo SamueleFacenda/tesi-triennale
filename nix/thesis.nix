@@ -1,7 +1,7 @@
-{ stdenvNoCC, lib, tex }:
+{ stdenvNoCC, lib, tex, printLayout ? false }:
 
 stdenvNoCC.mkDerivation {
-  pname = "thesis";
+  pname = "thesis" + lib.optionalString printLayout "-print";
   version = "0.1.0";
 
   src = lib.cleanSource ../thesis;
@@ -9,6 +9,10 @@ stdenvNoCC.mkDerivation {
   nativeBuildInputs = [ tex ];
 
   env.TZ = "Europe/Rome"; # mirror latexmkrc
+
+  # Marker letto da \IfFileExists in main.tex: logo in bianco e nero e facciate
+  # bianche perche' ringraziamenti, indice e corpo si aprano su pagina dispari.
+  postPatch = lib.optionalString printLayout "touch etc/printlayout.tex";
 
   buildPhase = ''
     runHook preBuild
@@ -21,7 +25,7 @@ stdenvNoCC.mkDerivation {
 
   installPhase = ''
     runHook preInstall
-    install -Dm644 build/main.pdf $out/facenda_thesis.pdf
+    install -Dm644 build/main.pdf $out/facenda_thesis${lib.optionalString printLayout "_print"}.pdf
     runHook postInstall
   '';
 }
