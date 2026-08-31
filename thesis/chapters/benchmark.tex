@@ -2,7 +2,7 @@
 \label{cha:benchmark}
 
 Come precedentemente accennato, per poter concretamente valutare la possibilità di usare RDF come formato di supporto per
-l'immagazzinamento e l'interrogazione di Big Data è necessario fare una valutazione dello stato delle prestazione delle
+l'immagazzinamento e l'interrogazione di Big Data è necessario fare una valutazione dello stato delle prestazioni delle
 attuali soluzioni software. In questo capitolo verranno esposti i dati utilizzati nella valutazione, le interrogazioni (query)
 che verranno eseguite sui dati e i software analizzati.
 \par
@@ -13,22 +13,22 @@ Le seguenti metriche sono state prese in considerazione:
 \item \textbf{Spazio utilizzato}: spazio utilizzato dal motore per persistere il grafo su disco.
 \item \textbf{Tempo di esecuzione delle query}: quanto tempo viene impiegato dal motore per processare la query, dal momento in cui
 viene inviata alla fine della ricezione del risultato.
-\item \textbf{Picco di memoria utilizzata}: viene fatto un sampling del RSS (Resident Set Size) su tutto l'albero dei processi 
-del motore a intervalli regolari (ogni 0.05 secondi).
+\item \textbf{Picco di memoria utilizzata}: viene campionato il RSS (Resident Set Size) su tutto l'albero dei processi 
+del motore a intervalli regolari (ogni 0,05 secondi).
 \end{itemize}
 
 \section{Dati e query}
 \label{sec:data_query}
 
-Sono state scelte quattro ontologie popolate di varie dimensione e ambito, sia urbano che beni culturali, con densità di punti diverse,
-mentre le query sono otto, tutte scelte tra quelle che vengono eseguite nelle normali operazioni con 3DOnt, ponendo particolare
-attenzione all'avere rappresentate diverse dimensioni di risultato e all'essere omogenee tra le diverse ontologie.
+Sono state scelte quattro ontologie popolate di varie dimensioni e ambito, sia urbano che beni culturali, con densità di punti diverse,
+mentre le query sono otto, tutte prese tra quelle che vengono eseguite nelle normali operazioni con 3DOnt e scelte in modo da
+rappresentare dimensioni di risultato diverse e da restare omogenee tra le diverse ontologie.
 
 \subsection{Dati}
 
-A causa della proprietà dei dati di non tutti i dataset è permesso rivelare dettagli, laddove possibile viene presentata una
+Per motivi di proprietà dei dati non per tutti i dataset è permesso rivelare dettagli: laddove possibile viene presentata una
 breve descrizione e un'immagine rappresentativa, per tutti è presentato il numero preciso di punti e triple presenti.
-Questi due valori da soli sarebbero rappresentativi del dataset, in quanto le query non vanno ad analizzare dettagli ulteriori
+Questi due valori sono di per sé rappresentativi del dataset, in quanto le query non analizzano dettagli ulteriori
 né particolari costruzioni, a parte dove indicato.
 
 \begin{figure}[htb]
@@ -61,7 +61,7 @@ né particolari costruzioni, a parte dove indicato.
 \label{ssub:dataset_piccolo}
 
 Questa nuvola rappresenta una porzione del dataset ytu3d~\cite{bayrak2023ytu3d}, un'acquisizione 
-dell'ambiente urbano del Davutpasa Campus dell'Yildiz Technical University (YTU), Turchia.
+dell'ambiente urbano del Davutpasa Campus della Yildiz Technical University (YTU), Turchia.
 La nuvola è completamente segmentata con 45 classi diverse, garantendo una totale copertura dei punti (figura~\ref{fig:dataset_ytu3d}).
 
 \noindent Numero di punti: $1.065.725$\\
@@ -97,7 +97,7 @@ Numero di triple: $156.937.172$
 \subsection{Query}
 
 Al fine di valutare le prestazioni dei vari motori sono state individuate otto interrogazioni da eseguire su ognuno
-dei dataset. Segue una breve sezione con la query vera e proprio, parametrizzata con gli attributi specifici di ogni
+dei dataset. Segue una breve sezione con la query vera e propria, parametrizzata con gli attributi specifici di ogni
 database (indicati con la notazione \texttt{\{attributo\}}), e una descrizione del suo utilizzo all'interno del framework 3DOnt.
 I seguenti prefissi sono utilizzati in ogni query: 
 \begin{lstlisting}[language=SPARQL]
@@ -111,8 +111,8 @@ PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
 Questa query viene eseguita quando un progetto viene aperto, richiedendo per ogni punto le sue coordinate e il suo colore al
 fine di visualizzarlo.
 Alcuni dataset possono essere creati soltanto da acquisizioni LiDAR, ne consegue che non è assicurato che tutti i punti
-abbiano un colore definito (viene applicato il colore bianco come valore di default).
-È la query con cui la maggior parte dei motori faticano di più, a causa soprattutto delle grandi dimensioni del suo risultato,
+abbiano un colore definito (viene applicato il colore nero come valore di default).
+È la query con cui la maggior parte dei motori fatica di più, a causa soprattutto delle grandi dimensioni del suo risultato,
 avente una riga per ogni punto e ben sette colonne.
 
 \begin{lstlisting}[language=SPARQL]
@@ -154,8 +154,8 @@ WHERE {
 Questa query di tipo selezione permette di evidenziare tutti i punti appartenenti a un certo oggetto.
 L'oggetto viene fissato per ogni dataset, scegliendo il primo in ordine di IRI: quest'ordine non è definito
 dallo standard, quindi lasciare la scelta al motore farebbe misurare a ognuno un oggetto diverso. La query
-resta possibilmente sbilanciata tra i vari dataset.
-Query come questa possono essere eseguite dall'interfaccia di esplorazione del grafo ad albero
+resta quindi potenzialmente sbilanciata tra i vari dataset.
+Query come questa possono essere eseguite dall'interfaccia di esplorazione del grafo ad albero.
 
 \begin{lstlisting}[language=SPARQL]
 SELECT ?p
@@ -168,7 +168,7 @@ WHERE {
 
 Questa è la prima query di tipo segmentazione che viene eseguita e per ogni punto ritorna uno o più identificatori
 di oggetti a cui appartiene. È poi necessario applicare un algoritmo per scegliere quale identificatore usare
-in fase di visualizzazione, è il caso della scelta del valore di LOD. 
+in fase di visualizzazione: è il caso della scelta del valore di LOD. 
 Il numero di risultati può essere molto maggiore rispetto al numero di punti nel grafo, rendendo questa query molto importante
 ai fini della nostra valutazione.
 
@@ -182,8 +182,8 @@ WHERE {
 \subsubsection{Segmentazione tassonomica}
 
 Questa query è una variazione di quella precedente e invece di selezionare l'IRI della singola istanza di oggetto a cui un punto
-appartiene va a selezionare l'IRI della classificazione tassonomica dell'oggetto (figura~\ref{fig:tassonomia}). Qui invece andiamo direttamente a selezionare
-la classe tassonomica più specifica a cui appartiene il punto, con il filtro che rimuove tutti gli elementi che non sono foglie
+appartiene seleziona l'IRI della sua classificazione tassonomica (figura~\ref{fig:tassonomia}), e in particolare la classe
+tassonomica più specifica a cui il punto appartiene: il filtro rimuove tutti gli elementi che non sono foglie
 nell'albero tassonomico dell'ontologia.
 
 \begin{lstlisting}[language=SPARQL]
@@ -203,11 +203,11 @@ WHERE {
 
 Questa query viene utilizzata per individuare la profondità massima nell'albero mereologico dell'ontologia, definendo come
 classe a maggiore dettaglio una classe con un numero minore di elementi (figura~\ref{fig:mereologia}). Siccome ogni punto appartiene sia all'oggetto più specifico
-che a tutti i suoi antenati nell'albero mereologico (come spiegato prima, un punto è sia parte ad esempio di una colonna 
+che a tutti i suoi antenati nell'albero mereologico (come spiegato prima, un punto è parte sia, ad esempio, di una colonna
 che dell'edificio di cui la colonna è parte) è sufficiente contare il numero di oggetti di cui un punto è parte per ottenere la
 profondità richiesta. 
-Il risultato sarà un singolo valore per cui con questa query andiamo sì ad operare una vasta operazione di scorrimento e raggruppamento
-sull'intera nuvola ma la complessità di serializzazione e trasmissione del risultato è molto ridotta.
+Il risultato sarà un singolo valore, per cui con questa query operiamo sì una vasta scansione con raggruppamento
+sull'intera nuvola, ma la complessità di serializzazione e trasmissione del risultato è molto ridotta.
 
 \begin{lstlisting}[language=SPARQL]
 SELECT (MAX(?cnt) AS ?maxCount)
@@ -259,7 +259,7 @@ L'ultima query analizzata calcola la media della coordinata Z di tutti i punti, 
 nuvola. Attraversa quindi la stessa quantità di dati della query \emph{Seleziona tutto} ma senza raggruppamenti
 intermedi e con un risultato di una sola riga, per cui il tempo misurato dipende quasi soltanto dalla
 velocità con cui il motore scorre un predicato numerico e ne accumula i valori.
-Una media si presta inoltre ad essere divisa in sotto compiti i cui risultati parziali vengono poi integrati
+Una media si presta inoltre ad essere divisa in sottocompiti i cui risultati parziali vengono poi integrati
 in uno solo: il tempo riflette anche la capacità del motore di parallelizzare questo lavoro.
 
 \begin{lstlisting}[language=SPARQL]
@@ -274,39 +274,39 @@ WHERE {
 \label{sec:environment}
 
 L'ambiente di esecuzione è stato mantenuto il più possibile uguale durante le varie fasi di esecuzione del benchmark.
-È stata scelta una workstation con un'installazione linux senza particolari capacità di calcolo: lo scopo del test
+È stata scelta una workstation con un'installazione Linux senza particolari capacità di calcolo: lo scopo del test
 è valutare la predisposizione dei vari motori ad essere una base per un utilizzo più vasto di RDF e una prerogativa
 è che ciò sia possibile per un'utenza comune, senza accesso ad attrezzatura professionale o in ogni caso fuori dal comune.
 
 \subsection{Hardware}
 
-Il calcolatore utilizzato disponeva di un processore Intel Core di 13° generazione con 14 cores totali, 20 threads virtuali. Di questi,
-6 cores sono capaci di raggiungere una frequenza di clock di 5.4 GHz e 8 una frequenza di 4.1 GHz. È da notare come questa sia la 
+Il calcolatore utilizzato disponeva di un processore Intel Core di 13ª generazione con 14 core totali e 20 thread virtuali. Di questi,
+6 core sono capaci di raggiungere una frequenza di clock di 5,4 GHz e 8 una frequenza di 4,1 GHz. È da notare come questa sia la 
 frequenza di picco del turbo, per cui viene raramente mantenuta per più di qualche secondo durante l'esecuzione delle query 
 (che invece possono durare diversi minuti).
-\par Sulla macchina è inoltre disponibile un totale di 46.68 GiB (48 GB) di memoria RAM DDR5 operante a una frequenza di 
-4800 MHz, oltre che un totale di 56.00 GiB di memoria swap, quasi mai utilizzato se non per qualche processo di sistema.
-Va menzionato che la macchina dispone anche di un GPU NVIDIA GeForce RTX 4060 Max-Q, la quale però non viene sfruttata da nessuno dei
+\par Sulla macchina è inoltre disponibile un totale di 46,68 GiB (48 GB) di memoria RAM DDR5 operante a una frequenza di 
+4800 MHz, oltre che un totale di 56,00 GiB di memoria swap, quasi mai utilizzata se non per qualche processo di sistema.
+Va menzionato che la macchina dispone anche di una GPU NVIDIA GeForce RTX 4060 Max-Q, la quale però non viene sfruttata da nessuno dei
 motori presi in considerazione qui.
-\par Attraverso l'interfaccia ACPI messa a disposizione dal kernel linux è stato configurato un profilo piattaforma \texttt{performance} e
-il governatore \texttt{performance} per la CPU usando il driver \texttt{intel pstate}.
+\par Attraverso l'interfaccia ACPI messa a disposizione dal kernel Linux è stato configurato un profilo piattaforma \texttt{performance} e
+il governatore \texttt{performance} per la CPU usando il driver \texttt{intel\_pstate}.
 
 \subsection{Condizioni software}
 \label{ssec:cond_soft}
 
 Un problema che si ha analizzando le prestazioni di motori con architetture così diverse è la disomogeneità delle loro interfacce.
 Alcuni di questi vanno utilizzati come librerie (soprattutto per il linguaggio Python) mentre altri sono disponibili per essere
-eseguiti dentro dei container OCI e accessibili tramite l'interfaccia http di SPARQL, oppure attraverso degli strumenti
+eseguiti dentro dei container OCI e accessibili tramite l'interfaccia HTTP di SPARQL, oppure attraverso degli strumenti
 appositi via linea di comando. Questo genera non poche differenze nel tempo di esecuzione tra i motori che ritornano un risultato
 serializzato, via HTTP, e quelli che lo rendono disponibile nel loro formato nativo (strutture dati) direttamente nella memoria
-del processo. Per ovviare a questa distinzione è stato aggiunta un'interfaccia intermedia per l'accesso ai motori che non operano
+del processo. Per ovviare a questa distinzione è stata aggiunta un'interfaccia intermedia per l'accesso ai motori che non operano
 attraverso HTTP che introduce una serializzazione e comunicazione con un server HTTP locale avviato appositamente, oltre alla misurazione
 della latenza base di ogni motore tramite una semplice query vuota, che viene poi sottratta al risultato finale.
 \par Ad ogni modo, è difficile poter avere risultati affidabili e riproducibili soltanto con queste accortezze, i motori sono scatole
-chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazione di routine anche durante le nostre richieste. Per quindi ridurre
+chiuse a cui noi non abbiamo accesso e che potrebbero eseguire altre operazioni di routine anche durante le nostre richieste. Per quindi ridurre
 al minimo la varianza ogni query viene eseguita otto volte e viene poi scelto il tempo mediano come rappresentativo.
 Inoltre, per evitare la latenza data dalla lettura su disco iniziale del dataset, prima delle query che vengono effettivamente
-misurate ne vengono eseguite altre due identiche per caricare i file nella RAM cache diminuendo la casualità data dagli algoritmi 
+misurate ne vengono eseguite altre due identiche per caricare i file nella cache in RAM, diminuendo la casualità data dagli algoritmi 
 di paginazione e swapping. La figura~\ref{fig:pipeline} riassume il percorso completo di una misurazione.
 
 \begin{figure}[htb]
@@ -315,12 +315,12 @@ di paginazione e swapping. La figura~\ref{fig:pipeline} riassume il percorso com
   \caption{Come viene misurata una coppia motore/dataset. I motori disponibili come container OCI e quelli usati come libreria, avviati in un sottoprocesso che li espone via HTTP, convergono sullo stesso endpoint locale: il punto di misura è quindi lo stesso per tutti. Il ciclo in basso viene ripetuto per ogni query.}
   \label{fig:pipeline}
 \end{figure}
-\par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel linux versione \texttt{7.1.4} basato sulla
+\par È inoltre importante notare le versioni dei software utilizzati, nello specifico il kernel Linux versione \texttt{7.1.4} basato sulla
 build di NixOS unstable al commit \texttt{dbeacf1b40207b74fede8a8f97a7d6bcf8beee67} (il sistema è stato compilato senza ottimizzazioni
 per il processore specifico ma con una configurazione generica per \texttt{linux x86-64}). Il software eseguito invece è ottenibile in
 modo completamente riproducibile attraverso il gestore di pacchetti nix~\cite{dolstra2010nixos} dalla repository
 \url{https://github.com/SamueleFacenda/tesi-triennale}, di seguito verranno comunque riportate le versioni dei singoli motori
-utilizzate~\ref{sec:engines}
+utilizzate, nella sezione~\ref{sec:engines}.
 \par Infine, è stato predisposto un limite al tempo di esecuzione delle singole query, pari a 10 minuti, in primis perché un risultato
 maggiore non sarebbe interessante ai fini dell'analisi qui condotta, ma soprattutto per ridurre il tempo di esecuzione totale
 del benchmark (già intorno alle 40 ore), che verrebbe monopolizzato da un numero ridotto di query poco performanti
@@ -329,12 +329,12 @@ su pochi motori.
 \section{Motori analizzati}
 \label{sec:engines}
 
-Viene riportata, in ordine alfabetico una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
+Vengono riportate, in ordine alfabetico, una breve descrizione dei motori di query utilizzati, una spiegazione della motivazione
 che ha portato alla scelta del motore ed eventuali note che risultino interessanti al fine del benchmark.
 Per i vari motori è stata inoltre condotta una breve analisi delle prestazioni di serializzazione nei vari formati 
 supportati, come JSON e CSV, di modo da impiegarne uno ottimale e ridurre il tempo impiegato in questa fase. 
-Si anticipa che il formato prediletto è stato TSV (Tab Separated Values), simile a CSV ma che per i tipi di dati trattati 
-non richiede mai l'escape di nessun carattere (il carattere tab non è mai presente nei datasets).
+Si anticipa che il formato prediletto è stato TSV (Tab Separated Values), simile a CSV ma che, per i tipi di dati trattati,
+non richiede mai l'escape di nessun carattere (il carattere tab non è mai presente nei dataset).
 \par I loghi riportati a fianco delle descrizioni appartengono ai rispettivi titolari e sono usati qui
 al solo scopo di identificare il software di cui si parla. Per i motori che non ne pubblicano uno la
 descrizione resta senza marchio.
@@ -347,25 +347,24 @@ descrizione resta senza marchio.
 \end{wrapfigure}
 Fuseki è un server SPARQL basato su Apache Jena~\cite{carroll2004jena}, una delle soluzioni più popolari. È scritto
 in Java ed espone la propria interfaccia di inferenza, a cui è possibile collegare ragionatori OWL esterni come
-Pellet~\cite{sirin2007pellet}. È stato scelto per la sua popolarità mentre è stata usata 
-la versione \texttt{5.1.0} e il formato dei risultati utilizzato è TSV.
+Pellet~\cite{sirin2007pellet}. È stato scelto per la sua popolarità. Versione utilizzata: \texttt{5.1.0}; formato dei risultati: TSV.
 
-\subsection{Graphdb}
+\subsection{GraphDB}
 
 GraphDB, discendente diretto di OWLIM~\cite{bishop2011owlim}, è uno dei triple store più utilizzati in ambito
-aziendale, rinomato per le sue elevate prestazioni e per la quantità di features disponibili, come l'integrazione con
+aziendale, rinomato per le sue elevate prestazioni e per la quantità di funzionalità disponibili, come l'integrazione con
 un vasto numero di piattaforme usate nello sviluppo di applicazioni basate sui dati (ad esempio Apache Kafka o
 ElasticSearch)~\cite{ontotext-graphdb}.
-La versione utilizzata è la \texttt{10.7.0} mentre il formato dei risultati scelto è CSV.
+Versione utilizzata: \texttt{10.7.0}; formato dei risultati: CSV.
 
 \subsection{Owlready2}
 
 Owlready2~\cite{lamy2017owlready} è una libreria Python per la programmazione di ontologie che integra un layer di
-persistenza basato su SQLite con supporto per query SPARQL. È un motore essenzialmente differente rispetto a quelli fino ad adesso
-citati, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comparabili a
-prodotti molto più avanzati, soprattutto se usato come interfaccia diretta, visto che si va a ridurre la latenza
+persistenza basato su SQLite con supporto per query SPARQL. È un motore essenzialmente differente rispetto a quelli citati
+finora, che non fa delle prestazioni il suo punto di forza, ma che in pratica ottiene risultati comparabili a
+prodotti molto più avanzati, soprattutto se usato come interfaccia diretta, visto che si riduce la latenza
 data dal protocollo SPARQL su HTTP.
-La versione utilizzata è la \texttt{0.47}, con risultati in formato TSV.
+Versione utilizzata: \texttt{0.47}; formato dei risultati: TSV.
 
 \subsection{Oxigraph}
 
@@ -373,11 +372,11 @@ La versione utilizzata è la \texttt{0.47}, con risultati in formato TSV.
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/oxigraph.pdf}
 \end{wrapfigure}
-Come l'appena citato Owlready2, anche Oxigraph~\cite{tanon-oxigraph} a sua volta è una libreria integrabile direttamente
+Come l'appena citato Owlready2, anche Oxigraph~\cite{tanon-oxigraph} è una libreria integrabile direttamente
 dentro altri software. Scritta in Rust, è integrabile anche con Python e RDFLib~\cite{rdflib}, una delle librerie più usate
 nel settore. Si basa su RocksDB~\cite{dong2021rocksdb} come backend di persistenza e volendo può essere usata direttamente
 come server SPARQL HTTP.
-La versione utilizzata è la \texttt{0.5.0} e il formato dei risultati scelto è TSV.
+Versione utilizzata: \texttt{0.5.0}; formato dei risultati: TSV.
 
 \subsection{QEndpoint}
 
@@ -386,21 +385,21 @@ La versione utilizzata è la \texttt{0.5.0} e il formato dei risultati scelto è
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/qendpoint.pdf}
 \end{wrapfigure}
 QEndpoint~\cite{willerval2024qendpoint} è un triple store con supporto GeoSPARQL~\cite{ogc-geosparql11} (come GraphDB
-d'altronde) basato sul formato file HDT (Header, Dictionary, Triples)~\cite{fernandez2013hdt,martinezprieto2012hdt}. 
+d'altronde) basato sul formato di file HDT (Header, Dictionary, Triples)~\cite{fernandez2013hdt,martinezprieto2012hdt}. 
 Questo si pone come alternativa efficiente ai più comuni RDF-XML e Turtle, integrando un indice direttamente al suo interno e rendendone
 l'accesso molto veloce. QEndpoint fornisce quindi il supporto per query SPARQL e per le modifiche (che richiedono la creazione
 di un nuovo indice da capo), attraverso un buffer di scrittura che viene integrato periodicamente nel file sottostante.
-Questo permetterebbe di accedere molto velocemente a larghe porzioni del datasets, fattore per noi essenziale, grazie alla compressione
+Questo permetterebbe di accedere molto velocemente a larghe porzioni del dataset, fattore per noi essenziale, grazie alla compressione
 data dall'indicizzazione e alla struttura interna di HDT. 
-La versione utilizzata è la \texttt{2.5.2}, con risultati in formato TSV.
+Versione utilizzata: \texttt{2.5.2}; formato dei risultati: TSV.
 
 \subsection{QLever}
 
-QLever~\cite{bast2017qlever,bast2022qlever} è un motore open-source molto recente che mira a supportare l'esecuzioni di
-query SPARQL su datasets di grandi dimensioni
+QLever~\cite{bast2017qlever,bast2022qlever} è un motore open-source molto recente che mira a supportare l'esecuzione di
+query SPARQL su dataset di grandi dimensioni
 utilizzando hardware non professionale e con un consumo di risorse ridotto. Il codice, scritto in C++, contiene un vasto numero
-di ottimizzazioni avanzata a diversi livelli e supporta anch'esso l'integrazione come libreria.
-La versione utilizzata è la \texttt{0.5.42} mentre il formato dei risultati scelto è TSV.
+di ottimizzazioni avanzate a diversi livelli e supporta anch'esso l'integrazione come libreria.
+Versione utilizzata: \texttt{0.5.42}; formato dei risultati: TSV.
 
 \subsection{RDFLib}
 
@@ -408,12 +407,13 @@ La versione utilizzata è la \texttt{0.5.42} mentre il formato dei risultati sce
   \centering
   \includegraphics[width=2.4cm,height=1.2cm,keepaspectratio]{images/logos/rdflib.png}
 \end{wrapfigure}
-RDFLib~\cite{rdflib} è una popolare libreria Python per la creazione di applicazioni per il semantic web. Permette di usare Berkeley DB per
-la persistenza di un grafo in memoria, oltre che un vasto numero di altri motori, e supporta query le SPARQL in modo nativo.
+RDFLib~\cite{rdflib} è una popolare libreria Python per la creazione di applicazioni per il semantic web. Oltre alla modalità
+in memoria permette di usare Berkeley DB per la persistenza del grafo, come anche un vasto numero di altri backend, e supporta
+le query SPARQL in modo nativo.
 Considerata un punto di riferimento per lo standard RDF è stata scelta per la sua popolarità e per poter comparare le prestazioni
 di un software open-source integrabile da chiunque con motori proprietari e concessi su licenza (come GraphDB e RDFox).
-Vengono riportate le prestazione per il suo utilizzo senza configurazione e con la persistenza data da Berkeley DB attiva (rdflib-bdb).
-É stata utilizzata la versione \texttt{7.1.4} con risultati in formato CSV.
+Vengono riportate le prestazioni per il suo utilizzo senza configurazione e con la persistenza data da Berkeley DB attiva (RDFLib+BDB).
+Versione utilizzata: \texttt{7.1.4}; formato dei risultati: CSV.
 
 \subsection{RDFox}
 
@@ -423,8 +423,8 @@ Vengono riportate le prestazione per il suo utilizzo senza configurazione e con 
 \end{wrapfigure}
 RDFox~\cite{nenov2015rdfox} è un motore per grafi semantici che opera interamente all'interno della memoria RAM. È quindi molto interessante
 da comparare e potenzialmente permette di ridurre la latenza di risposta alle query a costo di un maggiore consumo di memoria.
-Sviluppato dall'Università di Oxford è disponibile solamente su licenza, la versione utilizzata è la \texttt{7.6} con risultati
-in formato CSV.
+Sviluppato dall'Università di Oxford, è disponibile solamente su licenza. Versione utilizzata: \texttt{7.6};
+formato dei risultati: CSV.
 
 \subsection{Virtuoso}
 
@@ -433,7 +433,7 @@ open-source. Virtuoso è un motore
 ibrido con supporto per un vasto numero di tipi di database, dai classici database relazionali SQL a formati non strutturati
 come RDF. Riesce inoltre a garantire delle prestazioni molto elevate, oltre a una versione disponibile su licenza con supporto
 e funzionalità aggiuntive.
-La versione utilizzata è la \texttt{7.2} con risultati in formato TSV.
+Versione utilizzata: \texttt{7.2}; formato dei risultati: TSV.
 
 \section{Risultati}
 \label{sec:results}
@@ -452,7 +452,7 @@ aggregati per ogni combinazione di motore, dataset e query, si trovano nell'appe
 \section{Analisi dei risultati}
 \label{sec:results_analysis}
 
-Dai risultati appena presentati si evince una serie di osservazioni:
+Dai risultati appena presentati si possono trarre alcune osservazioni:
 \begin{itemize}
 \item Motori come QLever e RDFox riescono a mantenere il tempo di esecuzione nell'ordine della decina di secondi in tutte le query 
 analizzate, al contrario di altri che richiedono diversi minuti. Lo si osserva nei grafici che mostrano i risultati dei singoli motori.
@@ -461,23 +461,23 @@ comparabili a quelle di motori avanzati come Fuseki e GraphDB, al contrario di R
 alcuni casi non riesce nemmeno a rendere disponibile il dataset.
 \end{itemize}
 
-È bene ricordare che i tempi osservati, come spiegato nella sezione \ref{ssec:cond_soft}, per alcuni motori non rappresentano
+È bene ricordare che i tempi osservati, come spiegato nella sezione~\ref{ssec:cond_soft}, per alcuni motori non rappresentano
 le prestazioni massime reali, in quanto è stato aggiunto un livello di comunicazione HTTP per rendere i risultati comparabili.
 Delle prestazioni migliori possono essere ottenute in delle configurazioni ad-hoc con i motori che supportano interfacce alternative
-ad HTTP
+ad HTTP.
 
-\par E alcune osservazioni, espresse per chiarire dei risultati che possono generare confusione:
+\par Seguono infine alcune osservazioni, utili a chiarire dei risultati che possono generare confusione:
 \begin{itemize}
-\item RDFLib nella versione base non ha a disposizione memoria sufficiente per caricare il dataset grande, mentre in quello
-medio tutte le query raggiungono il timeout prima di produrre alcun risultato.
-\item RDFLib con la persistenza data da Berkeley DB non viene analizzata sul dataset grande a causa delle esagerate dimensioni
-che andrebbe ad occupare su disco e per il fatto che presumibilmente produrrebbe soltanto risultati timeout. Data inoltre la sua scarsa
-rilevanza ai fini di questa tesi questa combinazione viene esclusa dall'analisi.
-\item Gli ultimi tre grafi sono riportati per completezza ma non rappresentano il fulcro dell'analisi qui condotta; i motori infatti
+\item RDFLib nella versione base non ha a disposizione memoria sufficiente per caricare il dataset Grande, mentre sul
+dataset Medio tutte le query raggiungono il timeout prima di produrre alcun risultato.
+\item RDFLib con la persistenza data da Berkeley DB non viene analizzato sul dataset Grande a causa dello spazio esagerato
+che occuperebbe su disco e per il fatto che presumibilmente produrrebbe soltanto risultati timeout. Data inoltre la sua scarsa
+rilevanza ai fini di questa tesi, la combinazione viene esclusa dall'analisi.
+\item Gli ultimi tre grafici sono riportati per completezza ma non rappresentano il fulcro dell'analisi qui condotta; i motori infatti
 sono stati configurati per ottenere le massime prestazioni in termini di velocità e gestione di dataset di grandi dimensioni.
 Sarebbe certamente possibile creare configurazioni che bilancino di più queste metriche.
-\item QEndpoint presenta un bug nella versione analizzata che rende impossibile condurre un caricamento di datasets sfruttando
-più processori, ne viene quindi usato uno soltanto, con un grande impatto facilmente osservabile. Ne risulta appunto come il
+\item QEndpoint presenta un bug nella versione analizzata che rende impossibile condurre un caricamento di dataset sfruttando
+più processori; ne viene quindi usato uno soltanto, con un grande impatto facilmente osservabile. Ne risulta il motore
 peggiore in quanto a prestazioni di caricamento.
 \item QLever è l'unico motore analizzato a conservare in cache il risultato completo di una query. Dato che
 ogni ripetizione invia esattamente lo stesso testo, le misurazioni sarebbero state letture dalla cache e non
@@ -488,9 +488,9 @@ che il risultato è incompleto. Le query rivolte a Virtuoso vengono quindi esegu
 \texttt{OFFSET} e \texttt{LIMIT}, esattamente come già avviene nel visualizzatore 3DOnt; i tempi delle pagine vengono sommati
 in un'unica misurazione. I risultati di Virtuoso sulle query che producono molte righe includono perciò il costo delle richieste
 aggiuntive, che è quanto un client deve effettivamente pagare per ottenere il risultato completo.
-\item Sempre Virtuoso interpreta in modo differente dallo standard SPARQL l'operatore Property Path \texttt{path*} (zero o più 
+\item Virtuoso, inoltre, interpreta in modo differente dallo standard SPARQL l'operatore Property Path \texttt{path*} (zero o più 
 ripetizioni dell'elemento), usato nelle query di segmentazione e gerarchia tassonomica. Dove possibile è stata eseguita una 
-query che usa operatori SPARQL alternativi per ottenere lo stesso risultato, con uguali risultati nel dataset 
-piccolo~\ref{ssub:dataset_piccolo}, ma che non sempre in tutti i datasets si è rivelata efficace. Le prestazioni di Virtuoso
+query che usa operatori SPARQL alternativi per ottenere lo stesso risultato, con esiti identici nel dataset
+Piccolo (sezione~\ref{ssub:dataset_piccolo}), ma che non in tutti i dataset si è rivelata efficace. Le prestazioni di Virtuoso
 su queste query sono quindi da considerare solo dopo aver valutato la correttezza dei suoi risultati, disponibili nell'appendice~\ref{cha:attachment}.
 \end{itemize}

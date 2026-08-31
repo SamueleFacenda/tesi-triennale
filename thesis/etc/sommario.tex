@@ -4,23 +4,23 @@
 
 Durante lo sviluppo del visualizzatore per 3DOnt, un framework che modella nuvole di punti di monumenti
 e ambienti urbani come grafi di conoscenza e permette una loro navigazione intuitiva, è sorta la sfida
-al raggiungimento di un'elevata interattivita: ogni interazione con l'interfaccia si riflette in un'interrogazione
+di raggiungere un'elevata interattività: ogni interazione con l'interfaccia si riflette in un'interrogazione
 sul dato sottostante, ma il solo caricamento di un progetto poteva richiedere diversi minuti. 
 L'utilizzo del giusto strumento per compiere queste operazioni ha permesso di scendere sotto la decina di secondi
 per la maggior parte di esse, ma la sua scelta non è stata semplice.
 
-\par Da questo spunto è nata una ricerca più approfondita che ha portato a questa tesi, ricerca posta a validare
+\par Da questo spunto è nata una ricerca più approfondita che ha portato a questa tesi, ricerca volta a validare
 questa scelta e rispondere a una domanda più generale: come si comporta RDF quando viene utilizzato per
 rappresentare e analizzare dei Big Data? 
 Le premesse sono promettenti, lo vediamo nell'esempio di 3DOnt dove
 rispetto a una nuvola di punti in un formato nativo (LAS, PCD) riusciamo a esprimere un elevato numero di informazioni
 aggiuntive, dalle relazioni tra punti e macro entità a qualunque altra nozione, essendo il grafo espandibile a piacimento.
-Il prezzo da pagare per questa espressività ed estensibilità è il numero di triple che corrispondono a una singola nuvola, per circa 
+Il prezzo da pagare per questa espressività ed estensibilità è il numero di triple che corrispondono a una singola nuvola: per circa 
 un milione di punti sono necessarie più di 10 milioni di triple, rendendo molte operazioni semplici estremamente difficoltose.
 
 \par Nello specifico, il carico di lavoro è anomalo rispetto a ciò per cui il semantic web
 è stato progettato. La potenza di RDF nei collegamenti infatti lo rende particolarmente adatto
-a query di tipo OLTP, dove si va a ricercare tra singole risorse connesse, mentre query di tipo OLAP,
+a query di tipo OLTP, dove si ricerca tra singole risorse connesse, mentre query di tipo OLAP,
 che possono richiedere la scansione e la serializzazione di milioni di righe, 
 mettono in difficoltà la maggior parte dei motori SPARQL.
 Queste sono peraltro poco coperte dai benchmark esistenti, il che ne rende necessaria la strutturazione
@@ -30,10 +30,10 @@ di uno apposito.
 visualizzatore di 3DOnt, scegliendo otto query reali che spaziano tra carichi di lavoro
 diversi. Queste sono state eseguite su quattro nuvole di dimensione varia, da
 circa uno a circa dieci milioni di punti, per un massimo di 156.937.172 triple, 
-andando a misurare il tempo di caricamento e spazio su disco utilizzato dalle nuvole
+misurando il tempo di caricamento e lo spazio su disco utilizzato dalle nuvole
 e per ogni query il tempo di esecuzione e l'utilizzo di memoria RAM.
 Per rendere omogenei i risultati tra i nove motori analizzati, scelti accuratamente per
-le loro prestazioni riferite, è stato sempre usato
+le prestazioni dichiarate, è stato sempre usato
 un endpoint HTTP locale per l'esecuzione delle query, ciascuna ripetuta otto volte
 per ridurre la varianza e solo dopo due ripetizioni di riscaldamento.
 L'intero ambiente è stato reso riproducibile con precisione attraverso l'uso di Nix
@@ -42,17 +42,17 @@ necessarie al completamento delle operazioni.
 
 \par Dai risultati emerge una certa varianza tra i motori: se per alcuni sarebbero necessarie
 ore per il completamento di alcune query, altri le eseguono velocemente in una decina di secondi,
-per un massimo di circa 20 secondi tra tutte le query su tutti i datasets. 
-Tra questi troviamo anche il motore scelto per il visualizzatore di 3DOnt, andando a confermare
+per un massimo di circa 20 secondi tra tutte le query su tutti i dataset. 
+Tra questi troviamo anche il motore scelto per il visualizzatore di 3DOnt, il che ne conferma
 la scelta con una solida base analitica, mentre osserviamo che motori maturi ed estremamente popolari
-possono avere risultati non dissimili da piccole librerie open-source. 
+possono avere risultati non dissimili da quelli di piccole librerie open-source. 
 Non mancano di certo i comportamenti anomali, con motori che non rispettano lo standard SPARQL
 nell'interpretazione delle query o che non reggono il passo in nessuna delle query più impegnative.
 
 \par I risultati portano quindi a delle conclusioni incoraggianti, le analisi
 possono essere completate con successo e in tempi ridotti su calcolatori ordinari. 
-Ciò non è però semplice al momento, la scelta tra i motori rimane estremamente limitata
+Ciò non è però semplice al momento: la scelta tra i motori rimane estremamente limitata
 e nessuno sembra abbastanza maturo per poter essere scelto in modo affidabile.
 La differenza di prestazioni rispetto a una soluzione senza RDF rimane sostanziale,
 dove però a controbilanciare troviamo una grandissima flessibilità, che apre scenari
-di applicazione tecnicamente irrealizzabili senza.
+di applicazione tecnicamente irrealizzabili senza di essa.
