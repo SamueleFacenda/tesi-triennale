@@ -89,6 +89,13 @@
 
   % Sommario
   \input{etc/sommario.tex}
+  % Interruzione reale dopo il sommario. Senza di essa il blocco del titolo
+  % "Introduzione" (0.59in di spazio prima piu' il titolo \Huge, indivisibile)
+  % compete con l'ultima riga del sommario per la fine della pagina: TeX chiude
+  % la pagina una riga prima e lascia quella riga orfana in cima alla pagina
+  % seguente, stirando in compenso i \parskip del sommario (flushbottom).
+  % Non costa facciate: l'Introduzione iniziava comunque nella pagina dopo.
+  \realclearpage
 
   % Capitoli
   \input{chapters/introduction.tex}
