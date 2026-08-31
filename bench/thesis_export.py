@@ -217,6 +217,14 @@ class ResultSet:
     def datasets_for(self, query: str) -> list[str]:
         return [d for d in self.datasets if self.applicable(query, d)]
 
+    def figure_states(self) -> set[str]:
+        """The cell states the query and engine figures can draw, so a caption documents
+        only the markers a reader will actually find (see `thesis_tables._marker_note`)."""
+        return {self.cell(e, d, q).state
+                for e in self.engines if self.has_data(e)
+                for d in self.datasets
+                for q in self.queries}
+
     def has_data(self, engine: str) -> bool:
         return any(self.cell(engine, d, q).plottable
                    for d in self.datasets for q in self.queries)

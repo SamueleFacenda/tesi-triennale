@@ -20,6 +20,11 @@ load, or an interrupted run). `n.d.` is decided by the same `Query.applies_to` t
 gates on, so a cell the run deliberately skipped is not reported as one it failed to
 reach.
 
+The figure captions spell out only the markers the run actually produced: the legend is
+built from the states present in the grid, so a marker no reader will find is not
+promised. With every dataset pinning a `points_object`, for instance, nothing is `n.d.`
+and the clause disappears on its own — and comes back if a later run needs it.
+
 Both directories must be **committed**: `nix build .#thesis` builds from the git tree, so
 untracked charts are invisible to it. To regenerate while a run is still in progress, copy
 `bench.db` and `config.json` elsewhere and point `--run-dir` at the copy — `BenchStore`

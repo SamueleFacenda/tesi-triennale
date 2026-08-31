@@ -30,14 +30,18 @@ _HEADER = ("% Generato da `kbench thesis`: non modificare a mano.\n"
 
 _PLOTS = "images/plots"
 
-_MARKER_NOTE = (
+_MARKER_INTRO = (
     "I tempi sono le mediane misurate meno la latenza base del motore, in scala "
     "logaritmica, e le barre verticali coprono l'intervallo fra minimo e massimo. "
     "Una barra appoggiata al limite inferiore dell'asse indica un tempo sotto il "
-    "millisecondo, non distinguibile da tale latenza. "
-    "\\textsf{TO} segnala il superamento del timeout, "
-    "\\textsf{n.d.} una query non applicabile al dataset, "
-    "\\textsf{n.e.} una misurazione non eseguita."
+    "millisecondo, non distinguibile da tale latenza."
+)
+
+# Only the markers `thesis_charts._query_bar` can actually draw, in reading order.
+_MARKER_LEGEND = (
+    (TIMEOUT, "\\textsf{TO} segnala il superamento del timeout"),
+    (NOT_APPLICABLE, "\\textsf{n.d.} una query non applicabile al dataset"),
+    (NOT_RUN, "\\textsf{n.e.} una misurazione non eseguita"),
 )
 
 _REASON_NOTE = {
@@ -118,23 +122,32 @@ def _figure(panels: list[tuple[str, str, str]], caption: str, label: str) -> str
     )
 
 
+def _marker_note(rs: ResultSet) -> str:
+    """The legend, restricted to the markers this run's figures really contain."""
+    states = rs.figure_states()
+    parts = [text for state, text in _MARKER_LEGEND if state in states]
+    return _MARKER_INTRO if not parts else f"{_MARKER_INTRO} {', '.join(parts)}."
+
+
 def _chunks(items: list, size: int) -> list[list]:
     return [items[i:i + size] for i in range(0, len(items), size)]
 
 
-def _figure_series(panels: list[tuple[str, str, str]], key: str, caption: str) -> list[str]:
+def _figure_series(panels: list[tuple[str, str, str]], key: str, caption: str,
+                   marker_note: str) -> list[str]:
     """Two panels per float; the legend note is spelled out once and referred to after."""
     chunks = _chunks(panels, 2)
     out = []
     for i, chunk in enumerate(chunks, start=1):
         counter = f" ({i} di {len(chunks)})" if len(chunks) > 1 else ""
-        note = _MARKER_NOTE if i == 1 else f"Notazione come nella figura~\\ref{{fig:{key}_1}}."
+        note = marker_note if i == 1 else f"Notazione come nella figura~\\ref{{fig:{key}_1}}."
         out.append(_figure(chunk, f"{caption}{counter}. {note}", f"fig:{key}_{i}"))
     return out
 
 
 def figures_tex(rs: ResultSet) -> str:
     out = [_HEADER]
+    marker_note = _marker_note(rs)
 
     query_panels = [
         (f"{_PLOTS}/q_{q}.png",
@@ -144,7 +157,8 @@ def figures_tex(rs: ResultSet) -> str:
     ]
     out += _figure_series(
         query_panels, "queries",
-        "Confronto fra i motori per singola query, raggruppati per dataset")
+        "Confronto fra i motori per singola query, raggruppati per dataset",
+        marker_note)
 
     engine_panels = [
         (f"{_PLOTS}/e_{e}.png",
@@ -154,7 +168,8 @@ def figures_tex(rs: ResultSet) -> str:
     ]
     out += _figure_series(
         engine_panels, "engines",
-        "Confronto fra le query per singolo motore, raggruppate per dataset")
+        "Confronto fra le query per singolo motore, raggruppate per dataset",
+        marker_note)
 
     out.append(_figure(
         [(f"{_PLOTS}/load_time.png", "Tempo di caricamento.", "fig:load_time"),
