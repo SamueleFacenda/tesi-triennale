@@ -33,6 +33,7 @@
 \usepackage{longtable}
 \usepackage{stackengine}
 \usepackage{etoolbox}
+\usepackage{float}
 % \intextsep resta a 0pt per il resto del documento: raggrupparlo rompe wrapfig,
 % che applica il \parshape al paragrafo *successivo* alla fine dell'ambiente.
 % Senza effetti pratici qui: gli unici float dopo il primo logo occupano pagine intere.
@@ -78,7 +79,7 @@
 
   % Ringraziamenti (opzionale, escluso dal conteggio delle facciate)
   \input{etc/acknowledgements}
-  \clearpage
+  \cleardoublepage
   \pagestyle{plain}
 
   % Inizio numerazione pagine in numeri arabi
@@ -86,20 +87,10 @@
 
   % Indice
   \tableofcontents
-  % Facciata bianca in stampa: il corpo del testo inizia su pagina dispari.
   \cleardoublepage
 
-  % Gruppo: successione dei capitoli senza interruzione di pagina.
-  % Nota DISI: il numero massimo di facciate (indice + sommario + capitoli) e' 30.
-  % Il gruppo disattiva \clearpage: se ne conserva una copia utilizzabile per svuotare
-  % la coda dei float e per le interruzioni volute (bibliografia, appendici).
-  \let\realclearpage\clearpage
-  \let\realcleardoublepage\cleardoublepage
   \begingroup
-  % Nessuna interruzione di pagina tra capitoli. Si usa \par (non vuoto) per uscire
-  % dal modo orizzontale: titlesec recente rifiuta \chapter in horizontal mode.
-  \renewcommand{\cleardoublepage}{\par}
-  \renewcommand{\clearpage}{\par}
+  
   % Formato del titolo del capitolo: "X  Titolo" invece di "Capitolo X / Titolo"
   \titleformat{\chapter} {\normalfont\Huge\bfseries}{\thechapter}{1em}{}
   \titlespacing*{\chapter}{0pt}{0.59in}{0.02in}
@@ -109,31 +100,26 @@
 
   % Sommario
   \input{etc/sommario.tex}
-  % Interruzione reale dopo il sommario. Senza di essa il blocco del titolo
-  % "Introduzione" (0.59in di spazio prima piu' il titolo \Huge, indivisibile)
-  % compete con l'ultima riga del sommario per la fine della pagina: TeX chiude
-  % la pagina una riga prima e lascia quella riga orfana in cima alla pagina
-  % seguente, stirando in compenso i \parskip del sommario (flushbottom).
-  % Non costa facciate: l'Introduzione iniziava comunque nella pagina dopo.
-  \realclearpage
+  \cleardoublepage
 
   % Capitoli
   \input{chapters/introduction.tex}
+  \cleardoublepage
+  
   \input{chapters/benchmark.tex}
+  \cleardoublepage
 
   % Conclusioni
   \input{etc/conclusions.tex}
+  \cleardoublepage
 
   \endgroup
-  \global\let\clearpage\realclearpage
-  \global\let\cleardoublepage\realcleardoublepage
 
   % Bibliografia (ordinamento alfabetico per autore)
-  % \clearpage prima di \addcontentsline: altrimenti l'indice registra la pagina precedente.
-  \clearpage
   \addcontentsline{toc}{chapter}{Bibliografia}
   \bibliographystyle{plain}
   \bibliography{bibliography.bib}
+  \cleardoublepage
 
   % Appendici (opzionale)
   \titleformat{\chapter} {\normalfont\Huge\bfseries}{Appendice \thechapter}{1em}{}

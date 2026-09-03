@@ -247,7 +247,7 @@ def _matrix_table(rs: ResultSet, caption: str, label: str, unit: str, value_of) 
     cols = "l" + "r" * len(rs.datasets)
     head = " & ".join(DATASET_LABEL.get(d, d) for d in rs.datasets)
     out = [
-        "\\begin{table}[htbp]\n\\centering\n\\begin{small}\n",
+        "\\begin{table}[H]\n\\centering\n\\begin{small}\n",
         f"\\begin{{tabular}}{{{cols}}}\n\\toprule\n",
         f"Motore & {head} \\\\\n",
         f" & \\multicolumn{{{len(rs.datasets)}}}{{c}}{{{unit}}} \\\\\n\\midrule\n",
