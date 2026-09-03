@@ -15,14 +15,14 @@ per-dataset ontology namespaces come from there. The results are written up in
 
 ![Select-all query time across ten engines and four datasets](thesis/images/plots/q_select_all.png)
 
-*One chart kbench produces: the `select_all` query — every point's coordinates and colour —
+*One chart kbench produces: the `select_all` query (every point's coordinates and colour)
 across ten engines and four datasets. Log axis, median of 8 repetitions net of each engine's
 connection floor, error bars over the repetitions. `TO` marks a timeout, `n.e.` a pair that
 was never run. QLever and RDFox stay an order of magnitude or more below the rest.*
 
 ## Quick start
 
-Everything is pinned with Nix — no other setup, no system packages to install.
+Everything is pinned with Nix: no other setup, no system packages to install.
 
 ```bash
 nix develop                      # or: direnv allow
@@ -54,13 +54,13 @@ to a print shop: black-and-white logo, and blank versos so ringraziamenti, indic
 each open on a right-hand page when printed double-sided.
 
 Some engines need credentials or licence files, and some datasets are large local files
-that are never copied into the repo — see [docs/engines.md](docs/engines.md) and
+that are never copied into the repo: see [docs/engines.md](docs/engines.md) and
 [docs/datasets.md](docs/datasets.md). Machine-local settings (licence paths, the identity
 of non-disclosable datasets) go in a gitignored `.env`, loaded automatically by direnv.
 
 ## The data
 
-Datasets are point clouds published as RDF by [3DOnt](https://3dom.fbk.eu/projects/3DOnt) — one graph per site,
+Datasets are point clouds published as RDF by [3DOnt](https://3dom.fbk.eu/projects/3DOnt): one graph per site,
 11M to 157M triples, queried the way the viewer queries them.
 
 <table>
@@ -70,9 +70,9 @@ Datasets are point clouds published as RDF by [3DOnt](https://3dom.fbk.eu/projec
     <td width="33%"><img src="thesis/images/nettuno.jpg" width="100%" alt="Temple of Neptune point cloud"></td>
   </tr>
   <tr>
-    <td><b>Piccolo</b> — Davutpasa campus, YTU3D.<br>1.07M points, 11.7M triples.</td>
-    <td><b>Medio</b> — Ghirlandina tower, Modena.<br>3.72M points, 38.9M triples.</td>
-    <td><b>Medio 2</b> — Temple of Neptune, Paestum.<br>2.79M points, 47.2M triples.</td>
+    <td><b>Piccolo</b>: Davutpasa campus, YTU3D.<br>1.07M points, 11.7M triples.</td>
+    <td><b>Medio</b>: Ghirlandina tower, Modena.<br>3.72M points, 38.9M triples.</td>
+    <td><b>Medio 2</b>: Temple of Neptune, Paestum.<br>2.79M points, 47.2M triples.</td>
   </tr>
 </table>
 
@@ -88,7 +88,7 @@ contents are not disclosable, so it has no picture here and is referred to only 
 | [Engines](docs/engines.md) | The ten engines, how each is packaged, how to add one |
 | [Queries and datasets](docs/datasets.md) | Query templates, what a dataset is, preparing the source graphs |
 | [Thesis output](docs/thesis.md) | Turning a finished run into charts and LaTeX |
-| [Known limitations](docs/notes.md) | What to know before trusting a number |
+| [Runtime notes](docs/notes.md) | Workarounds in place to have evertything working |
 
 ## Layout
 

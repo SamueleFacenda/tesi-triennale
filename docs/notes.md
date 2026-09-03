@@ -20,21 +20,6 @@ Behaviour worth knowing about before trusting a number, and the measurements beh
   same fix as the 3DOnt viewer) and the pages are summed into one measurement, so its
   timings for large results include the paging round-trips. The per-query timeout is the
   budget for the whole paged result, not per page.
-- **Virtuoso's tuning lives in `virtuoso.ini`, which the image writes only once** — on
-  the first boot into an empty `database/` dir, from the `VIRT_Parameters_*` env. Passing
-  the env alone would leave a resumed run serving with the ini its first load wrote,
-  silently ignoring every setting added since, so `VirtuosoEngine._patch_ini` rewrites
-  those keys in place before every start, from a throwaway root container. One of them has
-  to be there for the paged queries to work at all: `MaxSortedTopRows` is checked against
-  the `LIMIT` *value*, not against the number of rows that come back, so an ordered query
-  fails with `SR353` at `LIMIT 1000000` even when its answer is 55 rows.
-- **A server can outlive `stop()`.** A launcher that does not `exec` its server
-  (`qendpoint.sh`) is killed by the SIGTERM while the JVM it started is still running its
-  shutdown hook — and still listening. On qEndpoint's fixed port 1234 the next dataset's
-  health probe is then answered by that dying server, and every query of that dataset
-  fails with `connection refused` once it goes. So `stop()` returns only when the port is
-  actually free (SIGKILLing the leftover process group after a grace period), and `start()`
-  refuses a fixed port held by someone else instead of measuring their server.
 - **qLever's result cache is switched off** (`--cache-max-size 1B
   --cache-max-size-single-entry 1B` on `qlever start`). It is the only engine here that
   memoizes whole query results, and the runner sends the identical text for the warmups and
@@ -61,8 +46,6 @@ Behaviour worth knowing about before trusting a number, and the measurements beh
   OOM-killed load leaves a diagnosable trace. Signal deaths (e.g. SIGKILL from the OOM
   killer) are reported explicitly. If a big load is killed, lower `mem_fraction` /
   `memory_gb` — the budget already reserves ~25% of RAM for native/off-heap use.
-- qLever in docker mode: RSS sampling reflects the `docker run` client, not the container
-  (accurate only with native qLever binaries).
 
 ## SPARQL portability: Virtuoso and property paths
 
@@ -71,7 +54,7 @@ around answer-changing bugs in its property-path evaluation, not around a differ
 meaning: each variant was checked row-by-row against the portable text — on the Urban
 taxonomy and on a Heritage one with every class instantiated — not merely by row count.
 
-- **`chained_segmentation`** — Virtuoso answers the portable text with **0 rows**, HTTP 200
+- **`chained_segmentation`** Virtuoso answers the portable text with **0 rows**, HTTP 200
   and no warning, on every real dataset. The trigger is narrow: it returns the right answer
   for `?obj ?x` (104 rows on ytu3d) and collapses only once the million-row `?s` is
   projected alongside the transitive path. Nothing else moved it — reordering the pattern,
@@ -82,7 +65,7 @@ taxonomy and on a Heritage one with every class instantiated — not merely by r
   0), so the ordering is what forces Virtuoso to materialise the transitive derived table
   before the big join. It then returns 1 065 720 rows on ytu3d, matching the other nine
   engines.
-- **`taxonomical_hierarchy`** — a second, different path bug: chaining an arbitrary-length
+- **`taxonomical_hierarchy`** a second, different path bug: chaining an arbitrary-length
   path onto the output of the first (`?c rdfs:subClassOf* ?sup`, then
   `?sup rdfs:subClassOf+ root`) cuts the answer to 15 of 66 rows on ytu3d, and wrapping the
   `?sup2` path in `OPTIONAL` cuts it to 1. The `ORDER BY` trick above does not help. The
