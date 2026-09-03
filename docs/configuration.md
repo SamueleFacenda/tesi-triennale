@@ -29,9 +29,6 @@ A dataset name is one logical graph (`ytu3d`, `torre_modena`, and so on), not on
 picks a serialization it can read. `kbench list-datasets` shows what is present locally.
 Unknown keys, engines, datasets or queries are rejected at load time, not mid-run.
 
-`big.toml` is the configuration behind the thesis run; `small.toml` and `bench.toml` are
-smaller starting points.
-
 ## Memory / tuning
 
 Engines are configured for large datasets, not run on defaults. A single memory **budget**

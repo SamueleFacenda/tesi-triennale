@@ -1,7 +1,7 @@
 # The thesis run: ten engines over the four full graphs. Days of wall clock, hundreds of
 # GB of engine stores. It is resumable, so Ctrl-C and `kbench resume --run-dir runs/big`.
 #
-# Run with:  kbench run --config big.toml
+# Run with:  kbench run --config bench.toml
 # Full reference: docs/configuration.md
 
 run_name = "big"
