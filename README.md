@@ -113,3 +113,7 @@ docs/             the pages linked above
 nix/              custom derivations (qendpoint, qlever-control) copied from 3DOnt
 thesis/           the LaTeX thesis; `generated/` and `images/plots/` come from a run
 ```
+
+## License
+
+Distributed under the EUPL. See [LICENSE.md](LICENSE.md) for more information.
